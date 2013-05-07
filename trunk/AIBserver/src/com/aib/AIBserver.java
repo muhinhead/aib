@@ -7,6 +7,7 @@ package com.aib;
 import com.aib.dbutil.DbConnection;
 import com.aib.remote.IMessageSender;
 import com.aib.rmi.RmiMessageSender;
+import java.awt.Color;
 import java.awt.Image;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
@@ -27,6 +28,9 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import javax.swing.UnsupportedLookAndFeelException;
 
 /**
  *
@@ -38,7 +42,7 @@ public class AIBserver {
     public static final String PROPERTYFILENAME = "AIBserver.config";
     private static final String ICONNAME = "aib.png";
     private static Logger logger = null;
-    private static FileHandler fh; 
+    private static FileHandler fh;
     private static Thread rmiServer;
     private static TrayIcon ti;
     private static Properties props;
@@ -49,6 +53,7 @@ public class AIBserver {
     private static boolean isCycle = true;
     private static final int TIMESTEP = 60 * 1000;
     private static Thread backupThread;
+    public static final Color unformColor = new Color(102, 125, 158);
 
 //    private static boolean compareDbVersions() {
 //        try {
@@ -66,7 +71,6 @@ public class AIBserver {
 //        }
 //        return false;
 //    }
-
 //    private static void ftpUpload(String absolutePath) {
 //        throw new UnsupportedOperationException("Not yet implemented");
 //    }
@@ -103,7 +107,6 @@ public class AIBserver {
 //        }
 //        return ok;
 //    }
-
     /**
      * @return the version
      */
@@ -176,6 +179,12 @@ public class AIBserver {
                 System.out.println("Usage:\n\tcom.csa.cmc.AIBserver [port] (default 1099)");
             }
         } else {
+            try {
+                String theme = "com.sun.java.swing.plaf.nimbus.NimbusLookAndFeel";
+                UIManager.setLookAndFeel(theme);
+//                SwingUtilities.updateComponentTreeUI(this);
+            } catch (Exception ex) {
+            }
             props = new Properties();
             File propFile = new File(PROPERTYFILENAME);
             try {
@@ -296,7 +305,6 @@ public class AIBserver {
 //            }
 //        }
 //    }
-
 //    private static String findPath(String progname) {
 //        String initialName = progname;
 //        String runCmd = progname;
@@ -323,7 +331,6 @@ public class AIBserver {
 //        }
 //        return initialName;
 //    }
-
     public static Image loadImage(String iconName) {
         Image im = null;
         File f = new File("images/" + iconName);
@@ -414,7 +421,7 @@ public class AIBserver {
     }
 
     private static void showLog() {
-//        new LogViewDialog(getVersion(), DbConnection.DB_VERSION);
+        new LogViewDialog(getVersion(), DbConnection.DB_VERSION);
     }
 
     public static void setWindowIcon(Window w, String iconName) {

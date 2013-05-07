@@ -2,6 +2,7 @@ package com.aib;
 
 import com.xlend.util.PopupDialog;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.io.BufferedReader;
@@ -41,6 +42,10 @@ public class LogViewDialog extends PopupDialog {
         AIBserver.setWindowIcon(this, "aib.png");
     }
 
+    protected Color getHederBackground() {
+        return AIBserver.unformColor;
+    }
+
     protected void fillContent() {
         super.fillContent();
 //        String[] versions = (String[]) getObject();
@@ -52,7 +57,6 @@ public class LogViewDialog extends PopupDialog {
 
         JPanel btnPanel = new JPanel();
         btnPanel.add(sendLogBtn = new JButton(sendLogAction = new AbstractAction("Send log to developer") {
-
             public void actionPerformed(ActionEvent e) {
                 if (sendLog("mukhin.nick@gmail.com")) {
                     JOptionPane.showMessageDialog(null, "The server's log sent succesfully");
@@ -62,7 +66,6 @@ public class LogViewDialog extends PopupDialog {
             }
         }));
         btnPanel.add(closeBtn = new JButton(closeAction = new AbstractAction("Close") {
-
             public void actionPerformed(ActionEvent e) {
                 dispose();
             }
@@ -112,8 +115,8 @@ public class LogViewDialog extends PopupDialog {
         String AUTH = "true";
         String DEBUG = "true";
         String SOCKET_FACTORY = "javax.net.ssl.SSLSocketFactory";
-        String SUBJECT = "AIBserver server version:" + versions[0] 
-                + " db version:"+ versions[1] + " sent:" + Calendar.getInstance().getTime();
+        String SUBJECT = "AIBserver server version:" + versions[0]
+                + " db version:" + versions[1] + " sent:" + Calendar.getInstance().getTime();
         String PORT = "465";
         String HOST = "smtp.yandex.ru";
         String FROM = "nm250660@yandex.ru";
