@@ -5,11 +5,8 @@
 package com.aib;
 
 import com.aib.dbutil.DbConnection;
-import com.aib.orm.Dbversion;
 import com.aib.remote.IMessageSender;
 import com.aib.rmi.RmiMessageSender;
-import com.enterprisedt.net.ftp.FTPConnectMode;
-import com.enterprisedt.net.ftp.FileTransferClient;
 import java.awt.Image;
 import java.awt.MenuItem;
 import java.awt.PopupMenu;
@@ -18,14 +15,10 @@ import java.awt.TrayIcon;
 import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.rmi.Naming;
-import java.sql.Connection;
-import java.util.Calendar;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.logging.FileHandler;
@@ -34,7 +27,6 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
 
 /**
  *

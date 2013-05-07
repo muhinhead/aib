@@ -6,6 +6,7 @@ import com.xlend.util.TexturedPanel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -32,12 +33,13 @@ public class AboutDialog extends PopupDialog {
     }
 
     protected void fillContent() {
+        Color fg = new Color(102, 125, 158);
         super.fillContent();
         JPanel main = new TexturedPanel(BACKGROUNDIMAGE);
         getContentPane().add(main, BorderLayout.CENTER);
         ImagePanel img = new ImagePanel(AIBserver.loadImage(BACKGROUNDIMAGE));
         this.setMinimumSize(new Dimension(img.getWidth(), img.getHeight() + 25));
-        closeBtn = new JButton(closeAction = new AbstractAction("Close") {
+        closeBtn = new JButton(closeAction = new AbstractAction("Ok") {
             public void actionPerformed(ActionEvent e) {
                 dispose();
             }
@@ -45,13 +47,40 @@ public class AboutDialog extends PopupDialog {
 
         JLabel version = new JLabel("Version " + AIBserver.getVersion());
         version.setBounds(270, 60, version.getPreferredSize().width, version.getPreferredSize().height);
+        version.setForeground(fg);
         main.add(version);
 
         JLabel devBy = new JLabel("Nick Mukhin (mukhin.nick@gmail.com) (c) 2013");
-        devBy.setBounds(41, 110, devBy.getPreferredSize().width, devBy.getPreferredSize().height);
+        devBy.setFont(devBy.getFont().deriveFont(Font.ITALIC,10));
+        devBy.setBounds(41, 105, devBy.getPreferredSize().width, devBy.getPreferredSize().height);
+        devBy.setForeground(fg);
         main.add(devBy);
+        
+        JLabel str1 = new JLabel("A I B");
+        str1.setFont(str1.getFont().deriveFont(Font.BOLD,12));
+        str1.setBounds(200, 135, str1.getPreferredSize().width, str1.getPreferredSize().height);
+        str1.setForeground(fg);
+        main.add(str1);
 
-        closeBtn.setBounds(290, 170,
+        JLabel str2 = new JLabel("The Association for International Broadcasting");
+        str2.setFont(str2.getFont().deriveFont(Font.ITALIC|Font.BOLD,10));
+        str2.setBounds(43, 154, str2.getPreferredSize().width, str2.getPreferredSize().height);
+        str2.setForeground(fg);
+        main.add(str2);
+        
+        JLabel str3 = new JLabel("PO Box 141 | Cranbrook");
+        str3.setFont(str3.getFont().deriveFont(Font.ITALIC,10));
+        str3.setBounds(44, 173, str3.getPreferredSize().width, str3.getPreferredSize().height);
+        str3.setForeground(fg);
+        main.add(str3);
+        
+        JLabel str4 = new JLabel("TN17 9AJ | United Kingdom");
+        str4.setFont(str4.getFont().deriveFont(Font.ITALIC,10));
+        str4.setBounds(44, 185, str4.getPreferredSize().width, str4.getPreferredSize().height);
+        str4.setForeground(fg);
+        main.add(str4);
+
+        closeBtn.setBounds(285, 180,
                 closeBtn.getPreferredSize().width,
                 closeBtn.getPreferredSize().height);
 
