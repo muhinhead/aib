@@ -26,7 +26,7 @@ public class DashBoard extends AbstractDashBoard {
         super(title);
         this.exchanger = exchanger;
         addWindowListener(new DashBoard.WinListener(this));
-        setSize(new Dimension(750, 300));
+        setSize(new Dimension(550, 300));
         centerOnScreen();
         setVisible(true);
         setResizable(false);
