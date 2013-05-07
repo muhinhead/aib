@@ -93,7 +93,7 @@ public class LoginImagedDialog extends PopupDialog {
         Insets insets = getInsets();
         int dashWidth = img.getWidth();
         int dashHeight = img.getHeight();
-        int yShift = 60;
+        int yShift = 55;
         int xShift = 20;
 
         this.setMinimumSize(new Dimension(dashWidth + insets.left + insets.right - 8,
