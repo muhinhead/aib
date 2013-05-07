@@ -3,15 +3,12 @@ package com.aib.dbutil;
 //import com.xlend.AIBserver;
 //import com.xlend.orm.Xopmachassing;
 import com.aib.AIBserver;
-import com.aib.orm.dbobject.DbObject;
-import com.aib.orm.dbobject.ForeignKeyViolationException;
 import com.aib.rmi.RmiMessageSender;
 import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.sql.Connection;
-import java.sql.Date;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -45,16 +42,15 @@ public class DbConnection {
 //    };
     private static String[] fixLocalDBsqls = new String[]{
         "update dbversion set version_id = " + DB_VERSION_ID + ",version = '" + DB_VERSION + "'"
-          
     };
 
 
     public static String getLogin() {
-        return props.getProperty("dbUser", "sa");
+        return props.getProperty("dbUser", "root");
     }
 
     public static String getPassword() {
-        return props.getProperty("dbPassword", "");
+        return props.getProperty("dbPassword", "root");
     }
 
     public static String getBackupCommand() {
@@ -84,10 +80,10 @@ public class DbConnection {
             DriverManager.registerDriver(
                     (java.sql.Driver) Class.forName(
                     props.getProperty("dbDriverName",
-                    "org.hsqldb.jdbcDriver")).newInstance());
+                    "com.mysql.jdbc.Driver")).newInstance());
             connection = DriverManager.getConnection(
                     props.getProperty("dbConnection",
-                    "jdbc:hsqldb:file://" + getCurDir() + "/DB/AIBserver"),
+                    "jdbc:mysql://localhost/aibcontact1"),
                     getLogin(), getPassword());
             connection.setAutoCommit(true);
             RmiMessageSender.isMySQL = (connection.getClass().getCanonicalName().indexOf("mysql") > -1);
