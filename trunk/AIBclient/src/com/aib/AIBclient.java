@@ -34,7 +34,7 @@ import javax.swing.SpinnerNumberModel;
  */
 public class AIBclient {
 
-    public static final String version = "0.74.a";
+    private static final String version = "0.74.a";
 //    private static Userprofile currentUser;
     private static Logger logger = null;
     private static FileHandler fh;
@@ -49,7 +49,7 @@ public class AIBclient {
     public static void main(String[] args) {
         LookAndFeelFactory.installDefaultLookAndFeelAndExtension();
         String serverIP = readProperty("ServerAddress", "localhost");
-        IMessageSender exchanger;
+//        IMessageSender exchanger;
         while (true) {
             try {
                 exchanger = (IMessageSender) Naming.lookup("rmi://" + serverIP + "/AIBserver");
@@ -243,5 +243,12 @@ public class AIBclient {
 
     static void setExchanger(IMessageSender iMessageSender) {
         exchanger = iMessageSender;
+    }
+
+    /**
+     * @return the version
+     */
+    public static String getVersion() {
+        return version;
     }
 }
