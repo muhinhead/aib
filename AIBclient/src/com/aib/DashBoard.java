@@ -10,6 +10,7 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.HeadlessException;
+import java.awt.Window;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
@@ -19,12 +20,14 @@ import javax.swing.SwingConstants;
  * @author nick
  */
 public class DashBoard extends AbstractDashBoard {
+    static Window ourInstance;
 
     private final IMessageSender exchanger;
 
     public DashBoard(String title, IMessageSender exchanger) {
         super(title);
         this.exchanger = exchanger;
+        ourInstance = this;
         addWindowListener(new DashBoard.WinListener(this));
         setSize(new Dimension(550, 300));
         centerOnScreen();
@@ -40,7 +43,7 @@ public class DashBoard extends AbstractDashBoard {
     @Override
     protected void fillControlsPanel() throws HeadlessException {
         getContentPane().setLayout(new BorderLayout(10, 10));
-        SceneApplet sa = new SceneApplet();
+        SceneApplet sa = new DashBoardApplet();
         JPanel headerPanel = new JPanel();
         headerPanel.setBackground(new Color(102, 125, 158));
         JLabel lbl = new JLabel(getTitle(), SwingConstants.CENTER);
