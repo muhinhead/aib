@@ -46,11 +46,11 @@ public class DbConnection {
 
 
     public static String getLogin() {
-        return props.getProperty("dbUser", "root");
+        return props.getProperty("dbUser", "aib");
     }
 
     public static String getPassword() {
-        return props.getProperty("dbPassword", "root");
+        return props.getProperty("dbPassword", "qwerty");
     }
 
     public static String getBackupCommand() {
@@ -83,7 +83,8 @@ public class DbConnection {
                     "com.mysql.jdbc.Driver")).newInstance());
             connection = DriverManager.getConnection(
                     props.getProperty("dbConnection",
-                    "jdbc:mysql://localhost/aibcontact1"),
+//                    "jdbc:mysql://localhost/aibcontact1"
+                    "jdbc:mysql://ec2-23-22-145-131.compute-1.amazonaws.com/aibcontact1"),
                     getLogin(), getPassword());
             connection.setAutoCommit(true);
             RmiMessageSender.isMySQL = (connection.getClass().getCanonicalName().indexOf("mysql") > -1);
