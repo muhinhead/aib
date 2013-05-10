@@ -1,9 +1,11 @@
 package com.aib;
 
+import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
@@ -22,52 +24,74 @@ public class DashBoardApplet extends SceneApplet {
     private CompanyFrame companyFrame;
     private PeopleFrame peopleFrame;
     private LocationsFrame locationsFrame;
+    private ProgressIndicator waitIndicator;
 
     public DashBoardApplet() {
         super();
         action[0] = new Runnable() {
             @Override
             public void run() {
-                if (companyFrame == null) {
-                    companyFrame = new CompanyFrame(AIBclient.getExchanger());
-                } else {
-                    try {
-                        companyFrame.setLookAndFeel(AIBclient.readProperty("LookAndFeel",
-                                UIManager.getSystemLookAndFeelClassName()));
-                    } catch (Exception ex) {
+                showIndicator();
+                Thread r = new Thread() {
+                    public void run() {
+                        if (companyFrame == null) {
+                            companyFrame = new CompanyFrame(AIBclient.getExchanger());
+                        } else {
+                            try {
+                                companyFrame.setLookAndFeel(AIBclient.readProperty("LookAndFeel",
+                                        UIManager.getSystemLookAndFeelClassName()));
+                            } catch (Exception ex) {
+                            }
+                            companyFrame.setVisible(true);
+                        }
+                        hideIndicator();
                     }
-                    companyFrame.setVisible(true);
-                }
+                };
+                r.start();
             }
         };
         action[1] = new Runnable() {
             @Override
             public void run() {
-                if (peopleFrame == null) {
-                    peopleFrame = new PeopleFrame(AIBclient.getExchanger());
-                } else {
-                    try {
-                        peopleFrame.setLookAndFeel(AIBclient.readProperty("LookAndFeel",
-                                UIManager.getSystemLookAndFeelClassName()));
-                    } catch (Exception ex) {
+                showIndicator();
+                Thread r = new Thread() {
+                    public void run() {
+                        if (peopleFrame == null) {
+                            peopleFrame = new PeopleFrame(AIBclient.getExchanger());
+                        } else {
+                            try {
+                                peopleFrame.setLookAndFeel(AIBclient.readProperty("LookAndFeel",
+                                        UIManager.getSystemLookAndFeelClassName()));
+                            } catch (Exception ex) {
+                            }
+                            peopleFrame.setVisible(true);
+                        }
+                        hideIndicator();
                     }
-                    peopleFrame.setVisible(true);
-                }
+                };
+                r.start();
             }
         };
         action[2] = new Runnable() {
             @Override
             public void run() {
-                if (locationsFrame == null) {
-                    locationsFrame = new LocationsFrame(AIBclient.getExchanger());
-                } else {
-                    try {
-                        locationsFrame.setLookAndFeel(AIBclient.readProperty("LookAndFeel",
-                                UIManager.getSystemLookAndFeelClassName()));
-                    } catch (Exception ex) {
+                showIndicator();
+                Thread r = new Thread() {
+                    public void run() {
+                        if (locationsFrame == null) {
+                            locationsFrame = new LocationsFrame(AIBclient.getExchanger());
+                        } else {
+                            try {
+                                locationsFrame.setLookAndFeel(AIBclient.readProperty("LookAndFeel",
+                                        UIManager.getSystemLookAndFeelClassName()));
+                            } catch (Exception ex) {
+                            }
+                            locationsFrame.setVisible(true);
+                        }
+                        hideIndicator();
                     }
-                    locationsFrame.setVisible(true);
-                }
+                };
+                r.start();
             }
         };
         action[3] = new Runnable() {
@@ -78,11 +102,24 @@ public class DashBoardApplet extends SceneApplet {
         };
     }
 
+    private void showIndicator() {
+        waitIndicator.setVisible(true);
+    }
+
+    private void hideIndicator() {
+        Platform.runLater(new Runnable() {
+            @Override
+            public void run() {
+                waitIndicator.setVisible(false);
+            }
+        });
+    }
+
     @Override
     protected void createScene() {
         root = new BorderPane();
         root.setId("pane");
-        Scene dashBoardScene = new Scene(root, 900, 650, Color.DARKGRAY);
+        Scene dashBoardScene = new Scene(root, 900, 600, Color.DARKGRAY);
         dashBoardScene.getStylesheets().addAll(this.getClass().getResource("stylesheet.css").toExternalForm());
         fxContainer.setScene(dashBoardScene);
         addSceneContent(root);
@@ -98,5 +135,7 @@ public class DashBoardApplet extends SceneApplet {
             taskbar.getChildren().add(node);
         }
         root.setBottom(taskbar);
+        root.setTop(waitIndicator = new ProgressIndicator());
+        waitIndicator.setVisible(false);
     }
 }
