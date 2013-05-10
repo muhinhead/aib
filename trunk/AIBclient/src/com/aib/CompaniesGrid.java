@@ -4,6 +4,7 @@
  */
 package com.aib;
 
+import com.aib.orm.Company;
 import com.aib.remote.IMessageSender;
 import java.awt.event.ActionEvent;
 import java.rmi.RemoteException;
@@ -39,7 +40,17 @@ public class CompaniesGrid extends GeneralGridPanel {
 
             @Override
             public void actionPerformed(ActionEvent ae) {
-                GeneralFrame.notImplementedYet();
+                try {
+                    EditCompanyDialog ed = new EditCompanyDialog("Add Company", null);
+                    if (EditCompanyDialog.okPressed) {
+                        Company comp = (Company)ed.getEditPanel().getDbObject();
+                        GeneralFrame.updateGrid(exchanger,
+                                getTableView(), getTableDoc(), getSelect(), comp.getCompanyId(), 
+                                getPageSelector().getSelectedIndex());
+                    }
+                } catch (RemoteException ex) {
+                    AIBclient.logAndShowMessage(ex);
+                }
             }
         };
     }
