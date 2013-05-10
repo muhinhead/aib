@@ -1,0 +1,19 @@
+/* 
+    Document   : stylesheet
+    Created on : 09.05.2013, 19:50:55
+    Author     : nick
+    Description:
+        Purpose of the stylesheet follows.
+*/
+
+#AnchorPane{
+    -fx-background-image: url("images/background.png");
+    -fx-background-repeat: stretch;   
+    -fx-background-size: 900 650;
+    -fx-background-position: center center;
+    /*-fx-effect: dropshadow(three-pass-box, blue, 30, 0.5, 0, 0);*/ 
+}
+
+#dialogHeader{
+    -fx-background-color: #e29425
+}
