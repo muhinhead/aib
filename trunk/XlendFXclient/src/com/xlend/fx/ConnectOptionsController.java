@@ -21,7 +21,8 @@ import javafx.stage.FileChooser;
  */
 public class ConnectOptionsController extends GeneralController implements Initializable, ControlledScreen {
 
-    private ScreensController myController;
+//    private ScreensController myController;
+    
     @FXML
     TextField pathField;
 
@@ -40,7 +41,7 @@ public class ConnectOptionsController extends GeneralController implements Initi
     }
 
     @FXML
-    private void gotoOptionsScreen(ActionEvent event) {
+    private void gotoLoginScreen(ActionEvent event) {
         myController.setScreen(XlendFXclient.screenLoginID);
     }
 

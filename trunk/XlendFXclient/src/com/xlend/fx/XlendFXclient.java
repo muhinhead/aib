@@ -21,6 +21,8 @@ public class XlendFXclient extends Application {
     public static String screenLoginFile = "Login.fxml";
     public static String screenConnectOptionsID = "ConnectOptions";
     public static String screenConnectOptionsFile = "ConnectOptions.fxml";
+    public static String screenDashBoardID = "DashBoard";
+    public static String screenDashBoardFile = "DashBoard.fxml";
 
     @Override
     public void start(Stage stage) throws Exception {
@@ -28,6 +30,7 @@ public class XlendFXclient extends Application {
         ScreensController mainController = new ScreensController();
         mainController.loadScreen(screenLoginID, screenLoginFile);
         mainController.loadScreen(screenConnectOptionsID, screenConnectOptionsFile);
+        mainController.loadScreen(screenDashBoardID, screenDashBoardFile);
         
         mainController.setScreen(screenLoginID);
         
