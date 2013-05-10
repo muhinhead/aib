@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.net.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane id="AnchorPane" prefHeight="648.0" prefWidth="896.0" xmlns:fx="http://javafx.com/fxml" fx:controller="com.xlend.fx.DashBoardController">
+  <children>
+    <ImageView fitHeight="39.925927456524015" fitWidth="68.80850982666016" layoutX="90.0" layoutY="58.0" onMouseEntered="#handleMouseEnter" onMouseExited="#handleMouseExit" pickOnBounds="true" preserveRatio="true">
+      <effect>
+        <Reflection />
+      </effect>
+      <image>
+        <Image url="@images/admin.png" />
+      </image>
+    </ImageView>
+    <ImageView fitHeight="39.9259218381776" fitWidth="68.80850219726562" layoutX="737.0" layoutY="58.0" onMouseClicked="#gotoLoginScreen" onMouseEntered="#handleMouseEnter" onMouseExited="#handleMouseExit" pickOnBounds="true" preserveRatio="true">
+      <effect>
+        <Reflection />
+      </effect>
+      <image>
+        <Image url="@images/logout.png" />
+      </image>
+    </ImageView>
+    <HBox alignment="TOP_CENTER" fillHeight="true" layoutX="21.0" layoutY="421.0" prefHeight="100.0" prefWidth="854.0" spacing="25.0">
+      <children>
+        <ImageView fitHeight="80.0" fitWidth="80.0" onMouseEntered="#handleMouseEnter" onMouseExited="#handleMouseExit" pickOnBounds="true" preserveRatio="true">
+          <effect>
+            <Reflection />
+          </effect>
+          <image>
+            <Image url="@images/icon-1.png" />
+          </image>
+        </ImageView>
+        <ImageView fitHeight="80.0" fitWidth="80.0" onMouseEntered="#handleMouseEnter" onMouseExited="#handleMouseExit" pickOnBounds="true" preserveRatio="true">
+          <effect>
+            <Reflection />
+          </effect>
+          <image>
+            <Image url="@images/icon-2.png" />
+          </image>
+        </ImageView>
+        <ImageView fitHeight="80.0" fitWidth="80.0" onMouseEntered="#handleMouseEnter" onMouseExited="#handleMouseExit" pickOnBounds="true" preserveRatio="true">
+          <effect>
+            <Reflection />
+          </effect>
+          <image>
+            <Image url="@images/icon-3.png" />
+          </image>
+        </ImageView>
+        <ImageView fitHeight="80.0" fitWidth="80.0" onMouseEntered="#handleMouseEnter" onMouseExited="#handleMouseExit" pickOnBounds="true" preserveRatio="true">
+          <effect>
+            <Reflection />
+          </effect>
+          <image>
+            <Image url="@images/icon-4.png" />
+          </image>
+        </ImageView>
+        <ImageView fitHeight="80.0" fitWidth="80.0" onMouseEntered="#handleMouseEnter" onMouseExited="#handleMouseExit" pickOnBounds="true" preserveRatio="true">
+          <effect>
+            <Reflection />
+          </effect>
+          <image>
+            <Image url="@images/icon-5.png" />
+          </image>
+        </ImageView>
+        <ImageView fitHeight="80.0" fitWidth="80.0" onMouseEntered="#handleMouseEnter" onMouseExited="#handleMouseExit" pickOnBounds="true" preserveRatio="true">
+          <effect>
+            <Reflection />
+          </effect>
+          <image>
+            <Image url="@images/icon-6.png" />
+          </image>
+        </ImageView>
+        <ImageView fitHeight="80.0" fitWidth="80.0" onMouseEntered="#handleMouseEnter" onMouseExited="#handleMouseExit" pickOnBounds="true" preserveRatio="true">
+          <effect>
+            <Reflection />
+          </effect>
+          <image>
+            <Image url="@images/icon-7.png" />
+          </image>
+        </ImageView>
+        <ImageView fitHeight="80.0" fitWidth="80.0" onMouseEntered="#handleMouseEnter" onMouseExited="#handleMouseExit" pickOnBounds="true" preserveRatio="true">
+          <effect>
+            <Reflection />
+          </effect>
+          <image>
+            <Image url="@images/icon-8.png" />
+          </image>
+        </ImageView>
+      </children>
+    </HBox>
+  </children>
+  <stylesheets>
+    <URL value="@stylesheet.css" />
+  </stylesheets>
+</AnchorPane>

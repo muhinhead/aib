@@ -20,8 +20,7 @@ public class LoginController extends GeneralController implements Initializable,
 
     @FXML
     private void handleButtonAction(MouseEvent event) {
-        System.out.println("You clicked me!");
-//        label.setText("Hello World!");
+        myController.setScreen(XlendFXclient.screenDashBoardID);
     }
 
     @FXML
@@ -38,10 +37,5 @@ public class LoginController extends GeneralController implements Initializable,
     public void initialize(URL url, ResourceBundle rb) {
         // TODO
 //        System.out.println("initialize of LoginController");
-    }
-
-    @Override
-    public void setScreenParent(ScreensController screenParent) {
-        myController = screenParent;
     }
 }

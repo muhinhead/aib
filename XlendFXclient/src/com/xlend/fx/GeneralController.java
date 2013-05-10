@@ -70,4 +70,8 @@ public class GeneralController {
         getAnimationShrink(node).playFromStart();
     }
     
+    public void setScreenParent(ScreensController screenParent) {
+        myController = screenParent;
+    }
+    
 }

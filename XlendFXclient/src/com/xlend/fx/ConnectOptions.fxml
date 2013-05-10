@@ -55,7 +55,7 @@
     </TextField>
     <Button layoutX="267.0" layoutY="219.0" mnemonicParsing="false" onMouseEntered="#handleMouseEnter" onMouseExited="#handleMouseExit" text="Test connection" />
     <Button defaultButton="true" layoutX="679.0" layoutY="219.0" mnemonicParsing="false" onMouseEntered="#handleMouseEnter" onMouseExited="#handleMouseExit" text="Ok" />
-    <Button cancelButton="true" layoutX="739.0" layoutY="219.0" mnemonicParsing="false" onAction="#gotoOptionsScreen" onMouseEntered="#handleMouseEnter" onMouseExited="#handleMouseExit" text="Cancel" />
+    <Button cancelButton="true" layoutX="739.0" layoutY="219.0" mnemonicParsing="false" onAction="#gotoLoginScreen" onMouseEntered="#handleMouseEnter" onMouseExited="#handleMouseExit" text="Cancel" />
     <TextField blendMode="SRC_OVER" layoutX="266.0" layoutY="142.0" prefWidth="126.0">
       <effect>
         <Lighting>
@@ -69,6 +69,6 @@
       </effect>
     </TextField>
     <Separator layoutX="14.0" layoutY="195.0" prefHeight="10.0" prefWidth="869.0" />
-    <Button layoutX="14.0" layoutY="10.0" mnemonicParsing="false" onAction="#gotoOptionsScreen" text="&lt;" />
+    <Button layoutX="14.0" layoutY="10.0" mnemonicParsing="false" onAction="#gotoLoginScreen" text="&lt;" />
   </children>
 </AnchorPane>
