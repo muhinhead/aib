@@ -1,6 +1,10 @@
 package com.aib;
 
+import com.aib.orm.Industry;
+import com.aib.orm.Link;
 import com.aib.orm.User;
+import com.aib.orm.Worldregion;
+import com.aib.orm.dbobject.ComboItem;
 import com.aib.orm.dbobject.DbObject;
 import com.aib.remote.IMessageSender;
 import com.jidesoft.plaf.LookAndFeelFactory;
@@ -15,6 +19,7 @@ import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
+import java.util.Vector;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -42,6 +47,8 @@ public class AIBclient {
     private static final String PROPERTYFILENAME = "AIBclient.config";
     private static User currentUser;
     private static IMessageSender exchanger;
+    private static ComboItem[] regionsDictionary;
+    private static ComboItem[] countryDictionary;
 
     /**
      * @param args the command line arguments
@@ -54,7 +61,7 @@ public class AIBclient {
             try {
                 exchanger = (IMessageSender) Naming.lookup("rmi://" + serverIP + "/AIBserver");
                 if (login(exchanger)) {
-                    new DashBoard("AIBclient",exchanger);
+                    new DashBoard("AIBclient", exchanger);
                     break;
                 } else {
                     System.exit(1);
@@ -220,7 +227,7 @@ public class AIBclient {
         return props;
     }
 
-    public static List loadAllLogins(IMessageSender exchanger) {
+    public static List loadAllLogins() {
         try {
             DbObject[] users = exchanger.getDbObjects(User.class, null, "login");
             ArrayList logins = new ArrayList();
@@ -237,6 +244,54 @@ public class AIBclient {
         return null;
     }
 
+//    public static List loadAllRegions() {
+//        try {
+//            DbObject[] regions = exchanger.getDbObjects(Worldregion.class, null, null);
+//            ArrayList logins = new ArrayList();
+//            logins.add("");
+//            int i = 1;
+//            for (DbObject o : regions) {
+//                Worldregion wr = (Worldregion) o;
+//                logins.add(wr.getDescr());
+//            }
+//            return logins;
+//        } catch (RemoteException ex) {
+//            log(ex);
+//        }
+//        return null;
+//    }
+    private static ComboItem[] loadOnSelect(IMessageSender exchanger, String select) {
+        try {
+            Vector[] tab = exchanger.getTableBody(select);
+            Vector rows = tab[1];
+            ComboItem[] ans = new ComboItem[rows.size()];
+            for (int i = 0; i < rows.size(); i++) {
+                Vector line = (Vector) rows.get(i);
+                int id = Integer.parseInt(line.get(0).toString());
+                String tmvnr = line.get(1).toString();
+                ans[i] = new ComboItem(id, tmvnr);
+            }
+            return ans;
+        } catch (RemoteException ex) {
+            log(ex);
+        }
+        return new ComboItem[]{new ComboItem(0, "")};
+    }
+
+    public static ComboItem[] loadAllRegions() {
+        if (regionsDictionary == null) {
+            regionsDictionary = loadOnSelect(exchanger, "select worldregion_id, descr from worldregion");
+        }
+        return regionsDictionary;
+    }
+
+    public static ComboItem[] loadAllCountries() {
+        if (countryDictionary == null) {
+            countryDictionary = loadOnSelect(exchanger, "select country_id, country from country");
+        }
+        return countryDictionary;
+    }
+
     public static IMessageSender getExchanger() {
         return exchanger;
     }
@@ -250,5 +305,39 @@ public class AIBclient {
      */
     public static String getVersion() {
         return version;
+    }
+
+    public static List loadAllLinks() {
+        try {
+            DbObject[] linkArray = exchanger.getDbObjects(Link.class, null, "url");
+            ArrayList links = new ArrayList();
+            int i = 1;
+            links.add("");
+            for (DbObject o : linkArray) {
+                Link up = (Link) o;
+                links.add(up.getUrl());
+            }
+            return links;
+        } catch (RemoteException ex) {
+            log(ex);
+        }
+        return null;
+    }
+
+    static Object loadAllIndustries() {
+        try {
+            DbObject[] indArray = exchanger.getDbObjects(Industry.class, null, "descr");
+            ArrayList inds = new ArrayList();
+            int i = 1;
+            inds.add("");
+            for (DbObject o : indArray) {
+                Industry up = (Industry) o;
+                inds.add(up.getDescr());
+            }
+            return inds;
+        } catch (RemoteException ex) {
+            log(ex);
+        }
+        return null;
     }
 }

@@ -135,6 +135,7 @@ public class DashBoardApplet extends SceneApplet {
             taskbar.getChildren().add(node);
         }
         root.setBottom(taskbar);
+//        root.setTop(new HBox(20));
         root.setTop(waitIndicator = new ProgressIndicator());
         waitIndicator.setVisible(false);
     }

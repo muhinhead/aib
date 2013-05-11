@@ -26,6 +26,7 @@ public class DashBoard extends AbstractDashBoard {
 
     public DashBoard(String title, IMessageSender exchanger) {
         super(title);
+        AIBclient.setWindowIcon(this, "aib.png");
         this.exchanger = exchanger;
         ourInstance = this;
         addWindowListener(new DashBoard.WinListener(this));
