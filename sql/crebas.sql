@@ -2,7 +2,18 @@ create database if not exists aibcontact1 default character set=utf8 default col
 
 use aibcontact1;
 
-create table user 
+create table dbversion
+(
+    dbversion_id    int not null auto_increment,
+    version_id      int not null,
+    version         varchar(12),
+    constraint dbversion_pk primary key (dbversion_id)
+);
+
+insert into dbversion (dbversion_id,version_id,version) values (1,1,'0.1');
+
+
+create table user
 (
     user_id int not null auto_increment,
     first_name varchar(32) not null,
@@ -12,6 +23,8 @@ create table user
     passwd varchar(32),
     constraint user_pk primary key (user_id)
 );
+
+insert into user values(1,'Admin','Adminson','AA','admin','admin');
 
 create table worldregion 
 (
@@ -63,12 +76,12 @@ create table link
     constraint link_pk primary key (link_id)
 );
 
-create table company_link 
+create table complink
 (
-    company_link_id int not null auto_increment,
+    complink_id int not null auto_increment,
     company_id      int not null,
     link_id         int not null,
-    constraint complink_pk primary key (company_link_id),
+    constraint complink_pk primary key (complink_id),
     constraint complink_company_fk foreign key (company_id) references company (company_id) on delete cascade,
     constraint complink_link_fk foreign key (link_id) references link (link_id) on delete cascade
 );
@@ -80,12 +93,12 @@ create table industry
     constraint industry_pk primary key (industry_id)
 );
 
-create table company_industry 
+create table compindustry 
 (
-    company_industry_id int not null auto_increment,
+    compindustry_id int not null auto_increment,
     company_id          int not null,
     industry_id         int not null,
-    constraint compindustry_pk primary key (company_industry_id),
+    constraint compindustry_pk primary key (compindustry_id),
     constraint compindustry_company_fk foreign key (company_id) references company (company_id) on delete cascade,
     constraint compindustry_industry_fk foreign key (industry_id) references industry (industry_id) on delete cascade
 );
@@ -98,12 +111,12 @@ create table aibpublic
     constraint aibpublic_pk primary key (aibpublic_id)
 );
 
-create table company_aibpublic 
+create table comppublic 
 (
-    company_aibpublic_id int not null auto_increment,
+    comppublic_id int not null auto_increment,
     company_id           int not null,
     aibpublic_id         int not null,
-    constraint comppublic_pk primary key (company_aibpublic_id),
+    constraint comppublic_pk primary key (comppublic_id),
     constraint comppublic_company_fk foreign key (company_id) references company (company_id) on delete cascade,
     constraint comppublic_aibpublic_fk foreign key (aibpublic_id) references aibpublic (aibpublic_id) on delete cascade
 );
@@ -131,22 +144,22 @@ create table location
     constraint location_company_fk foreign key (company_id) references company (company_id)
 );
 
-create table location_industry 
+create table locindustry 
 (
-    location_industry_id int not null auto_increment,
+    locindustry_id int not null auto_increment,
     location_id          int not null,
     industry_id          int not null,
-    constraint locindustry_pk primary key (location_industry_id),
-    constraint locindustry_company_fk foreign key (company_id) references company (company_id) on delete cascade,
+    constraint locindustry_pk primary key (locindustry_id),
+    constraint locindustry_location_fk foreign key (location_id) references location (location_id) on delete cascade,
     constraint locindustry_industry_fk foreign key (industry_id) references industry (industry_id) on delete cascade
 ); 
 
-create table location_link 
+create table loclink 
 (
-    location_link_id int not null auto_increment,
+    loclink_id int not null auto_increment,
     location_id      int not null,
     link_id         int not null,
-    constraint loclink_pk primary key (location_link_id),
+    constraint loclink_pk primary key (loclink_id),
     constraint loclink_location_fk foreign key (location_id) references location (location_id) on delete cascade,
     constraint loclink_link_fk foreign key (link_id) references link (link_id) on delete cascade
 );
@@ -200,56 +213,56 @@ create table product
     constraint product_pk primary key (product_id)
 );
 
-create table people_product 
+create table peopleproduct 
 (
-    people_product_id int not null auto_increment,
+    peopleproduct_id int not null auto_increment,
     purchase_date     date not null,
     people_id         int not null,
     product_id        int not null,
-    constraint people_product_pk primary key (people_product_id),
-    constraint peoplprod_people_fk foreign key (people_id) references people (people_id) on delete cascade,
-    constraint peoplprod_product_fk foreign key (product_id) references product (product_id) on delete cascade
+    constraint peopleproduct_pk primary key (peopleproduct_id),
+    constraint peopleproduct_people_fk foreign key (people_id) references people (people_id) on delete cascade,
+    constraint peopleproduct_product_fk foreign key (product_id) references product (product_id) on delete cascade
 );
 
-create table people_interest 
+create table peopleinterest
 ( #-- purchase interest
-    people_interest_id int not null auto_increment,
+    peopleinterest_id int not null auto_increment,
     purchase_date     date not null,
     people_id         int not null,
     product_id        int not null,
     prospecting_level varchar(32),
     purchase_time     decimal(4,2),
-    constraint people_interest_pk primary key (people_interest_id),
-    constraint peoplinter_people_fk foreign key (people_id) references people (people_id) on delete cascade,
-    constraint peoplinter_product_fk foreign key (product_id) references product (product_id) on delete cascade
+    constraint peopleinterest_pk primary key (peopleinterest_id),
+    constraint peoplinterest_people_fk foreign key (people_id) references people (people_id) on delete cascade,
+    constraint peoplinterest_product_fk foreign key (product_id) references product (product_id) on delete cascade
 );
 
-create table people_link 
+create table peoplelink 
 (
-    people_link_id int not null auto_increment,
+    peoplelink_id int not null auto_increment,
     people_id      int not null,
     link_id        int not null,
-    constraint peoplelink_pk primary key (people_link_id),
+    constraint peoplelink_pk primary key (peoplelink_id),
     constraint peoplelink_people_fk foreign key (people_id) references people (people_id) on delete cascade,
     constraint peoplelink_link_fk foreign key (link_id) references link (link_id) on delete cascade
 );
 
-create table people_industry 
+create table peopleindustry 
 (
-    people_industry_id int not null auto_increment,
+    peopleindustry_id int not null auto_increment,
     people_id          int not null,
     industry_id        int not null,
-    constraint peopleindustry_pk primary key (people_industry_id),
+    constraint peopleindustry_pk primary key (peopleindustry_id),
     constraint peopleindustry_people_fk foreign key (people_id) references people (people_id) on delete cascade,
     constraint peopleindustry_industry_fk foreign key (industry_id) references industry (industry_id) on delete cascade
 ); 
 
-create table people_location 
+create table peopleloc 
 (
-    people_location_id int not null auto_increment,
+    peopleloc_id int not null auto_increment,
     people_id          int not null,
     location_id        int not null,
-    constraint people_location_pk primary key (people_location_id),
+    constraint peopleloc_pk primary key (peopleloc_id),
     constraint peopleloc_people_fk foreign key (people_id) references people (people_id) on delete cascade,
     constraint peopleloc_location_fk foreign key (location_id) references location (location_id) on delete cascade
 );
@@ -262,12 +275,12 @@ create table aibaward
     constraint aibaward_pk primary key (aibaward_id)
 );
 
-create table people_aibaward 
+create table peopleaward
 (
-    people_aibaward_id int not null auto_increment,
+    peopleaward_id int not null auto_increment,
     people_id          int not null,
     aibaward_id        int not null,
-    constraint people_aibaward_pk primary key (people_aibaward_id),
+    constraint peopleaward_pk primary key (peopleaward_id),
     constraint peopleaib_people_fk foreign key (people_id) references people (people_id) on delete cascade,
     constraint peopleaib_aibaward_fk foreign key (aibaward_id) references aibaward (aibaward_id) on delete cascade
 );
