@@ -47,7 +47,7 @@ public class LoginImagedDialog extends PopupDialog {
     private JPanel controlsPanel;
     private Java2sAutoComboBox loginField;
     private JPasswordField pwdField;
-    private static IMessageSender exchanger;
+//    private static IMessageSender exchanger;
     private static boolean okPressed;
 
     public LoginImagedDialog(Object obj) {
@@ -81,8 +81,9 @@ public class LoginImagedDialog extends PopupDialog {
                 AIBclient.log(ie);
             }
         }
-        exchanger = (IMessageSender) getObject();
-        loginField = new Java2sAutoComboBox(AIBclient.loadAllLogins(exchanger));
+//        exchanger = (IMessageSender) getObject();
+//        AIBclient.setExchanger(exchanger);
+        loginField = new Java2sAutoComboBox(AIBclient.loadAllLogins());
         loginField.setEditable(true);
         pwdField = new JPasswordField(20);
         controlsPanel = new JPanel(new BorderLayout());
@@ -138,7 +139,7 @@ public class LoginImagedDialog extends PopupDialog {
                 if (newAddress != null) {
                     AIBclient.getProperties().setProperty("ServerAddress", newAddress);
                     try {
-                        AIBclient.setExchanger(exchanger =
+                        AIBclient.setExchanger(
                                 (IMessageSender) Naming.lookup("rmi://"
                                 + newAddress + "/AIBserver"));
                     } catch (Exception ex) {
@@ -298,7 +299,7 @@ public class LoginImagedDialog extends PopupDialog {
                 String pwd = new String(pwdField.getPassword());
                 try {
                     //TODO: check MD5(pwd) instead of pwd
-                    DbObject[] users = exchanger.getDbObjects(User.class,
+                    DbObject[] users = AIBclient.getExchanger().getDbObjects(User.class,
                             "login='" + login + "' and passwd='" + pwd + "'", null);
                     okPressed = (users.length > 0);
                     if (isOkPressed()) {
