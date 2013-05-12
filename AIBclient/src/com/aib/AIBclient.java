@@ -1,5 +1,6 @@
 package com.aib;
 
+import com.aib.orm.Country;
 import com.aib.orm.Industry;
 import com.aib.orm.Link;
 import com.aib.orm.User;
@@ -48,7 +49,7 @@ public class AIBclient {
     private static User currentUser;
     private static IMessageSender exchanger;
     private static ComboItem[] regionsDictionary;
-    private static ComboItem[] countryDictionary;
+    private static Country[] countryDictionary;
 
     /**
      * @param args the command line arguments
@@ -285,11 +286,30 @@ public class AIBclient {
         return regionsDictionary;
     }
 
-    public static ComboItem[] loadAllCountries() {
+    public static Country[] loadAllCountries() {
         if (countryDictionary == null) {
-            countryDictionary = loadOnSelect(exchanger, "select country_id, country from country");
+            try {
+                DbObject[] clst = getExchanger().getDbObjects(Country.class, null, null);
+                countryDictionary = new Country[clst.length];
+                int n = 0;
+                for(DbObject itm : clst) {
+                    countryDictionary[n++] = (Country) itm;
+                }
+            } catch (RemoteException ex) {
+                log(ex);
+            }
         }
         return countryDictionary;
+    }
+
+    public static Object[] loadRegionCountries(int region_id) {
+        ArrayList<ComboItem> lst = new ArrayList<>();
+        for (Country c : loadAllCountries()) {
+            if (c.getWorldregionId().intValue()==region_id) {
+                lst.add(new ComboItem(c.getCountryId(),c.getCountry()));
+            }
+        }
+        return lst.toArray();
     }
 
     public static IMessageSender getExchanger() {
