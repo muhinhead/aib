@@ -1,5 +1,6 @@
 package com.aib;
 
+import com.aib.orm.Aibpublic;
 import com.aib.orm.Country;
 import com.aib.orm.Industry;
 import com.aib.orm.Link;
@@ -292,7 +293,7 @@ public class AIBclient {
                 DbObject[] clst = getExchanger().getDbObjects(Country.class, null, null);
                 countryDictionary = new Country[clst.length];
                 int n = 0;
-                for(DbObject itm : clst) {
+                for (DbObject itm : clst) {
                     countryDictionary[n++] = (Country) itm;
                 }
             } catch (RemoteException ex) {
@@ -305,8 +306,8 @@ public class AIBclient {
     public static Object[] loadRegionCountries(int region_id) {
         ArrayList<ComboItem> lst = new ArrayList<>();
         for (Country c : loadAllCountries()) {
-            if (c.getWorldregionId().intValue()==region_id) {
-                lst.add(new ComboItem(c.getCountryId(),c.getCountry()));
+            if (c.getWorldregionId().intValue() == region_id) {
+                lst.add(new ComboItem(c.getCountryId(), c.getCountry()));
             }
         }
         return lst.toArray();
@@ -344,7 +345,7 @@ public class AIBclient {
         return null;
     }
 
-    static Object loadAllIndustries() {
+    public static List loadAllIndustries() {
         try {
             DbObject[] indArray = exchanger.getDbObjects(Industry.class, null, "descr");
             ArrayList inds = new ArrayList();
@@ -359,5 +360,39 @@ public class AIBclient {
             log(ex);
         }
         return null;
+    }
+
+    public static List loadAllAIBmentions() {
+        try {
+            DbObject[] aibArray = exchanger.getDbObjects(Aibpublic.class, null, "pub_date desc");
+            ArrayList pubs = new ArrayList();
+            int i = 1;
+            pubs.add("");
+            for (DbObject o : aibArray) {
+                Aibpublic aibPub = (Aibpublic) o;
+                pubs.add(aibPub.getPublication() + " (" + aibPub.getPubDate() + ")");
+            }
+            return pubs;
+        } catch (RemoteException ex) {
+            log(ex);
+        }
+        return null;
+    }
+
+    public static boolean publicationNotExist(String publicationWithDate) {
+        int qty = 0;
+        int p = publicationWithDate.indexOf("(");
+        if (p > 0) {
+            String publication = publicationWithDate.substring(0, p).trim();
+            String pubDate = publicationWithDate.substring(p + 1, publicationWithDate.indexOf(")"));
+            try {
+                qty = exchanger.getCount(
+                        "select aibpublic_id from aibpublic where publication='"
+                        + publication + "' and pub_date='" + pubDate + "'");
+            } catch (RemoteException ex) {
+                log(ex);
+            }
+        }
+        return qty == 0;
     }
 }

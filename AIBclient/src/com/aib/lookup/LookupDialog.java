@@ -1,5 +1,8 @@
-package com.aib;
+package com.aib.lookup;
 
+import com.aib.AIBclient;
+import com.aib.GeneralFrame;
+import com.aib.GeneralGridPanel;
 import com.aib.orm.dbobject.ComboItem;
 import com.xlend.util.PopupDialog;
 import java.awt.BorderLayout;

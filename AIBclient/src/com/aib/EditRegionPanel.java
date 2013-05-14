@@ -9,10 +9,7 @@ import com.aib.orm.Worldregion;
 import com.aib.orm.dbobject.DbObject;
 import com.jidesoft.swing.JideTabbedPane;
 import java.rmi.RemoteException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.JComponent;
-import javax.swing.JPanel;
 import javax.swing.JTextField;
 
 /**
