@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 import javax.swing.AbstractAction;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -27,7 +28,6 @@ public class CompaniesGrid extends GeneralGridPanel {
 
     static {
         maxWidths.put(0, 40);
-//        maxWidths.put(1, 140);
     }
 
     public CompaniesGrid(IMessageSender exchanger) throws RemoteException {
@@ -61,7 +61,17 @@ public class CompaniesGrid extends GeneralGridPanel {
 
             @Override
             public void actionPerformed(ActionEvent ae) {
-                GeneralFrame.notImplementedYet();
+                int id = getSelectedID();
+                try {
+                    Company comp = (Company) exchanger.loadDbObjectOnID(Company.class, id);
+                    new EditCompanyDialog("Edit Company", comp);
+                    if (EditCompanyDialog.okPressed) {
+                        GeneralFrame.updateGrid(exchanger, getTableView(),
+                                getTableDoc(), getSelect(), id, getPageSelector().getSelectedIndex());
+                    }
+                } catch (RemoteException ex) {
+                    AIBclient.logAndShowMessage(ex);
+                }
             }
         };
     }
@@ -72,7 +82,17 @@ public class CompaniesGrid extends GeneralGridPanel {
 
             @Override
             public void actionPerformed(ActionEvent ae) {
-                GeneralFrame.notImplementedYet();
+                int id = getSelectedID();
+                try {
+                    Company comp = (Company) exchanger.loadDbObjectOnID(Company.class, id);
+                    if (comp != null && GeneralFrame.yesNo("Attention!", "Do you want to delete record?") == JOptionPane.YES_OPTION) {
+                        exchanger.deleteObject(comp);
+                        GeneralFrame.updateGrid(exchanger, getTableView(), getTableDoc(),
+                                getSelect(), null, getPageSelector().getSelectedIndex());
+                    }
+                } catch (RemoteException ex) {
+                    AIBclient.logAndShowMessage(ex);
+                }
             }
         };
     }

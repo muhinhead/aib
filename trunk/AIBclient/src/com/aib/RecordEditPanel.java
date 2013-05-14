@@ -17,6 +17,7 @@ import javax.swing.text.MaskFormatter;
  */
 public abstract class RecordEditPanel extends JPanel {
 
+    protected static final String DD_MM_YYYY = "dd/MM/yyyy";
     protected static final String SELECT_HERE = "--select here--";
     private DbObject dbObject;
     protected JPanel lblPanel;
@@ -141,7 +142,7 @@ public abstract class RecordEditPanel extends JPanel {
         return fld.getText();
     }
 
-    protected static void alignPanelOnWidth(JComponent one, JComponent two) {
+    public static void alignPanelOnWidth(JComponent one, JComponent two) {
         Dimension a = one.getPreferredSize();
         Dimension b = two.getPreferredSize();
         int width = a.width > b.width ? a.width : b.width;
@@ -162,7 +163,7 @@ public abstract class RecordEditPanel extends JPanel {
 //        }
 //    }
 
-    protected static void selectComboItem(JComboBox cb, Integer id) {
+    public static void selectComboItem(JComboBox cb, Integer id) {
         for (int i = 0; id != null && i < cb.getItemCount(); i++) {
             ComboItem itm = (ComboItem) cb.getItemAt(i);
             if (itm.getId() == id) {
@@ -178,7 +179,7 @@ public abstract class RecordEditPanel extends JPanel {
         }
     }
 
-    protected static MaskFormatter createFormatter(String s) {
+    public static MaskFormatter createFormatter(String s) {
         MaskFormatter formatter = null;
         try {
             formatter = new MaskFormatter(s);
@@ -188,7 +189,7 @@ public abstract class RecordEditPanel extends JPanel {
         return formatter;
     }
 
-    protected static JComponent getBorderPanel(JComponent[] comps) {
+    public static JComponent getBorderPanel(JComponent[] comps) {
         JPanel ans = new JPanel(new BorderLayout());
         if (comps != null && comps.length > 0) {
             if (comps[0] != null) {
@@ -204,7 +205,7 @@ public abstract class RecordEditPanel extends JPanel {
         return ans;
     }
 
-    protected static JComponent getGridPanel(JComponent comp, int ceils) {
+    public static JComponent getGridPanel(JComponent comp, int ceils) {
         JPanel ans = new JPanel(new GridLayout(1, ceils));
         ans.add(comp);
         for (int i = 1; i < ceils; i++) {
@@ -213,7 +214,7 @@ public abstract class RecordEditPanel extends JPanel {
         return ans;
     }
 
-    protected static JComponent getGridPanel(JComponent[] comps) {
+    public static JComponent getGridPanel(JComponent[] comps) {
         JPanel ans = new JPanel(new GridLayout(1, comps.length, 5, 1));
         for (int i = 0; i < comps.length; i++) {
             ans.add(comps[i]);
@@ -221,7 +222,7 @@ public abstract class RecordEditPanel extends JPanel {
         return ans;
     }
 
-    protected static JComponent getGridPanel(JComponent[] comps, int ceils) {
+    public static JComponent getGridPanel(JComponent[] comps, int ceils) {
         ceils = (comps.length > ceils ? comps.length : ceils);
         JPanel ans = new JPanel(new GridLayout(1, ceils));
         for (int i = 0; i < ceils; i++) {
@@ -234,12 +235,12 @@ public abstract class RecordEditPanel extends JPanel {
         return ans;
     }
 
-    protected static Integer getSelectedCbItem(JComboBox cb) {
+    public static Integer getSelectedCbItem(JComboBox cb) {
         ComboItem ci = (ComboItem) cb.getSelectedItem();
         return ci == null || ci.getId() == 0 ? null : ci.getId();
     }
 
-    protected static String getSelectedCbValue(JComboBox cb) {
+    public static String getSelectedCbValue(JComboBox cb) {
         ComboItem ci = (ComboItem) cb.getSelectedItem();
         return ci == null || ci.getId() == 0 ? "" : ci.getValue();
     }

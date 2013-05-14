@@ -2,8 +2,9 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.aib;
+package com.aib.lookup;
 
+import com.aib.RecordEditPanel;
 import com.xlend.util.Java2sAutoComboBox;
 import com.xlend.util.PopupDialog;
 import java.awt.BorderLayout;
@@ -11,16 +12,11 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
-import java.awt.PopupMenu;
 import java.awt.event.ActionEvent;
-import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.AbstractListModel;
-import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -28,8 +24,6 @@ import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTextField;
-import javax.swing.ListModel;
-import javax.swing.event.ListDataListener;
 
 /**
  *
@@ -131,7 +125,7 @@ public class ListInTextFieldDialog extends PopupDialog {
         };
 
         JScrollPane sp = new JScrollPane(urlJList = new JList(listModel));
-        sp.setPreferredSize(new Dimension(sp.getPreferredSize().width, 400));
+        sp.setPreferredSize(new Dimension(400, 400));
         cPanel.add(sp, BorderLayout.CENTER);
         cPanel.add(new JPanel(), BorderLayout.EAST);
         cPanel.add(new JPanel(), BorderLayout.WEST);
@@ -152,12 +146,19 @@ public class ListInTextFieldDialog extends PopupDialog {
                         }
                     }
                     if (toAdd) {
-                        selectedItems.add(url);
-                        urlJList.updateUI();
+                        if (additionalDialog(url)) {
+                            selectedItems.add(url);
+                            urlJList.updateUI();
+                        }
                     }
                 }
             }
         };
+    }
+
+    protected boolean additionalDialog(String url) {
+        //Implement additional dialog here
+        return true;
     }
 
     private AbstractAction getClearAllAction() {
