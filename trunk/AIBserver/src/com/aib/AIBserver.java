@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.rmi.Naming;
+import java.sql.SQLException;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.logging.FileHandler;
@@ -125,12 +126,21 @@ public class AIBserver {
         }
     }
 
+    private static void closeAllConnections() {
+        try {
+            DbConnection.closeAllConnections();
+        } catch (SQLException ex) {
+            log(ex);
+        }
+    }
+
     private static class CtrlCtrapper extends Thread {
 
         private Timer oTimer;
 
         public CtrlCtrapper(Timer p_oTimer) {
             super();
+            closeAllConnections();
             oTimer = p_oTimer;
         }
 
@@ -214,6 +224,7 @@ public class AIBserver {
 //                    runSyncService();
                 } catch (Exception ex) {
                     log("RMI server trouble: " + ex.getMessage());
+                    closeAllConnections();
                     System.exit(1);
                 }
             }
@@ -362,6 +373,7 @@ public class AIBserver {
                 public void actionPerformed(ActionEvent e) {
                     rmiServer.stop();
                     isCycle = false;
+                    closeAllConnections();
                     System.exit(0);
                 }
             });
@@ -416,6 +428,7 @@ public class AIBserver {
         } catch (Exception ex) {
             log("RMI server trouble: " + ex.getMessage());
             isCycle = false;
+            closeAllConnections();
             System.exit(2);
         }
     }

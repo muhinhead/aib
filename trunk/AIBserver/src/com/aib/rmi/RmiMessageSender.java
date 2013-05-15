@@ -84,7 +84,7 @@ public class RmiMessageSender extends java.rmi.server.UnicastRemoteObject implem
         DbObject dbob = null;
         try {
             Constructor constructor = dbobClass.getConstructor(Connection.class);
-            dbob = (DbObject) constructor.newInstance(DbConnection.getConnection());
+            dbob = (DbObject) constructor.newInstance(connection);//DbConnection.getConnection());
             return dbob.loadOnId(id);
         } catch (Exception ex) {
             AIBserver.log(ex);
@@ -406,6 +406,12 @@ public class RmiMessageSender extends java.rmi.server.UnicastRemoteObject implem
             try {
                 ps.close();
             } catch(Exception e){}
+            try {
+                DbConnection.closeConnection(connection);
+            } catch (SQLException ex) {
+                AIBserver.log(ex);
+                throw new java.rmi.RemoteException(ex.getMessage());
+            }
         }
         return ok;
     }
