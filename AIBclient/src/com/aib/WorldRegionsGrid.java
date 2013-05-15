@@ -46,6 +46,7 @@ public class WorldRegionsGrid extends GeneralGridPanel {
                 try {
                     EditRegionDialog ed = new EditRegionDialog("Add Region", null);
                     if (EditRegionDialog.okPressed) {
+                        AIBclient.clearRegionsAndCountries();
                         Worldregion region = (Worldregion)ed.getEditPanel().getDbObject();
                         GeneralFrame.updateGrid(exchanger,
                                 getTableView(), getTableDoc(), getSelect(), region.getWorldregionId(), 
@@ -68,6 +69,7 @@ public class WorldRegionsGrid extends GeneralGridPanel {
                     Worldregion region = (Worldregion) exchanger.loadDbObjectOnID(Worldregion.class, id);
                     new EditRegionDialog("Edit Region", region);
                     if (EditRegionDialog.okPressed) {
+                        AIBclient.clearRegionsAndCountries();
                         GeneralFrame.updateGrid(exchanger, getTableView(),
                                 getTableDoc(), getSelect(), id, getPageSelector().getSelectedIndex());
                     }
@@ -87,6 +89,7 @@ public class WorldRegionsGrid extends GeneralGridPanel {
                 try {
                     Worldregion region = (Worldregion) exchanger.loadDbObjectOnID(Worldregion.class, id);
                     if (region != null && GeneralFrame.yesNo("Attention!", "Do you want to delete record?") == JOptionPane.YES_OPTION) {
+                        AIBclient.clearRegionsAndCountries();
                         exchanger.deleteObject(region);
                         GeneralFrame.updateGrid(exchanger, getTableView(), getTableDoc(),
                                 getSelect(), null, getPageSelector().getSelectedIndex());
