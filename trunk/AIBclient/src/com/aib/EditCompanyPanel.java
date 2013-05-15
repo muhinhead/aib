@@ -11,6 +11,7 @@ import static com.aib.RecordEditPanel.getGridPanel;
 import com.aib.lookup.PublicationsListInTextFieldDialog;
 import com.aib.lookup.WorldRegionLookupAction;
 import com.aib.orm.Company;
+import com.aib.orm.User;
 import com.aib.orm.dbobject.ComboItem;
 import com.aib.orm.dbobject.DbObject;
 import com.jidesoft.swing.JideTabbedPane;
@@ -23,9 +24,12 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
+import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
@@ -72,6 +76,19 @@ class EditCompanyPanel extends EditPanelWithPhoto {
     private JSpinner lastVerifiedDateSP;
     private JTextField lastEditorTF;
     private SelectedDateSpinner lastEditedSP;
+
+    private class RegionsLookupAction extends WorldRegionLookupAction {
+
+        RegionsLookupAction(JComboBox cb) {
+            super(cb);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent ae) {
+            super.actionPerformed(ae);
+            syncCountries();
+        }
+    }
 
     public EditCompanyPanel(DbObject dbObject) {
         super(dbObject);
@@ -122,7 +139,7 @@ class EditCompanyPanel extends EditPanelWithPhoto {
             getGridPanel(mailingPostCodeTF = new JTextField(), 4),
             getGridPanel(new JComponent[]{
                 comboPanelWithLookupBtn(regionWorldCb = new JComboBox(regionWorldCbModel),
-                new WorldRegionLookupAction(regionWorldCb)),
+                new RegionsLookupAction(regionWorldCb)),
                 new JLabel("Country:", SwingConstants.RIGHT),
                 countryCB = new JComboBox(countryCbModel)
             }),
@@ -174,7 +191,37 @@ class EditCompanyPanel extends EditPanelWithPhoto {
 
     @Override
     public void loadData() {
-//        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        Company comp = (Company) getDbObject();
+        if (comp != null) {
+            idField.setText(comp.getCompanyId().toString());
+            fullCompanyNameTF.setText(comp.getFullName());
+            abbreviationTF.setText(comp.getAbbreviation());
+            isDummyCB.setSelected(comp.getIsDummy() != null && comp.getIsDummy() == 1);
+            turnoverSP.setValue(comp.getTurnover());
+            physicAddressTF.setText(comp.getAddress());
+            postCodeTF.setText(comp.getPostcode());
+            mailingAddressTF.setText(comp.getMailaddress());
+            mailingPostCodeTF.setText(comp.getMailpostcode());
+            selectComboItem(countryCB, comp.getCountryId());
+            mainPhoneTF.setText(comp.getMainPhone());
+            mainFaxTF.setText(comp.getMainFax());
+            membershipLevelCB.setSelectedIndex(comp.getMemberLevel() != null ? comp.getMemberLevel().intValue() - 1 : 1);
+            if (comp.getLasteditDate() != null) {
+                Timestamp t = comp.getLasteditDate();
+                lastVerifiedDateSP.setValue(new java.util.Date(t.getTime()));
+            }
+            Integer userID = comp.getLasteditedBy();
+            if (userID != null) {
+                try {
+                    User user = (User) AIBclient.getExchanger().loadDbObjectOnID(User.class, userID);
+                    lastEditorTF.setText(user.getInitials());
+                } catch (RemoteException ex) {
+                    AIBclient.log(ex);
+                }
+            }
+            imageData = (byte[]) comp.getLogo();
+            setImage(imageData);
+        }
     }
 
     @Override
@@ -190,7 +237,7 @@ class EditCompanyPanel extends EditPanelWithPhoto {
         comp.setFullName(fullCompanyNameTF.getText());
         comp.setAbbreviation(abbreviationTF.getText());
         comp.setIsDummy(isDummyCB.isSelected() ? 1 : 0);
-        comp.setTurnover((Double)turnoverSP.getValue());
+        comp.setTurnover((Double) turnoverSP.getValue());
         comp.setAddress(physicAddressTF.getText());
         comp.setPostcode(postCodeTF.getText());
         comp.setMailaddress(mailingAddressTF.getText());
@@ -198,7 +245,7 @@ class EditCompanyPanel extends EditPanelWithPhoto {
         comp.setCountryId(getSelectedCbItem(countryCB));
         comp.setMainPhone(mainPhoneTF.getText());
         comp.setMainFax(mainFaxTF.getText());
-        Integer lvl = new Integer((String)membershipLevelCB.getSelectedItem());
+        Integer lvl = new Integer((String) membershipLevelCB.getSelectedItem());
         comp.setMemberLevel(lvl);
         dt = (Date) lastVerifiedDateSP.getValue();
         comp.setVerifyDate(new java.sql.Date(dt.getTime()));
@@ -206,7 +253,7 @@ class EditCompanyPanel extends EditPanelWithPhoto {
         dt = Calendar.getInstance().getTime();
         comp.setLasteditDate(new java.sql.Timestamp(dt.getTime()));
         comp.setLogo(imageData);
-        
+
         boolean ok = saveDbRecord(comp, isNew);
         comp = (Company) getDbObject();
         StringTokenizer tok = new StringTokenizer(linksListTF.getText(), ",");
@@ -215,7 +262,7 @@ class EditCompanyPanel extends EditPanelWithPhoto {
 //            AIBclient.saveOrInsertCompanyLink(tok.nextToken());
 //        }
 //        AIBclient.removeRedundantLinks(comp.getCompanyId(),linksListTF.getText());
-        
+
         return ok;
     }
 
@@ -265,21 +312,21 @@ class EditCompanyPanel extends EditPanelWithPhoto {
         return mentionListAction;
     }
 
+    private void syncCountries() {
+        ComboItem wr = (ComboItem) regionWorldCb.getSelectedItem();
+        countryCbModel.removeAllElements();
+        if (wr != null) {
+            for (Object itm : AIBclient.loadRegionCountries(wr.getId())) {
+                countryCbModel.addElement(itm);
+            }
+        }
+    }
+
     private ActionListener countryCBreloadAction() {
         return new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
                 syncCountries();
-            }
-
-            private void syncCountries() {
-                ComboItem wr = (ComboItem) regionWorldCb.getSelectedItem();
-                countryCbModel.removeAllElements();
-                if (wr != null) {
-                    for (Object itm : AIBclient.loadRegionCountries(wr.getId())) {
-                        countryCbModel.addElement(itm);
-                    }
-                }
             }
         };
     }

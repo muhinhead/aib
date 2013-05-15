@@ -280,6 +280,11 @@ public class AIBclient {
         return new ComboItem[]{new ComboItem(0, "")};
     }
 
+    public static void clearRegionsAndCountries() {
+        regionsDictionary = null;
+        countryDictionary = null;
+    }
+    
     public static ComboItem[] loadAllRegions() {
         if (regionsDictionary == null) {
             regionsDictionary = loadOnSelect(exchanger, "select worldregion_id, descr from worldregion");
