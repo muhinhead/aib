@@ -65,17 +65,18 @@ class EditCompanyPanel extends EditPanelWithPhoto {
     private JTextField abbreviationTF;
     private JTextField linksListTF;
     private JTextField industriesListTF;
-    private static AbstractAction linkListAction;
-    private static AbstractAction industryListAction;
+//    private static AbstractAction linkListAction;
+//    private static AbstractAction industryListAction;
     private JTextField mailingPostCodeTF;
     private JTextField mainPhoneTF;
     private JTextField mainFaxTF;
     private JComboBox membershipLevelCB;
     private JTextField mentionsListTF;
-    private AbstractAction mentionListAction;
+//    private AbstractAction mentionListAction;
     private JSpinner lastVerifiedDateSP;
     private JTextField lastEditorTF;
     private SelectedDateSpinner lastEditedSP;
+    private JTextArea commentsTA;
 
     private class RegionsLookupAction extends WorldRegionLookupAction {
 
@@ -182,7 +183,7 @@ class EditCompanyPanel extends EditPanelWithPhoto {
 //        JideTabbedPane downTabs = new JideTabbedPane();
         JideTabbedPane downTabs = new JideTabbedPane();
 
-        JScrollPane sp = new JScrollPane(new JTextArea());
+        JScrollPane sp = new JScrollPane(commentsTA = new JTextArea());
         sp.setPreferredSize(new Dimension(400, 150));
         downTabs.add(sp, "Comments");
         downTabs.add(new JLabel("Here will be the company locations list", SwingConstants.CENTER), "Company Locations");
@@ -197,11 +198,15 @@ class EditCompanyPanel extends EditPanelWithPhoto {
             fullCompanyNameTF.setText(comp.getFullName());
             abbreviationTF.setText(comp.getAbbreviation());
             isDummyCB.setSelected(comp.getIsDummy() != null && comp.getIsDummy() == 1);
+            linksListTF.setText(AIBclient.getLinkListOnCompanyID(comp.getCompanyId()));
+            industriesListTF.setText(AIBclient.getIndustryListOnCompanyID(comp.getCompanyId()));
+            mentionsListTF.setText(AIBclient.getPublicationsOnCompanyID(comp.getCompanyId()));
             turnoverSP.setValue(comp.getTurnover());
             physicAddressTF.setText(comp.getAddress());
             postCodeTF.setText(comp.getPostcode());
             mailingAddressTF.setText(comp.getMailaddress());
             mailingPostCodeTF.setText(comp.getMailpostcode());
+            selectComboItem(regionWorldCb, AIBclient.getRegionOnCountry(comp.getCountryId()));
             selectComboItem(countryCB, comp.getCountryId());
             mainPhoneTF.setText(comp.getMainPhone());
             mainFaxTF.setText(comp.getMainFax());
@@ -219,6 +224,7 @@ class EditCompanyPanel extends EditPanelWithPhoto {
                     AIBclient.log(ex);
                 }
             }
+            commentsTA.setText(comp.getComments());
             imageData = (byte[]) comp.getLogo();
             setImage(imageData);
         }
@@ -253,16 +259,23 @@ class EditCompanyPanel extends EditPanelWithPhoto {
         dt = Calendar.getInstance().getTime();
         comp.setLasteditDate(new java.sql.Timestamp(dt.getTime()));
         comp.setLogo(imageData);
+        comp.setComments(commentsTA.getText());
 
         boolean ok = saveDbRecord(comp, isNew);
         comp = (Company) getDbObject();
-        StringTokenizer tok = new StringTokenizer(linksListTF.getText(), ",");
-        String link;
-//        while (tok.hasMoreTokens()) {
-//            AIBclient.saveOrInsertCompanyLink(tok.nextToken());
-//        }
-//        AIBclient.removeRedundantLinks(comp.getCompanyId(),linksListTF.getText());
 
+        StringTokenizer tok = new StringTokenizer(linksListTF.getText(), ",");
+        while (tok.hasMoreTokens()) {
+            AIBclient.saveOrInsertCompanyLink(comp.getCompanyId(), tok.nextToken());
+        }
+        AIBclient.removeRedundantLinks(comp.getCompanyId(), linksListTF.getText());
+
+        tok = new StringTokenizer(industriesListTF.getText(), ",");
+        while (tok.hasMoreTokens()) {
+            AIBclient.saveOrInsertCompanyIndustry(comp.getCompanyId(), tok.nextToken());
+        }
+        AIBclient.removeRedundantIndustries(comp.getCompanyId(), industriesListTF.getText());
+        
         return ok;
     }
 
@@ -271,45 +284,39 @@ class EditCompanyPanel extends EditPanelWithPhoto {
     }
 
     private AbstractAction getLinkListAction(String lbl) {
-        if (linkListAction == null) {
-            linkListAction = new AbstractAction(lbl) {
-                @Override
-                public void actionPerformed(ActionEvent ae) {
-                    new ListInTextFieldDialog("Links List",
-                            new Object[]{linksListTF, AIBclient.loadAllLinks(), "Enter URL here:"
-                    });
-                }
-            };
-        }
-        return linkListAction;
+        return new AbstractAction(lbl) {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+//                System.out.println("!! linksListTF.getText()->" + linksListTF.getText());
+                new ListInTextFieldDialog("Links List",
+                        new Object[]{linksListTF.getText(), AIBclient.loadAllLinks(), "Enter URL here:"});
+                linksListTF.setText(ListInTextFieldDialog.getResultList());
+            }
+        };
     }
 
     private AbstractAction getIndustryListAction(String lbl) {
-        if (industryListAction == null) {
-            industryListAction = new AbstractAction(lbl) {
-                @Override
-                public void actionPerformed(ActionEvent ae) {
-                    new ListInTextFieldDialog("Industry List",
-                            new Object[]{industriesListTF, AIBclient.loadAllIndustries(), "Enter industry here:"
-                    });
-                }
-            };
-        }
-        return industryListAction;
+        return new AbstractAction(lbl) {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                new ListInTextFieldDialog("Industry List",
+                        new Object[]{industriesListTF.getText(), AIBclient.loadAllIndustries(), 
+                            "Enter industry here:"});
+                industriesListTF.setText(ListInTextFieldDialog.getResultList());
+            }
+        };
     }
 
     private AbstractAction getMentionsListAction(String lbl) {
-        if (mentionListAction == null) {
-            mentionListAction = new AbstractAction(lbl) {
-                @Override
-                public void actionPerformed(ActionEvent ae) {
-                    new PublicationsListInTextFieldDialog("AIB Mentions / Dates",
-                            new Object[]{mentionsListTF, AIBclient.loadAllAIBmentions(), "Enter publication here:"
-                    });
-                }
-            };
-        }
-        return mentionListAction;
+        return new AbstractAction(lbl) {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                new PublicationsListInTextFieldDialog("AIB Mentions / Dates",
+                        new Object[]{mentionsListTF.getText(), AIBclient.loadAllAIBmentions(), 
+                            "Enter publication here:"});
+                mentionsListTF.setText(PublicationsListInTextFieldDialog.getResultList());
+            }
+        };
     }
 
     private void syncCountries() {
