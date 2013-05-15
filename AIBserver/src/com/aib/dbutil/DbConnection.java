@@ -23,12 +23,27 @@ import java.util.Properties;
  */
 public class DbConnection {
 
+    private static class ConnectionWithFlag {
+
+        boolean isBusy = false;
+        Connection connection = null;
+
+        ConnectionWithFlag(Connection c) {
+            connection = c;
+            isBusy = true;
+        }
+
+        private void freeConnection() {
+            isBusy = false;
+        }
+    }
 //    private static Connection logDBconnection = null;
     private static final int DB_VERSION_ID = 1;
     public static final String DB_VERSION = "0.1";
     private static boolean isFirstTime = true;
     private static Properties props = new Properties();
     private static String[] createLocalDBsqls = loadDDLscript("crebas.sql", ";");//"crebas_hsqldb.sql",";");
+    private static ArrayList<ConnectionWithFlag> connections = new ArrayList<>();
 //    private static String[] createLogDBsqls = new String[]{
 //        "create cached table updatelog "
 //        + "("
@@ -43,7 +58,6 @@ public class DbConnection {
     private static String[] fixLocalDBsqls = new String[]{
         "update dbversion set version_id = " + DB_VERSION_ID + ",version = '" + DB_VERSION + "'"
     };
-
 
     public static String getLogin() {
         return props.getProperty("dbUser", "aib");
@@ -74,6 +88,13 @@ public class DbConnection {
     }
 
     public static Connection getConnection() throws RemoteException {
+        for (ConnectionWithFlag con : connections) {
+            if (!con.isBusy) {
+                con.isBusy = true;
+//                System.out.println("!! connection FOUND");
+                return con.connection;
+            }
+        }
         Connection connection = null;
         try {
             Locale.setDefault(Locale.ENGLISH);
@@ -83,22 +104,26 @@ public class DbConnection {
                     "com.mysql.jdbc.Driver")).newInstance());
             connection = DriverManager.getConnection(
                     props.getProperty("dbConnection",
-//                    "jdbc:mysql://localhost/aibcontact1"
-                    "jdbc:mysql://ec2-23-22-145-131.compute-1.amazonaws.com/aibcontact1"),
+                    "jdbc:mysql://ec2-23-22-145-131.compute-1.amazonaws.com/aibcontact1?characterEncoding=UTF8"),
                     getLogin(), getPassword());
             connection.setAutoCommit(true);
             RmiMessageSender.isMySQL = (connection.getClass().getCanonicalName().indexOf("mysql") > -1);
+            
         } catch (Exception e) {
             AIBserver.log(e);
         }
         if (isFirstTime) {
             initLocalDB(connection);
-//            if (props.getProperty("dbDriverName", "org.hsqldb.jdbcDriver").equals("org.hsqldb.jdbcDriver")) {
             fixLocalDB(connection);
-//            }
             isFirstTime = false;
         }
-        return checkVersion(connection);
+        if (connection != null) {
+            connections.add(new ConnectionWithFlag(connection));
+//            System.out.println("!! connection CREATED");
+            return checkVersion(connection);
+        } else {
+            return null;
+        }
     }
 
     public static void initLocalDB(Connection connection) {
@@ -143,9 +168,24 @@ public class DbConnection {
     }
 
     public static void closeConnection(Connection connection) throws SQLException {
-//        connection.commit();
-        connection.close();
+        for (ConnectionWithFlag cf : connections) {
+            if (cf.connection == connection) {
+                cf.isBusy = false;
+//                System.out.println("!! connection FREED");
+                return;
+            }
+        }
+//        connection.close();
         connection = null;
+    }
+
+    public static void closeAllConnections() throws SQLException {
+        for (ConnectionWithFlag cf : connections) {
+            cf.connection.close();
+//            System.out.println("!! connection CLOSED");
+            cf.connection = null;
+        }
+        connections.clear();
     }
 
     public static String getCurDir() {
@@ -288,7 +328,6 @@ public class DbConnection {
         }
         return anomalies;
     }
-
 //    private static void fixWrongAssignments(Connection connection) {
 //        AIBserver.log("Checking assignments...");
 //        String stmt = "select xemployee_id from xopmachassing "
