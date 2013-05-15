@@ -1,6 +1,9 @@
 package com.aib;
 
 import com.aib.orm.Aibpublic;
+import com.aib.orm.Compindustry;
+import com.aib.orm.Complink;
+import com.aib.orm.Comppublic;
 import com.aib.orm.Country;
 import com.aib.orm.Industry;
 import com.aib.orm.Link;
@@ -284,7 +287,7 @@ public class AIBclient {
         regionsDictionary = null;
         countryDictionary = null;
     }
-    
+
     public static ComboItem[] loadAllRegions() {
         if (regionsDictionary == null) {
             regionsDictionary = loadOnSelect(exchanger, "select worldregion_id, descr from worldregion");
@@ -309,7 +312,7 @@ public class AIBclient {
     }
 
     public static Object[] loadRegionCountries(int region_id) {
-        ArrayList<ComboItem> lst = new ArrayList<>();
+        ArrayList<ComboItem> lst = new ArrayList<ComboItem>();
         for (Country c : loadAllCountries()) {
             if (c.getWorldregionId().intValue() == region_id) {
                 lst.add(new ComboItem(c.getCountryId(), c.getCountry()));
@@ -333,7 +336,7 @@ public class AIBclient {
         return version;
     }
 
-    public static List loadAllLinks() {
+     public static List loadAllLinks() {
         try {
             DbObject[] linkArray = exchanger.getDbObjects(Link.class, null, "url");
             ArrayList links = new ArrayList();
@@ -399,5 +402,166 @@ public class AIBclient {
             }
         }
         return qty == 0;
+    }
+
+    static Integer getRegionOnCountry(Integer countryId) {
+        try {
+            Country country = (Country) getExchanger().loadDbObjectOnID(Country.class, countryId);
+            return country.getWorldregionId();
+        } catch (RemoteException ex) {
+            log(ex);
+        }
+        return null;
+    }
+    
+    static void saveCompanyPublication(Integer companyID, String publication) {
+        try {
+            Aibpublic pub = null;
+            Comppublic cp = null;
+            DbObject[] recs = getExchanger().getDbObjects(Aibpublic.class, "concat(publication,' (',pub_date,')')='" + publication + "'", null);
+            pub = (Aibpublic) recs[0]; //it should be, because new item is already saved
+            if (getExchanger().getCount("select comppublic_id from comppublic where company_id=" 
+                    + companyID + " and aibpublic_id=" + pub.getAibpublicId()) == 0) {
+                cp = new Comppublic(null);
+                cp.setComppublicId(0);
+                cp.setCompanyId(companyID);
+                cp.setAibpublicId(pub.getAibpublicId());
+                cp.setNew(true);
+                AIBclient.getExchanger().saveDbObject(cp);
+            }
+        } catch (Exception ex) {
+            log(ex);
+        }
+    }
+    
+    static void saveOrInsertCompanyIndustry(Integer companyID, String industry) {
+        try {
+            Industry ind = null;
+            Compindustry ci = null;
+            DbObject[] recs = getExchanger().getDbObjects(Industry.class, "descr='" + industry + "'", null);
+            if (recs.length == 0) {
+                ind = new Industry(null);
+                ind.setIndustryId(0);
+                ind.setDescr(industry);
+                ind.setNew(true);
+                ind = (Industry) AIBclient.getExchanger().saveDbObject(ind);
+            } else {
+                ind = (Industry) recs[0];
+            }
+            if (getExchanger().getCount("select compindustry_id from compindustry where company_id=" 
+                    + companyID + " and industry_id=" + ind.getIndustryId()) == 0) {
+                ci = new Compindustry(null);
+                ci.setCompindustryId(0);
+                ci.setCompanyId(companyID);
+                ci.setIndustryId(ind.getIndustryId());
+                ci.setNew(true);
+                AIBclient.getExchanger().saveDbObject(ci);
+            }
+        } catch (Exception ex) {
+            log(ex);
+        }
+    }    
+        
+    static void saveOrInsertCompanyLink(Integer companyID, String link) {
+        try {
+            Link lnk = null;
+            Complink cl = null;
+            DbObject[] recs = getExchanger().getDbObjects(Link.class, "url='" + link + "'", null);
+            if (recs.length == 0) {
+                lnk = new Link(null);
+                lnk.setLinkId(0);
+                lnk.setUrl(link);
+                lnk.setNew(true);
+                lnk = (Link) AIBclient.getExchanger().saveDbObject(lnk);
+            } else {
+                lnk = (Link) recs[0];
+            }
+            if (getExchanger().getCount("select complink_id from complink where company_id=" 
+                    + companyID + " and link_id=" + lnk.getLinkId()) == 0) {
+                cl = new Complink(null);
+                cl.setComplinkId(0);
+                cl.setCompanyId(companyID);
+                cl.setLinkId(lnk.getLinkId());
+                cl.setNew(true);
+                AIBclient.getExchanger().saveDbObject(cl);
+            }
+        } catch (Exception ex) {
+            log(ex);
+        }
+    }
+
+    static void removeRedundantIndustries(Integer companyID, String industryList) {
+         try {
+            DbObject[] recs = getExchanger().getDbObjects(Compindustry.class,
+                    "company_id=" + companyID + " and industry_id not in (select industry_id from industry where instr('" + industryList + "',descr)>0)", null);
+            for (DbObject rec : recs) {
+                getExchanger().deleteObject(rec);
+            }
+        } catch (RemoteException ex) {
+            log(ex);
+        }
+    }
+    
+    static void removeRedundantLinks(Integer companyID, String linkList) {
+        try {
+            DbObject[] recs = getExchanger().getDbObjects(Complink.class,
+                    "company_id=" + companyID + " and link_id not in (select link_id from link where instr('" + linkList + "',url)>0)", null);
+            for (DbObject rec : recs) {
+                getExchanger().deleteObject(rec);
+            }
+        } catch (RemoteException ex) {
+            log(ex);
+        }
+    }
+
+    static String getLinkListOnCompanyID(Integer companyID) {
+        try {
+            StringBuilder sb = new StringBuilder();
+            DbObject[] recs = getExchanger().getDbObjects(Complink.class, "company_id=" + companyID, null);
+            for (DbObject rec : recs) {
+                Complink cl = (Complink) rec;
+                Link lnk = (Link) getExchanger().loadDbObjectOnID(Link.class, cl.getLinkId());
+                sb.append(sb.length() > 0 ? "," : "");
+                sb.append(lnk.getUrl());
+            }
+            return sb.toString();
+        } catch (RemoteException ex) {
+            log(ex);
+        }
+        return "can't load link list";
+    }
+    
+    static String getIndustryListOnCompanyID(Integer companyID) {
+        try {
+            StringBuilder sb = new StringBuilder();
+            DbObject[] recs = getExchanger().getDbObjects(Compindustry.class, "company_id=" + companyID, null);
+            for (DbObject rec : recs) {
+                Compindustry ci = (Compindustry) rec;
+                Industry ind = (Industry) getExchanger().loadDbObjectOnID(Industry.class, ci.getIndustryId());
+                sb.append(sb.length() > 0 ? "," : "");
+                sb.append(ind.getDescr());
+            }
+            return sb.toString();
+        } catch (RemoteException ex) {
+            log(ex);
+        }
+        return "can't load industry list";
+    }
+    
+    static String getPublicationsOnCompanyID(Integer companyID) {
+        try {
+            StringBuilder sb = new StringBuilder();
+            DbObject[] recs = getExchanger().getDbObjects(Comppublic.class, "company_id=" + companyID, null);
+            for (DbObject rec : recs) {
+                Comppublic cp = (Comppublic) rec;
+                Aibpublic pub = (Aibpublic) getExchanger().loadDbObjectOnID(Aibpublic.class, cp.getAibpublicId());
+                sb.append(sb.length() > 0 ? "," : "");
+                sb.append(pub.getPublication()).append(" (").append(pub.getPubDate()).append(")");
+            }
+            return sb.toString();
+        } catch (RemoteException ex) {
+            log(ex);
+        }
+        return "can't load publications list";
     }
 }

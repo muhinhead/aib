@@ -23,21 +23,29 @@ import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JTextField;
 
 /**
  *
  * @author nick
  */
 public class ListInTextFieldDialog extends PopupDialog {
+    
+    private static String resultList;
 
+    /**
+     * @return the resultList
+     */
+    public static String getResultList() {
+        return resultList;
+    }
+    private String oldList;
     private JButton okButton;
     private JButton cancelButton;
     private Java2sAutoComboBox urlField;
     private ArrayList selectedItems;
     private JList urlJList;
     private AbstractListModel listModel;
-    private JTextField tf;
+//    private JTextField tf;
 
     public ListInTextFieldDialog(String title, Object[] obs) {
         super(null, title, obs);
@@ -56,20 +64,14 @@ public class ListInTextFieldDialog extends PopupDialog {
         okCancelBtnPanel.add(okButton = new JButton(new AbstractAction("Ok") {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                StringBuilder sb = new StringBuilder();
-                for (Object itm : selectedItems) {
-                    if (sb.length() > 0) {
-                        sb.append(",");
-                    }
-                    sb.append(itm);
-                }
-                tf.setText(sb.toString());
+                syncTextField();
                 dispose();
             }
         }));
         okCancelBtnPanel.add(cancelButton = new JButton(new AbstractAction("Cancel") {
             @Override
             public void actionPerformed(ActionEvent ae) {
+                resultList = oldList;
                 dispose();
             }
         }));
@@ -91,7 +93,7 @@ public class ListInTextFieldDialog extends PopupDialog {
 
     private JPanel getCentralPanel() {
         Object[] params = (Object[]) getObject();
-        tf = (JTextField) params[0];
+        oldList = resultList = (String) params[0];
         List linkList = (List) params[1];
         String prompt = (String) params[2];
         JPanel cPanel = new JPanel(new BorderLayout(5, 10));
@@ -104,11 +106,13 @@ public class ListInTextFieldDialog extends PopupDialog {
         }), BorderLayout.EAST);
         cPanel.add(upperPanel, BorderLayout.NORTH);
 
-        String lst = tf.getText();
+//        String lst = tf.getText().trim();
         selectedItems = new ArrayList();
-        for (Object url : linkList) {
-            if (lst.indexOf((String) url) >= 0) {
-                selectedItems.add(url);
+        if (oldList.length() > 0) {
+            for (Object url : linkList) {
+                if (oldList.indexOf((String) url) >= 0) {
+                    selectedItems.add(url);
+                }
             }
         }
 
@@ -154,6 +158,16 @@ public class ListInTextFieldDialog extends PopupDialog {
                 }
             }
         };
+    }
+
+    private void syncTextField() {
+        StringBuilder sb = new StringBuilder();
+        for (Object itm : selectedItems) {
+            sb.append(sb.length() > 0 ? "," : "");
+            sb.append(itm);
+        }
+//        tf.setText(sb.toString());
+        resultList = sb.toString();
     }
 
     protected boolean additionalDialog(String url) {
