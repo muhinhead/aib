@@ -336,7 +336,7 @@ public class AIBclient {
         return version;
     }
 
-     public static List loadAllLinks() {
+    public static List loadAllLinks() {
         try {
             DbObject[] linkArray = exchanger.getDbObjects(Link.class, null, "url");
             ArrayList links = new ArrayList();
@@ -413,14 +413,14 @@ public class AIBclient {
         }
         return null;
     }
-    
+
     static void saveCompanyPublication(Integer companyID, String publication) {
         try {
             Aibpublic pub = null;
             Comppublic cp = null;
             DbObject[] recs = getExchanger().getDbObjects(Aibpublic.class, "concat(publication,' (',pub_date,')')='" + publication + "'", null);
-            pub = (Aibpublic) recs[0]; //it should be, because new item is already saved
-            if (getExchanger().getCount("select comppublic_id from comppublic where company_id=" 
+            pub = (Aibpublic) recs[0]; //it should already exist, because new item is already saved
+            if (getExchanger().getCount("select comppublic_id from comppublic where company_id="
                     + companyID + " and aibpublic_id=" + pub.getAibpublicId()) == 0) {
                 cp = new Comppublic(null);
                 cp.setComppublicId(0);
@@ -433,7 +433,7 @@ public class AIBclient {
             log(ex);
         }
     }
-    
+
     static void saveOrInsertCompanyIndustry(Integer companyID, String industry) {
         try {
             Industry ind = null;
@@ -448,7 +448,7 @@ public class AIBclient {
             } else {
                 ind = (Industry) recs[0];
             }
-            if (getExchanger().getCount("select compindustry_id from compindustry where company_id=" 
+            if (getExchanger().getCount("select compindustry_id from compindustry where company_id="
                     + companyID + " and industry_id=" + ind.getIndustryId()) == 0) {
                 ci = new Compindustry(null);
                 ci.setCompindustryId(0);
@@ -460,8 +460,8 @@ public class AIBclient {
         } catch (Exception ex) {
             log(ex);
         }
-    }    
-        
+    }
+
     static void saveOrInsertCompanyLink(Integer companyID, String link) {
         try {
             Link lnk = null;
@@ -476,7 +476,7 @@ public class AIBclient {
             } else {
                 lnk = (Link) recs[0];
             }
-            if (getExchanger().getCount("select complink_id from complink where company_id=" 
+            if (getExchanger().getCount("select complink_id from complink where company_id="
                     + companyID + " and link_id=" + lnk.getLinkId()) == 0) {
                 cl = new Complink(null);
                 cl.setComplinkId(0);
@@ -490,8 +490,21 @@ public class AIBclient {
         }
     }
 
+    static void removeRedundantPublications(Integer companyID, String publicationList) {
+        try {
+            DbObject[] recs = getExchanger().getDbObjects(Comppublic.class, 
+                    "company_id=" + companyID + " and aibpublic_id not in "
+                    + "(select aibpublic_id from aibpublic where instr('"+publicationList+"',concat(publication,' (',pub_date,')'))>0)",null);
+            for (DbObject rec : recs) {
+                getExchanger().deleteObject(rec);
+            }
+        } catch (RemoteException ex) {
+            log(ex);
+        }
+    }
+
     static void removeRedundantIndustries(Integer companyID, String industryList) {
-         try {
+        try {
             DbObject[] recs = getExchanger().getDbObjects(Compindustry.class,
                     "company_id=" + companyID + " and industry_id not in (select industry_id from industry where instr('" + industryList + "',descr)>0)", null);
             for (DbObject rec : recs) {
@@ -501,7 +514,7 @@ public class AIBclient {
             log(ex);
         }
     }
-    
+
     static void removeRedundantLinks(Integer companyID, String linkList) {
         try {
             DbObject[] recs = getExchanger().getDbObjects(Complink.class,
@@ -530,7 +543,7 @@ public class AIBclient {
         }
         return "can't load link list";
     }
-    
+
     static String getIndustryListOnCompanyID(Integer companyID) {
         try {
             StringBuilder sb = new StringBuilder();
@@ -547,7 +560,7 @@ public class AIBclient {
         }
         return "can't load industry list";
     }
-    
+
     static String getPublicationsOnCompanyID(Integer companyID) {
         try {
             StringBuilder sb = new StringBuilder();
