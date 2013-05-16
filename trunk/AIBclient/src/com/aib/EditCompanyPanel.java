@@ -4,7 +4,6 @@
  */
 package com.aib;
 
-import static com.aib.AIBclient.getCurrentUser;
 import com.aib.lookup.ListInTextFieldDialog;
 import static com.aib.RecordEditPanel.getBorderPanel;
 import static com.aib.RecordEditPanel.getGridPanel;
@@ -15,11 +14,9 @@ import com.aib.orm.User;
 import com.aib.orm.dbobject.ComboItem;
 import com.aib.orm.dbobject.DbObject;
 import com.jidesoft.swing.JideTabbedPane;
-import com.xlend.util.PopupDialog;
 import com.xlend.util.SelectedDateSpinner;
 import com.xlend.util.SelectedNumberSpinner;
 import com.xlend.util.Util;
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -28,17 +25,13 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.StringTokenizer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextArea;
@@ -57,22 +50,19 @@ class EditCompanyPanel extends EditPanelWithPhoto {
     private JTextField fullCompanyNameTF;
     private JCheckBox isDummyCB;
     private SelectedNumberSpinner turnoverSP;
-    private JTextField physicAddressTF;
+    private JTextArea physicAddressTA;
     private JTextField postCodeTF;
-    private JTextField mailingAddressTF;
+    private JTextArea mailingAddressTA;
     private JComboBox regionWorldCb;
     private JComboBox countryCB;
     private JTextField abbreviationTF;
     private JTextField linksListTF;
     private JTextField industriesListTF;
-//    private static AbstractAction linkListAction;
-//    private static AbstractAction industryListAction;
     private JTextField mailingPostCodeTF;
     private JTextField mainPhoneTF;
     private JTextField mainFaxTF;
     private JComboBox membershipLevelCB;
     private JTextField mentionsListTF;
-//    private AbstractAction mentionListAction;
     private JSpinner lastVerifiedDateSP;
     private JTextField lastEditorTF;
     private SelectedDateSpinner lastEditedSP;
@@ -104,10 +94,8 @@ class EditCompanyPanel extends EditPanelWithPhoto {
             "Links:",
             "Industry:",
             "Turnover/Year:",
-            "Physical Address:",
-            "Post Code:",
-            "Mailing Address:",
-            "Mailing Post Code:",
+            "Physical Address:",//            "Post Code:",
+            "Mailing Address:",//            "Mailing Post Code:",
             "Region of World:", //,"Country:"
             "Main Phone:", //"Main Fax;"
             "Membership Level:",
@@ -119,6 +107,8 @@ class EditCompanyPanel extends EditPanelWithPhoto {
         for (ComboItem ci : AIBclient.loadAllRegions()) {
             regionWorldCbModel.addElement(ci);
         }
+        JScrollPane sp1;
+        JScrollPane sp2;
         JComponent[] edits = new JComponent[]{
             getGridPanel(idField = new JTextField(), 6),
             getGridPanel(new JComponent[]{
@@ -134,10 +124,30 @@ class EditCompanyPanel extends EditPanelWithPhoto {
             getBorderPanel(new JComponent[]{null, industriesListTF = new JTextField(),
                 new JButton(getIndustryListAction("..."))}),
             getBorderPanel(new JComponent[]{turnoverSP = new SelectedNumberSpinner(.0, .0, 999999999.0, 100.0)}),
-            physicAddressTF = new JTextField(),
-            getGridPanel(postCodeTF = new JTextField(), 4),
-            mailingAddressTF = new JTextField(),
-            getGridPanel(mailingPostCodeTF = new JTextField(), 4),
+            getGridPanel(new JComponent[]{
+                getBorderPanel(new JComponent[]{
+                    null,
+                    sp1 = new JScrollPane(physicAddressTA = new JTextArea(1, 20), 
+                        JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER),
+                    new JButton(new EditAreaAction("...", physicAddressTA))
+                }),
+                getGridPanel(new JComponent[]{
+                    new JLabel("Post Code:", SwingConstants.RIGHT),
+                    postCodeTF = new JTextField()
+                })
+            }),
+            getGridPanel(new JComponent[]{
+                getBorderPanel(new JComponent[]{
+                    null,
+                    sp2 = new JScrollPane(mailingAddressTA = new JTextArea(1, 20), 
+                        JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER),
+                    new JButton(new EditAreaAction("...", mailingAddressTA))
+                }),
+                getGridPanel(new JComponent[]{
+                    new JLabel("Mailing Post Code:", SwingConstants.RIGHT),
+                    mailingPostCodeTF = new JTextField()
+                })
+            }),
             getGridPanel(new JComponent[]{
                 comboPanelWithLookupBtn(regionWorldCb = new JComboBox(regionWorldCbModel),
                 new RegionsLookupAction(regionWorldCb)),
@@ -166,13 +176,18 @@ class EditCompanyPanel extends EditPanelWithPhoto {
                 })
             })
         };
+        sp1.setPreferredSize(new Dimension(sp1.getPreferredSize().width, idField.getPreferredSize().height));
+        sp2.setPreferredSize(sp1.getPreferredSize());
         idField.setEnabled(false);
         lastVerifiedDateSP.setEditor(new JSpinner.DateEditor(lastVerifiedDateSP, DD_MM_YYYY));
         Util.addFocusSelectAllAction(lastVerifiedDateSP);
         lastEditedSP.setEditor(new JSpinner.DateEditor(lastEditedSP, DD_MM_YYYY));
         Util.addFocusSelectAllAction(lastEditedSP);
         linksListTF.setEditable(false);
+        physicAddressTA.setEditable(false);
+        mailingAddressTA.setEditable(false);
         industriesListTF.setEditable(false);
+        mentionsListTF.setEditable(false);
         lastEditorTF.setEnabled(false);
         lastEditedSP.setEnabled(false);
 
@@ -180,7 +195,6 @@ class EditCompanyPanel extends EditPanelWithPhoto {
         regionWorldCb.setSelectedIndex(0);
         organizePanels(titles, edits, null);
 
-//        JideTabbedPane downTabs = new JideTabbedPane();
         JideTabbedPane downTabs = new JideTabbedPane();
 
         JScrollPane sp = new JScrollPane(commentsTA = new JTextArea());
@@ -202,9 +216,11 @@ class EditCompanyPanel extends EditPanelWithPhoto {
             industriesListTF.setText(AIBclient.getIndustryListOnCompanyID(comp.getCompanyId()));
             mentionsListTF.setText(AIBclient.getPublicationsOnCompanyID(comp.getCompanyId()));
             turnoverSP.setValue(comp.getTurnover());
-            physicAddressTF.setText(comp.getAddress());
+            physicAddressTA.setText(comp.getAddress());
+            physicAddressTA.setCaretPosition(0);
             postCodeTF.setText(comp.getPostcode());
-            mailingAddressTF.setText(comp.getMailaddress());
+            mailingAddressTA.setText(comp.getMailaddress());
+            mailingAddressTA.setCaretPosition(0);
             mailingPostCodeTF.setText(comp.getMailpostcode());
             selectComboItem(regionWorldCb, AIBclient.getRegionOnCountry(comp.getCountryId()));
             selectComboItem(countryCB, comp.getCountryId());
@@ -244,9 +260,9 @@ class EditCompanyPanel extends EditPanelWithPhoto {
         comp.setAbbreviation(abbreviationTF.getText());
         comp.setIsDummy(isDummyCB.isSelected() ? 1 : 0);
         comp.setTurnover((Double) turnoverSP.getValue());
-        comp.setAddress(physicAddressTF.getText());
+        comp.setAddress(physicAddressTA.getText());
         comp.setPostcode(postCodeTF.getText());
-        comp.setMailaddress(mailingAddressTF.getText());
+        comp.setMailaddress(mailingAddressTA.getText());
         comp.setMailpostcode(mailingPostCodeTF.getText());
         comp.setCountryId(getSelectedCbItem(countryCB));
         comp.setMainPhone(mainPhoneTF.getText());
@@ -275,7 +291,12 @@ class EditCompanyPanel extends EditPanelWithPhoto {
             AIBclient.saveOrInsertCompanyIndustry(comp.getCompanyId(), tok.nextToken());
         }
         AIBclient.removeRedundantIndustries(comp.getCompanyId(), industriesListTF.getText());
-        
+
+        tok = new StringTokenizer(mentionsListTF.getText(), ",");
+        while (tok.hasMoreTokens()) {
+            AIBclient.saveCompanyPublication(comp.getCompanyId(), tok.nextToken());
+        }
+        AIBclient.removeRedundantPublications(comp.getCompanyId(), mentionsListTF.getText());
         return ok;
     }
 
@@ -300,8 +321,8 @@ class EditCompanyPanel extends EditPanelWithPhoto {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 new ListInTextFieldDialog("Industry List",
-                        new Object[]{industriesListTF.getText(), AIBclient.loadAllIndustries(), 
-                            "Enter industry here:"});
+                        new Object[]{industriesListTF.getText(), AIBclient.loadAllIndustries(),
+                    "Enter industry here:"});
                 industriesListTF.setText(ListInTextFieldDialog.getResultList());
             }
         };
@@ -312,8 +333,8 @@ class EditCompanyPanel extends EditPanelWithPhoto {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 new PublicationsListInTextFieldDialog("AIB Mentions / Dates",
-                        new Object[]{mentionsListTF.getText(), AIBclient.loadAllAIBmentions(), 
-                            "Enter publication here:"});
+                        new Object[]{mentionsListTF.getText(), AIBclient.loadAllAIBmentions(),
+                    "Enter publication here:"});
                 mentionsListTF.setText(PublicationsListInTextFieldDialog.getResultList());
             }
         };

@@ -6,6 +6,8 @@ package com.aib.lookup;
 
 import com.aib.AIBclient;
 import com.aib.EditMentionDialog;
+import com.aib.orm.Aibpublic;
+import java.text.SimpleDateFormat;
 
 /**
  *
@@ -20,14 +22,18 @@ public class PublicationsListInTextFieldDialog extends ListInTextFieldDialog {
     }
 
     @Override
-    protected boolean additionalDialog(String name) {
+    protected String additionalDialog(String name) {
         name = name.trim();
         int p = name.indexOf("(");
         newPublicationName = p > 0 ? name.substring(0, p).trim() : name;
         if (AIBclient.publicationNotExist(name)) {
-            new EditMentionDialog("Add new publication", null);
-            return EditMentionDialog.okPressed;
+            EditMentionDialog ed = new EditMentionDialog("Add new publication", null);
+            if (EditMentionDialog.okPressed) {
+                Aibpublic pub = (Aibpublic) ed.getEditPanel().getDbObject();
+                String sdate = new SimpleDateFormat("yyyy-MM-dd").format(pub.getPubDate());
+                return pub.getPublication()+" ("+sdate+")";
+            }
         }
-        return true;
+        return name;
     }
 }

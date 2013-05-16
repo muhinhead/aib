@@ -29,7 +29,7 @@ import javax.swing.JScrollPane;
  * @author nick
  */
 public class ListInTextFieldDialog extends PopupDialog {
-    
+
     private static String resultList;
 
     /**
@@ -150,7 +150,7 @@ public class ListInTextFieldDialog extends PopupDialog {
                         }
                     }
                     if (toAdd) {
-                        if (additionalDialog(url)) {
+                        if ((url = additionalDialog(url)) != null) {
                             selectedItems.add(url);
                             urlJList.updateUI();
                         }
@@ -170,9 +170,9 @@ public class ListInTextFieldDialog extends PopupDialog {
         resultList = sb.toString();
     }
 
-    protected boolean additionalDialog(String url) {
+    protected String additionalDialog(String url) {
         //Implement additional dialog here
-        return true;
+        return url;
     }
 
     private AbstractAction getClearAllAction() {
