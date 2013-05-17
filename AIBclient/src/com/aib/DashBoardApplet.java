@@ -1,5 +1,6 @@
 package com.aib;
 
+import com.aib.company.CompanyFrame;
 import javafx.application.Platform;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;

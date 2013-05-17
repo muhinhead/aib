@@ -1,5 +1,6 @@
-package com.aib;
+package com.aib.company;
 
+import com.aib.EditRecordDialog;
 import com.aib.orm.Company;
 
 /**

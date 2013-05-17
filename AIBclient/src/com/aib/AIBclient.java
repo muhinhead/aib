@@ -7,6 +7,8 @@ import com.aib.orm.Comppublic;
 import com.aib.orm.Country;
 import com.aib.orm.Industry;
 import com.aib.orm.Link;
+import com.aib.orm.Locindustry;
+import com.aib.orm.Loclink;
 import com.aib.orm.User;
 import com.aib.orm.Worldregion;
 import com.aib.orm.dbobject.ComboItem;
@@ -288,6 +290,12 @@ public class AIBclient {
         countryDictionary = null;
     }
 
+    public static ComboItem[] loadAllCompanies() {
+        return loadOnSelect(exchanger,
+                "select company_id,concat(abbreviation,' (',full_name,')') "
+                + "from company order by abbreviation");
+    }
+
     public static ComboItem[] loadAllRegions() {
         if (regionsDictionary == null) {
             regionsDictionary = loadOnSelect(exchanger, "select worldregion_id, descr from worldregion");
@@ -404,7 +412,7 @@ public class AIBclient {
         return qty == 0;
     }
 
-    static Integer getRegionOnCountry(Integer countryId) {
+    public static Integer getRegionOnCountry(Integer countryId) {
         try {
             Country country = (Country) getExchanger().loadDbObjectOnID(Country.class, countryId);
             return country.getWorldregionId();
@@ -414,7 +422,7 @@ public class AIBclient {
         return null;
     }
 
-    static void saveCompanyPublication(Integer companyID, String publication) {
+    public static void saveCompanyPublication(Integer companyID, String publication) {
         try {
             Aibpublic pub = null;
             Comppublic cp = null;
@@ -434,7 +442,7 @@ public class AIBclient {
         }
     }
 
-    static void saveOrInsertCompanyIndustry(Integer companyID, String industry) {
+    public static void saveOrInsertCompanyIndustry(Integer companyID, String industry) {
         try {
             Industry ind = null;
             Compindustry ci = null;
@@ -462,7 +470,63 @@ public class AIBclient {
         }
     }
 
-    static void saveOrInsertCompanyLink(Integer companyID, String link) {
+    public static void saveOrInsertLocationLink(Integer locationID, String link) {
+        try {
+            Link lnk = null;
+            Loclink ll = null;
+            DbObject[] recs = getExchanger().getDbObjects(Link.class, "url='" + link + "'", null);
+            if (recs.length == 0) {
+                lnk = new Link(null);
+                lnk.setLinkId(0);
+                lnk.setUrl(link);
+                lnk.setNew(true);
+                lnk = (Link) AIBclient.getExchanger().saveDbObject(lnk);
+            } else {
+                lnk = (Link) recs[0];
+            }
+            if (getExchanger().getCount("select loclink_id from loclink where location_id="
+                    + locationID + " and link_id=" + lnk.getLinkId()) == 0) {
+                ll = new Loclink(null);
+                ll.setLoclinkId(0);
+                ll.setLocationId(locationID);
+                ll.setLinkId(lnk.getLinkId());
+                ll.setNew(true);
+                AIBclient.getExchanger().saveDbObject(ll);
+            }
+        } catch (Exception ex) {
+            log(ex);
+        }
+    }
+
+    public static void saveOrInsertLocationIndustry(Integer locationID, String industry) {
+        try {
+            Industry ind = null;
+            Locindustry li = null;
+            DbObject[] recs = getExchanger().getDbObjects(Industry.class, "descr='" + industry + "'", null);
+            if (recs.length == 0) {
+                ind = new Industry(null);
+                ind.setIndustryId(0);
+                ind.setDescr(industry);
+                ind.setNew(true);
+                ind = (Industry) AIBclient.getExchanger().saveDbObject(ind);
+            } else {
+                ind = (Industry) recs[0];
+            }
+            if (getExchanger().getCount("select locindustry_id from locindustry where location_id="
+                    + locationID + " and industry_id=" + ind.getIndustryId()) == 0) {
+                li = new Locindustry(null);
+                li.setLocindustryId(0);
+                li.setLocationId(locationID);
+                li.setIndustryId(ind.getIndustryId());
+                li.setNew(true);
+                AIBclient.getExchanger().saveDbObject(li);
+            }
+        } catch (Exception ex) {
+            log(ex);
+        }
+    }
+    
+    public static void saveOrInsertCompanyLink(Integer companyID, String link) {
         try {
             Link lnk = null;
             Complink cl = null;
@@ -490,11 +554,11 @@ public class AIBclient {
         }
     }
 
-    static void removeRedundantPublications(Integer companyID, String publicationList) {
+    public static void removeRedundantPublications(Integer companyID, String publicationList) {
         try {
-            DbObject[] recs = getExchanger().getDbObjects(Comppublic.class, 
+            DbObject[] recs = getExchanger().getDbObjects(Comppublic.class,
                     "company_id=" + companyID + " and aibpublic_id not in "
-                    + "(select aibpublic_id from aibpublic where instr('"+publicationList+"',concat(publication,' (',pub_date,')'))>0)",null);
+                    + "(select aibpublic_id from aibpublic where instr('" + publicationList + "',concat(publication,' (',pub_date,')'))>0)", null);
             for (DbObject rec : recs) {
                 getExchanger().deleteObject(rec);
             }
@@ -503,7 +567,7 @@ public class AIBclient {
         }
     }
 
-    static void removeRedundantIndustries(Integer companyID, String industryList) {
+    public static void removeRedundantCompanyIndustries(Integer companyID, String industryList) {
         try {
             DbObject[] recs = getExchanger().getDbObjects(Compindustry.class,
                     "company_id=" + companyID + " and industry_id not in (select industry_id from industry where instr('" + industryList + "',descr)>0)", null);
@@ -515,7 +579,19 @@ public class AIBclient {
         }
     }
 
-    static void removeRedundantLinks(Integer companyID, String linkList) {
+    public static void removeRedundantLocationIndustries(Integer locationID, String industryList) {
+        try {
+            DbObject[] recs = getExchanger().getDbObjects(Locindustry.class,
+                    "location_id=" + locationID + " and industry_id not in (select industry_id from industry where instr('" + industryList + "',descr)>0)", null);
+            for (DbObject rec : recs) {
+                getExchanger().deleteObject(rec);
+            }
+        } catch (RemoteException ex) {
+            log(ex);
+        }
+    }
+    
+    public static void removeRedundantCompanyLinks(Integer companyID, String linkList) {
         try {
             DbObject[] recs = getExchanger().getDbObjects(Complink.class,
                     "company_id=" + companyID + " and link_id not in (select link_id from link where instr('" + linkList + "',url)>0)", null);
@@ -527,7 +603,36 @@ public class AIBclient {
         }
     }
 
-    static String getLinkListOnCompanyID(Integer companyID) {
+    public static void removeRedundantLocationLinks(Integer locationID, String linkList) {
+        try {
+            DbObject[] recs = getExchanger().getDbObjects(Loclink.class,
+                    "location_id=" + locationID + " and link_id not in (select link_id from link where instr('" + linkList + "',url)>0)", null);
+            for (DbObject rec : recs) {
+                getExchanger().deleteObject(rec);
+            }
+        } catch (RemoteException ex) {
+            log(ex);
+        }
+    }
+
+    public static String getLinkListOnLocationID(Integer locationID) {
+        try {
+            StringBuilder sb = new StringBuilder();
+            DbObject[] recs = getExchanger().getDbObjects(Loclink.class, "location_id=" + locationID, null);
+            for (DbObject rec : recs) {
+                Loclink ll = (Loclink) rec;
+                Link lnk = (Link) getExchanger().loadDbObjectOnID(Link.class, ll.getLinkId());
+                sb.append(sb.length() > 0 ? "," : "");
+                sb.append(lnk.getUrl());
+            }
+            return sb.toString();
+        } catch (RemoteException ex) {
+            log(ex);
+        }
+        return "can't load link list";
+    }
+    
+    public static String getLinkListOnCompanyID(Integer companyID) {
         try {
             StringBuilder sb = new StringBuilder();
             DbObject[] recs = getExchanger().getDbObjects(Complink.class, "company_id=" + companyID, null);
@@ -543,8 +648,25 @@ public class AIBclient {
         }
         return "can't load link list";
     }
+    
+    public static String getIndustryListOnLocationID(Integer locationID) {
+        try {
+            StringBuilder sb = new StringBuilder();
+            DbObject[] recs = getExchanger().getDbObjects(Locindustry.class, "location_id=" + locationID, null);
+            for (DbObject rec : recs) {
+                Locindustry ci = (Locindustry) rec;
+                Industry ind = (Industry) getExchanger().loadDbObjectOnID(Industry.class, ci.getIndustryId());
+                sb.append(sb.length() > 0 ? "," : "");
+                sb.append(ind.getDescr());
+            }
+            return sb.toString();
+        } catch (RemoteException ex) {
+            log(ex);
+        }
+        return "can't load industry list";
+    }
 
-    static String getIndustryListOnCompanyID(Integer companyID) {
+    public static String getIndustryListOnCompanyID(Integer companyID) {
         try {
             StringBuilder sb = new StringBuilder();
             DbObject[] recs = getExchanger().getDbObjects(Compindustry.class, "company_id=" + companyID, null);
@@ -561,7 +683,7 @@ public class AIBclient {
         return "can't load industry list";
     }
 
-    static String getPublicationsOnCompanyID(Integer companyID) {
+    public static String getPublicationsOnCompanyID(Integer companyID) {
         try {
             StringBuilder sb = new StringBuilder();
             DbObject[] recs = getExchanger().getDbObjects(Comppublic.class, "company_id=" + companyID, null);
