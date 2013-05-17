@@ -2,11 +2,17 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.aib;
+package com.aib.company;
 
+import com.aib.AIBclient;
+import com.aib.EditAreaAction;
+//import com.aib.EditAreaAction;
+import com.aib.EditPanelWithPhoto;
+import com.aib.location.LocationsGrid;
 import com.aib.lookup.ListInTextFieldDialog;
 import static com.aib.RecordEditPanel.getBorderPanel;
 import static com.aib.RecordEditPanel.getGridPanel;
+import com.aib.location.CompLocationsGrid;
 import com.aib.lookup.PublicationsListInTextFieldDialog;
 import com.aib.lookup.WorldRegionLookupAction;
 import com.aib.orm.Company;
@@ -25,6 +31,8 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -89,8 +97,8 @@ class EditCompanyPanel extends EditPanelWithPhoto {
     protected void fillContent() {
         String titles[] = new String[]{
             "ID:",
-            "Full Company Name:", //            "Part Description:",
-            "Dummy Company:",//           "Abbreviation:",
+            "Full Company Name:",//           "Abbreviation:", 
+            "Dummy Company:",
             "Links:",
             "Industry:",
             "Turnover/Year:",
@@ -127,8 +135,8 @@ class EditCompanyPanel extends EditPanelWithPhoto {
             getGridPanel(new JComponent[]{
                 getBorderPanel(new JComponent[]{
                     null,
-                    sp1 = new JScrollPane(physicAddressTA = new JTextArea(1, 20), 
-                        JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER),
+                    sp1 = new JScrollPane(physicAddressTA = new JTextArea(1, 20),
+                    JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER),
                     new JButton(new EditAreaAction("...", physicAddressTA))
                 }),
                 getGridPanel(new JComponent[]{
@@ -139,8 +147,8 @@ class EditCompanyPanel extends EditPanelWithPhoto {
             getGridPanel(new JComponent[]{
                 getBorderPanel(new JComponent[]{
                     null,
-                    sp2 = new JScrollPane(mailingAddressTA = new JTextArea(1, 20), 
-                        JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER),
+                    sp2 = new JScrollPane(mailingAddressTA = new JTextArea(1, 20),
+                    JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER),
                     new JButton(new EditAreaAction("...", mailingAddressTA))
                 }),
                 getGridPanel(new JComponent[]{
@@ -200,7 +208,14 @@ class EditCompanyPanel extends EditPanelWithPhoto {
         JScrollPane sp = new JScrollPane(commentsTA = new JTextArea());
         sp.setPreferredSize(new Dimension(400, 150));
         downTabs.add(sp, "Comments");
-        downTabs.add(new JLabel("Here will be the company locations list", SwingConstants.CENTER), "Company Locations");
+        try {
+            Company comp = (Company) getDbObject();
+            Integer compID = comp == null ? new Integer(0) : comp.getCompanyId();
+            downTabs.add(new CompLocationsGrid(AIBclient.getExchanger(), compID), "Company Locations");
+        } catch (RemoteException ex) {
+            AIBclient.logAndShowMessage(ex);
+        }
+        downTabs.setPreferredSize(new Dimension(downTabs.getPreferredSize().width, 200));
         add(downTabs);
     }
 
@@ -284,13 +299,13 @@ class EditCompanyPanel extends EditPanelWithPhoto {
         while (tok.hasMoreTokens()) {
             AIBclient.saveOrInsertCompanyLink(comp.getCompanyId(), tok.nextToken());
         }
-        AIBclient.removeRedundantLinks(comp.getCompanyId(), linksListTF.getText());
+        AIBclient.removeRedundantCompanyLinks(comp.getCompanyId(), linksListTF.getText());
 
         tok = new StringTokenizer(industriesListTF.getText(), ",");
         while (tok.hasMoreTokens()) {
             AIBclient.saveOrInsertCompanyIndustry(comp.getCompanyId(), tok.nextToken());
         }
-        AIBclient.removeRedundantIndustries(comp.getCompanyId(), industriesListTF.getText());
+        AIBclient.removeRedundantCompanyIndustries(comp.getCompanyId(), industriesListTF.getText());
 
         tok = new StringTokenizer(mentionsListTF.getText(), ",");
         while (tok.hasMoreTokens()) {
@@ -300,6 +315,7 @@ class EditCompanyPanel extends EditPanelWithPhoto {
         return ok;
     }
 
+    @Override
     protected String getImagePanelLabel() {
         return "Logo";
     }
@@ -308,7 +324,6 @@ class EditCompanyPanel extends EditPanelWithPhoto {
         return new AbstractAction(lbl) {
             @Override
             public void actionPerformed(ActionEvent ae) {
-//                System.out.println("!! linksListTF.getText()->" + linksListTF.getText());
                 new ListInTextFieldDialog("Links List",
                         new Object[]{linksListTF.getText(), AIBclient.loadAllLinks(), "Enter URL here:"});
                 linksListTF.setText(ListInTextFieldDialog.getResultList());

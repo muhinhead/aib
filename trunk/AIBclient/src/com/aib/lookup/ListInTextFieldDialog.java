@@ -106,7 +106,6 @@ public class ListInTextFieldDialog extends PopupDialog {
         }), BorderLayout.EAST);
         cPanel.add(upperPanel, BorderLayout.NORTH);
 
-//        String lst = tf.getText().trim();
         selectedItems = new ArrayList();
         if (oldList.length() > 0) {
             for (Object url : linkList) {
@@ -166,7 +165,6 @@ public class ListInTextFieldDialog extends PopupDialog {
             sb.append(sb.length() > 0 ? "," : "");
             sb.append(itm);
         }
-//        tf.setText(sb.toString());
         resultList = sb.toString();
     }
 

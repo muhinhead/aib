@@ -1,6 +1,7 @@
 package com.aib;
 
 import com.aib.FilteredListFrame;
+import com.aib.location.LocationsGrid;
 import com.aib.remote.IMessageSender;
 import java.rmi.RemoteException;
 import javax.swing.JPanel;
@@ -18,7 +19,9 @@ public class LocationsFrame extends FilteredListFrame {
     private static String[] sheetList = new String[]{
         "List", "Filter"
     };
+    
     private LocationsGrid locationPanel;
+    
 
     public LocationsFrame(IMessageSender exch) {
         super("Locations", exch);

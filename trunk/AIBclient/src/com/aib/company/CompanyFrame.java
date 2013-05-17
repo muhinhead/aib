@@ -2,8 +2,10 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.aib;
+package com.aib.company;
 
+import com.aib.AIBclient;
+import com.aib.FilteredListFrame;
 import com.aib.remote.IMessageSender;
 import java.awt.Component;
 import java.rmi.RemoteException;

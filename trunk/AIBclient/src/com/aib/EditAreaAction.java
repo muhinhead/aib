@@ -12,7 +12,7 @@ import javax.swing.text.JTextComponent;
  *
  * @author nick
  */
-class EditAreaAction extends AbstractAction {
+public class EditAreaAction extends AbstractAction {
 
     private final JTextComponent textField;
 
