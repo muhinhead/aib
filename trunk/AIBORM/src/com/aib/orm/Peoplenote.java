@@ -8,41 +8,47 @@ import com.aib.orm.dbobject.Triggers;
 import java.sql.*;
 import java.util.ArrayList;
 
-public class Peopleloc extends DbObject  {
+public class Peoplenote extends DbObject  {
     private static Triggers activeTriggers = null;
-    private Integer peoplelocId = null;
+    private Integer peoplenoteId = null;
     private Integer peopleId = null;
-    private Integer locationId = null;
+    private String comments = null;
+    private Integer lasteditedBy = null;
+    private Timestamp lasteditDate = null;
 
-    public Peopleloc(Connection connection) {
-        super(connection, "peopleloc", "peopleloc_id");
-        setColumnNames(new String[]{"peopleloc_id", "people_id", "location_id"});
+    public Peoplenote(Connection connection) {
+        super(connection, "peoplenote", "peoplenote_id");
+        setColumnNames(new String[]{"peoplenote_id", "people_id", "comments", "lastedited_by", "lastedit_date"});
     }
 
-    public Peopleloc(Connection connection, Integer peoplelocId, Integer peopleId, Integer locationId) {
-        super(connection, "peopleloc", "peopleloc_id");
-        setNew(peoplelocId.intValue() <= 0);
-//        if (peoplelocId.intValue() != 0) {
-            this.peoplelocId = peoplelocId;
+    public Peoplenote(Connection connection, Integer peoplenoteId, Integer peopleId, String comments, Integer lasteditedBy, Timestamp lasteditDate) {
+        super(connection, "peoplenote", "peoplenote_id");
+        setNew(peoplenoteId.intValue() <= 0);
+//        if (peoplenoteId.intValue() != 0) {
+            this.peoplenoteId = peoplenoteId;
 //        }
         this.peopleId = peopleId;
-        this.locationId = locationId;
+        this.comments = comments;
+        this.lasteditedBy = lasteditedBy;
+        this.lasteditDate = lasteditDate;
     }
 
     public DbObject loadOnId(int id) throws SQLException, ForeignKeyViolationException {
-        Peopleloc peopleloc = null;
+        Peoplenote peoplenote = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        String stmt = "SELECT peopleloc_id,people_id,location_id FROM peopleloc WHERE peopleloc_id=" + id;
+        String stmt = "SELECT peoplenote_id,people_id,comments,lastedited_by,lastedit_date FROM peoplenote WHERE peoplenote_id=" + id;
         try {
             ps = getConnection().prepareStatement(stmt);
             rs = ps.executeQuery();
             if (rs.next()) {
-                peopleloc = new Peopleloc(getConnection());
-                peopleloc.setPeoplelocId(new Integer(rs.getInt(1)));
-                peopleloc.setPeopleId(new Integer(rs.getInt(2)));
-                peopleloc.setLocationId(new Integer(rs.getInt(3)));
-                peopleloc.setNew(false);
+                peoplenote = new Peoplenote(getConnection());
+                peoplenote.setPeoplenoteId(new Integer(rs.getInt(1)));
+                peoplenote.setPeopleId(new Integer(rs.getInt(2)));
+                peoplenote.setComments(rs.getString(3));
+                peoplenote.setLasteditedBy(new Integer(rs.getInt(4)));
+                peoplenote.setLasteditDate(rs.getTimestamp(5));
+                peoplenote.setNew(false);
             }
         } finally {
             try {
@@ -51,7 +57,7 @@ public class Peopleloc extends DbObject  {
                 if (ps != null) ps.close();
             }
         }
-        return peopleloc;
+        return peoplenote;
     }
 
     protected void insert() throws SQLException, ForeignKeyViolationException {
@@ -60,27 +66,29 @@ public class Peopleloc extends DbObject  {
          }
          PreparedStatement ps = null;
          String stmt =
-                "INSERT INTO peopleloc ("+(getPeoplelocId().intValue()!=0?"peopleloc_id,":"")+"people_id,location_id) values("+(getPeoplelocId().intValue()!=0?"?,":"")+"?,?)";
+                "INSERT INTO peoplenote ("+(getPeoplenoteId().intValue()!=0?"peoplenote_id,":"")+"people_id,comments,lastedited_by,lastedit_date) values("+(getPeoplenoteId().intValue()!=0?"?,":"")+"?,?,?,?)";
          try {
              ps = getConnection().prepareStatement(stmt);
              int n = 0;
-             if (getPeoplelocId().intValue()!=0) {
-                 ps.setObject(++n, getPeoplelocId());
+             if (getPeoplenoteId().intValue()!=0) {
+                 ps.setObject(++n, getPeoplenoteId());
              }
              ps.setObject(++n, getPeopleId());
-             ps.setObject(++n, getLocationId());
+             ps.setObject(++n, getComments());
+             ps.setObject(++n, getLasteditedBy());
+             ps.setObject(++n, getLasteditDate());
              ps.execute();
          } finally {
              if (ps != null) ps.close();
          }
          ResultSet rs = null;
-         if (getPeoplelocId().intValue()==0) {
-             stmt = "SELECT max(peopleloc_id) FROM peopleloc";
+         if (getPeoplenoteId().intValue()==0) {
+             stmt = "SELECT max(peoplenote_id) FROM peoplenote";
              try {
                  ps = getConnection().prepareStatement(stmt);
                  rs = ps.executeQuery();
                  if (rs.next()) {
-                     setPeoplelocId(new Integer(rs.getInt(1)));
+                     setPeoplenoteId(new Integer(rs.getInt(1)));
                  }
              } finally {
                  try {
@@ -106,13 +114,15 @@ public class Peopleloc extends DbObject  {
             }
             PreparedStatement ps = null;
             String stmt =
-                    "UPDATE peopleloc " +
-                    "SET people_id = ?, location_id = ?" + 
-                    " WHERE peopleloc_id = " + getPeoplelocId();
+                    "UPDATE peoplenote " +
+                    "SET people_id = ?, comments = ?, lastedited_by = ?, lastedit_date = ?" + 
+                    " WHERE peoplenote_id = " + getPeoplenoteId();
             try {
                 ps = getConnection().prepareStatement(stmt);
                 ps.setObject(1, getPeopleId());
-                ps.setObject(2, getLocationId());
+                ps.setObject(2, getComments());
+                ps.setObject(3, getLasteditedBy());
+                ps.setObject(4, getLasteditDate());
                 ps.execute();
             } finally {
                 if (ps != null) ps.close();
@@ -130,29 +140,29 @@ public class Peopleloc extends DbObject  {
         }
         PreparedStatement ps = null;
         String stmt =
-                "DELETE FROM peopleloc " +
-                "WHERE peopleloc_id = " + getPeoplelocId();
+                "DELETE FROM peoplenote " +
+                "WHERE peoplenote_id = " + getPeoplenoteId();
         try {
             ps = getConnection().prepareStatement(stmt);
             ps.execute();
         } finally {
             if (ps != null) ps.close();
         }
-        setPeoplelocId(new Integer(-getPeoplelocId().intValue()));
+        setPeoplenoteId(new Integer(-getPeoplenoteId().intValue()));
         if (getTriggers() != null) {
             getTriggers().afterDelete(this);
         }
     }
 
     public boolean isDeleted() {
-        return (getPeoplelocId().intValue() < 0);
+        return (getPeoplenoteId().intValue() < 0);
     }
 
     public static DbObject[] load(Connection con,String whereCondition,String orderCondition) throws SQLException {
         ArrayList lst = new ArrayList();
         PreparedStatement ps = null;
         ResultSet rs = null;
-        String stmt = "SELECT peopleloc_id,people_id,location_id FROM peopleloc " +
+        String stmt = "SELECT peoplenote_id,people_id,comments,lastedited_by,lastedit_date FROM peoplenote " +
                 ((whereCondition != null && whereCondition.length() > 0) ?
                 " WHERE " + whereCondition : "") +
                 ((orderCondition != null && orderCondition.length() > 0) ?
@@ -162,7 +172,7 @@ public class Peopleloc extends DbObject  {
             rs = ps.executeQuery();
             while (rs.next()) {
                 DbObject dbObj;
-                lst.add(dbObj=new Peopleloc(con,new Integer(rs.getInt(1)),new Integer(rs.getInt(2)),new Integer(rs.getInt(3))));
+                lst.add(dbObj=new Peoplenote(con,new Integer(rs.getInt(1)),new Integer(rs.getInt(2)),rs.getString(3),new Integer(rs.getInt(4)),rs.getTimestamp(5)));
                 dbObj.setNew(false);
             }
         } finally {
@@ -172,10 +182,10 @@ public class Peopleloc extends DbObject  {
                 if (ps != null) ps.close();
             }
         }
-        Peopleloc[] objects = new Peopleloc[lst.size()];
+        Peoplenote[] objects = new Peoplenote[lst.size()];
         for (int i = 0; i < lst.size(); i++) {
-            Peopleloc peopleloc = (Peopleloc) lst.get(i);
-            objects[i] = peopleloc;
+            Peoplenote peoplenote = (Peoplenote) lst.get(i);
+            objects[i] = peoplenote;
         }
         return objects;
     }
@@ -187,7 +197,7 @@ public class Peopleloc extends DbObject  {
         boolean ok = false;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        String stmt = "SELECT peopleloc_id FROM peopleloc " +
+        String stmt = "SELECT peoplenote_id FROM peoplenote " +
                 ((whereCondition != null && whereCondition.length() > 0) ?
                 "WHERE " + whereCondition : "");
         try {
@@ -205,27 +215,27 @@ public class Peopleloc extends DbObject  {
     }
 
     //public String toString() {
-    //    return getPeoplelocId() + getDelimiter();
+    //    return getPeoplenoteId() + getDelimiter();
     //}
 
     public Integer getPK_ID() {
-        return peoplelocId;
+        return peoplenoteId;
     }
 
     public void setPK_ID(Integer id) throws ForeignKeyViolationException {
         boolean prevIsNew = isNew();
-        setPeoplelocId(id);
+        setPeoplenoteId(id);
         setNew(prevIsNew);
     }
 
-    public Integer getPeoplelocId() {
-        return peoplelocId;
+    public Integer getPeoplenoteId() {
+        return peoplenoteId;
     }
 
-    public void setPeoplelocId(Integer peoplelocId) throws ForeignKeyViolationException {
-        setWasChanged(this.peoplelocId != null && this.peoplelocId != peoplelocId);
-        this.peoplelocId = peoplelocId;
-        setNew(peoplelocId.intValue() == 0);
+    public void setPeoplenoteId(Integer peoplenoteId) throws ForeignKeyViolationException {
+        setWasChanged(this.peoplenoteId != null && this.peoplenoteId != peoplenoteId);
+        this.peoplenoteId = peoplenoteId;
+        setNew(peoplenoteId.intValue() == 0);
     }
 
     public Integer getPeopleId() {
@@ -234,28 +244,50 @@ public class Peopleloc extends DbObject  {
 
     public void setPeopleId(Integer peopleId) throws SQLException, ForeignKeyViolationException {
         if (peopleId!=null && !People.exists(getConnection(),"people_id = " + peopleId)) {
-            throw new ForeignKeyViolationException("Can't set people_id, foreign key violation: peopleloc_people_fk");
+            throw new ForeignKeyViolationException("Can't set people_id, foreign key violation: peoplenote_people");
         }
         setWasChanged(this.peopleId != null && !this.peopleId.equals(peopleId));
         this.peopleId = peopleId;
     }
 
-    public Integer getLocationId() {
-        return locationId;
+    public String getComments() {
+        return comments;
     }
 
-    public void setLocationId(Integer locationId) throws SQLException, ForeignKeyViolationException {
-        if (locationId!=null && !Location.exists(getConnection(),"location_id = " + locationId)) {
-            throw new ForeignKeyViolationException("Can't set location_id, foreign key violation: peopleloc_location_fk");
+    public void setComments(String comments) throws SQLException, ForeignKeyViolationException {
+        setWasChanged(this.comments != null && !this.comments.equals(comments));
+        this.comments = comments;
+    }
+
+    public Integer getLasteditedBy() {
+        return lasteditedBy;
+    }
+
+    public void setLasteditedBy(Integer lasteditedBy) throws SQLException, ForeignKeyViolationException {
+        if (null != lasteditedBy)
+            lasteditedBy = lasteditedBy == 0 ? null : lasteditedBy;
+        if (lasteditedBy!=null && !User.exists(getConnection(),"user_id = " + lasteditedBy)) {
+            throw new ForeignKeyViolationException("Can't set lastedited_by, foreign key violation: peoplenote_user_fk");
         }
-        setWasChanged(this.locationId != null && !this.locationId.equals(locationId));
-        this.locationId = locationId;
+        setWasChanged(this.lasteditedBy != null && !this.lasteditedBy.equals(lasteditedBy));
+        this.lasteditedBy = lasteditedBy;
+    }
+
+    public Timestamp getLasteditDate() {
+        return lasteditDate;
+    }
+
+    public void setLasteditDate(Timestamp lasteditDate) throws SQLException, ForeignKeyViolationException {
+        setWasChanged(this.lasteditDate != null && !this.lasteditDate.equals(lasteditDate));
+        this.lasteditDate = lasteditDate;
     }
     public Object[] getAsRow() {
-        Object[] columnValues = new Object[3];
-        columnValues[0] = getPeoplelocId();
+        Object[] columnValues = new Object[5];
+        columnValues[0] = getPeoplenoteId();
         columnValues[1] = getPeopleId();
-        columnValues[2] = getLocationId();
+        columnValues[2] = getComments();
+        columnValues[3] = getLasteditedBy();
+        columnValues[4] = getLasteditDate();
         return columnValues;
     }
 
@@ -272,19 +304,21 @@ public class Peopleloc extends DbObject  {
     public void fillFromString(String row) throws ForeignKeyViolationException, SQLException {
         String[] flds = splitStr(row, delimiter);
         try {
-            setPeoplelocId(Integer.parseInt(flds[0]));
+            setPeoplenoteId(Integer.parseInt(flds[0]));
         } catch(NumberFormatException ne) {
-            setPeoplelocId(null);
+            setPeoplenoteId(null);
         }
         try {
             setPeopleId(Integer.parseInt(flds[1]));
         } catch(NumberFormatException ne) {
             setPeopleId(null);
         }
+        setComments(flds[2]);
         try {
-            setLocationId(Integer.parseInt(flds[2]));
+            setLasteditedBy(Integer.parseInt(flds[3]));
         } catch(NumberFormatException ne) {
-            setLocationId(null);
+            setLasteditedBy(null);
         }
+        setLasteditDate(toTimeStamp(flds[4]));
     }
 }
