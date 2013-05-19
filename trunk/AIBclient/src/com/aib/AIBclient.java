@@ -14,7 +14,6 @@ import com.aib.orm.Peopleaward;
 import com.aib.orm.Peopleindustry;
 import com.aib.orm.Peoplelink;
 import com.aib.orm.User;
-import com.aib.orm.Worldregion;
 import com.aib.orm.dbobject.ComboItem;
 import com.aib.orm.dbobject.DbObject;
 import com.aib.remote.IMessageSender;
@@ -50,7 +49,7 @@ import javax.swing.SpinnerNumberModel;
  */
 public class AIBclient {
 
-    private static final String version = "0.74.a";
+    private static final String version = "0.2";
 //    private static Userprofile currentUser;
     private static Logger logger = null;
     private static FileHandler fh;
