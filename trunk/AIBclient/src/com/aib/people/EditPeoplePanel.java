@@ -10,6 +10,7 @@ import com.aib.EditPanelWithPhoto;
 import com.aib.RecordEditPanel;
 import static com.aib.RecordEditPanel.getBorderPanel;
 import static com.aib.RecordEditPanel.getGridPanel;
+import com.aib.lookup.AIBawardsListInTextFieldDialog;
 import com.aib.lookup.ListInTextFieldDialog;
 import com.aib.orm.Company;
 import com.aib.orm.People;
@@ -19,12 +20,14 @@ import com.xlend.util.EmailFocusAdapter;
 import com.xlend.util.Java2sAutoComboBox;
 import com.xlend.util.SelectedDateSpinner;
 import com.xlend.util.Util;
+import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.rmi.RemoteException;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.StringTokenizer;
 import javax.swing.AbstractAction;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -64,6 +67,8 @@ class EditPeoplePanel extends EditPanelWithPhoto {
     private JTextField paEmailTF;
     private JTextField lastEditorTF;
     private JSpinner lastEditedSP;
+    private JTextField otherContactTF;
+    private JTextField aibAwardsListTF;
 
     public EditPeoplePanel(DbObject dbObject) {
         super(dbObject);
@@ -84,8 +89,10 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             "Desk phone:", // "Desk fax:", "Mibile phone:"
             "Main email:", // "Alternate email:"
             "PA:", // "PA phone:", //"PA email:"
+            "Other contact info:",
+            "AIB actions/date:",
             "Last editor:" //"Last edited:
-        //            "Other contact info:",
+        //            
         //            "AIB involvement:",
         //            "Primary contact:", //"Channel subscriber","Marketing Intel dist.", "Media briefing dist."
         //            "Purchases:",
@@ -99,6 +106,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
         };
         JLabel paEmailLBL;
         JLabel alterEmailLBL;
+        mailingAddressTA = new JTextArea(1, 20);
         JComponent[] edits = new JComponent[]{
             getGridPanel(getGridPanel(new JComponent[]{
                 idField = new JTextField(),
@@ -119,7 +127,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             getGridPanel(jobDisciplineCB = new Java2sAutoComboBox(AIBclient.loadDistinctJobDisciplines()), 2),
             getBorderPanel(new JComponent[]{null,
                 departmentCB = new Java2sAutoComboBox(AIBclient.loadDistinctDepartaments()),
-                new JButton("History...")}),
+                new JButton(getHistoryAction("History"))}),
             getBorderPanel(new JComponent[]{null, industriesListTF = new JTextField(),
                 new JButton(getIndustryListAction("..."))}),
             getGridPanel(specAddressTF = new JTextField(), 3),
@@ -160,6 +168,12 @@ class EditPeoplePanel extends EditPanelWithPhoto {
                     paEmailTF = new JTextField()
                 })
             }),
+            otherContactTF = new JTextField(),
+            getBorderPanel(new JComponent[]{
+                null,
+                aibAwardsListTF = new JTextField(),
+                new JButton(getAwardsListAction("..."))
+            }),
             getBorderPanel(new JComponent[]{
                 lastEditorTF = new JTextField(2),
                 getBorderPanel(new JComponent[]{
@@ -170,6 +184,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
                 })
             })
         };
+        sp1.setMaximumSize(new Dimension(sp1.getPreferredSize().width, idField.getPreferredSize().height));
         idField.setEnabled(false);
         mailingAddressTA.setEditable(false);
         jobDisciplineCB.setEditable(true);
@@ -180,6 +195,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
         Util.addFocusSelectAllAction(lastEditedSP);
         linksListTF.setEditable(false);
         industriesListTF.setEditable(false);
+        
         lastEditorTF.setEnabled(false);
         lastEditedSP.setEnabled(false);
 
@@ -204,6 +220,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             departmentCB.setSelectedItem(person.getDepartment());
             linksListTF.setText(AIBclient.getLinkListOnPeopleID(person.getPeopleId()));
             industriesListTF.setText(AIBclient.getIndustryListOnPeopleID(person.getPeopleId()));
+            aibAwardsListTF.setText(AIBclient.getAwardsOnPeopleID(person.getPeopleId()));
             specAddressTF.setText(person.getSpecAddress());
             mailingAddressTA.setText(person.getMailaddress());
             mailingPostCodeTF.setText(person.getMailpostcode());
@@ -276,6 +293,11 @@ class EditPeoplePanel extends EditPanelWithPhoto {
                 AIBclient.saveOrInsertPeopleIndustry(person.getPeopleId(), tok.nextToken());
             }
             AIBclient.removeRedundantPeopleIndustries(person.getPeopleId(), industriesListTF.getText());
+            tok = new StringTokenizer(aibAwardsListTF.getText(), ",");
+            while (tok.hasMoreTokens()) {
+                AIBclient.savePeopleAward(person.getPeopleId(), tok.nextToken());
+            }
+            AIBclient.removeRedundantAwards(person.getPeopleId(), aibAwardsListTF.getText());
         }
         return ok;
     }
@@ -298,6 +320,28 @@ class EditPeoplePanel extends EditPanelWithPhoto {
                         new Object[]{industriesListTF.getText(), AIBclient.loadAllIndustries(),
                     "Enter industry here:"});
                 industriesListTF.setText(ListInTextFieldDialog.getResultList());
+            }
+        };
+    }
+
+    private AbstractAction getHistoryAction(String lbl) {
+        return new AbstractAction(lbl) {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                People person = (People) getDbObject();
+                new DepartmentsHistoryDialog(person == null || person.getPeopleId() == null ? 0 : person.getPeopleId());
+            }
+        };
+    }
+
+    private AbstractAction getAwardsListAction(String lbl) {
+        return new AbstractAction(lbl) {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                new AIBawardsListInTextFieldDialog("AIB actions / Dates",
+                        new Object[]{aibAwardsListTF.getText(), AIBclient.loadAllAwards(),
+                    "Enter action here:"});
+                aibAwardsListTF.setText(AIBawardsListInTextFieldDialog.getResultList());
             }
         };
     }

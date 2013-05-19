@@ -10,17 +10,17 @@ import com.aib.orm.dbobject.DbObject;
  *
  * @author Nick Mukhin
  */
-public class EditMentionDialog extends EditRecordDialog {
+public class EditAwardDialog extends EditRecordDialog {
     public static boolean okPressed;
     static Integer regionID;
     
-    public EditMentionDialog(String title, Object obj) {
+    public EditAwardDialog(String title, Object obj) {
         super(title, obj);
     }
     
     @Override
     protected void fillContent() {
-        super.fillContent(new EditMentionPanel((DbObject) getObject()));
+        super.fillContent(new EditAwardPanel((DbObject) getObject()));
     }
 
     @Override
