@@ -130,7 +130,6 @@ class EditLocationPanel extends EditPanelWithPhoto {
                 new JButton(getLinkListAction("..."))}),
             getBorderPanel(new JComponent[]{null, industriesListTF = new JTextField(),
                 new JButton(getIndustryListAction("..."))}),
-            
             getGridPanel(new JComponent[]{
                 getBorderPanel(new JComponent[]{
                     null,
@@ -193,7 +192,10 @@ class EditLocationPanel extends EditPanelWithPhoto {
         lastEditedSP.setEnabled(false);
 
         regionWorldCb.addActionListener(countryCBreloadAction());
-        regionWorldCb.setSelectedIndex(0);
+        try {
+            regionWorldCb.setSelectedIndex(0);
+        } catch (Exception e) {
+        }
         organizePanels(titles, edits, null);
         JideTabbedPane downTabs = new JideTabbedPane();
 
@@ -263,20 +265,21 @@ class EditLocationPanel extends EditPanelWithPhoto {
         loc.setLasteditedBy(AIBclient.getCurrentUser().getUserId());
         loc.setLogo(imageData);
         boolean ok = saveDbRecord(loc, isNew);
-        loc = (Location) getDbObject();
-        
-        StringTokenizer tok = new StringTokenizer(linksListTF.getText(), ",");
-        while (tok.hasMoreTokens()) {
-            AIBclient.saveOrInsertLocationLink(loc.getLocationId(), tok.nextToken());
-        }
-        AIBclient.removeRedundantLocationLinks(loc.getLocationId(), linksListTF.getText());
+        if (ok) {
+            loc = (Location) getDbObject();
 
-        tok = new StringTokenizer(industriesListTF.getText(), ",");
-        while (tok.hasMoreTokens()) {
-            AIBclient.saveOrInsertLocationIndustry(loc.getLocationId(), tok.nextToken());
-        }
-        AIBclient.removeRedundantLocationIndustries(loc.getLocationId(), industriesListTF.getText());
+            StringTokenizer tok = new StringTokenizer(linksListTF.getText(), ",");
+            while (tok.hasMoreTokens()) {
+                AIBclient.saveOrInsertLocationLink(loc.getLocationId(), tok.nextToken());
+            }
+            AIBclient.removeRedundantLocationLinks(loc.getLocationId(), linksListTF.getText());
 
+            tok = new StringTokenizer(industriesListTF.getText(), ",");
+            while (tok.hasMoreTokens()) {
+                AIBclient.saveOrInsertLocationIndustry(loc.getLocationId(), tok.nextToken());
+            }
+            AIBclient.removeRedundantLocationIndustries(loc.getLocationId(), industriesListTF.getText());
+        }
         return ok;
     }
 
@@ -298,7 +301,7 @@ class EditLocationPanel extends EditPanelWithPhoto {
             }
         };
     }
-    
+
     private AbstractAction getLinkListAction(String lbl) {
         return new AbstractAction(lbl) {
             @Override

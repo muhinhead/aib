@@ -43,7 +43,7 @@ public class LocationsGrid extends GeneralGridPanel {
         super(exchanger, select, maxWidths, false);
     }
 
-    protected void additionalSetttings() {
+    protected void additionalSettings() {
         EditLocationDialog.companyID = null;
     }
 
@@ -53,7 +53,7 @@ public class LocationsGrid extends GeneralGridPanel {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 try {
-                    additionalSetttings();
+                    additionalSettings();
                     EditLocationDialog ed = new EditLocationDialog("Add Location", null);
                     if (EditLocationDialog.okPressed) {
                         Location loc = (Location) ed.getEditPanel().getDbObject();
@@ -74,16 +74,18 @@ public class LocationsGrid extends GeneralGridPanel {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 int id = getSelectedID();
-                try {
-                    Location loc = (Location) exchanger.loadDbObjectOnID(Location.class, id);
-                    additionalSetttings();
-                    new EditLocationDialog("Edit Location", loc);
-                    if (EditLocationDialog.okPressed) {
-                        GeneralFrame.updateGrid(exchanger, getTableView(),
-                                getTableDoc(), getSelect(), id, getPageSelector().getSelectedIndex());
+                if (id != 0) {
+                    try {
+                        Location loc = (Location) exchanger.loadDbObjectOnID(Location.class, id);
+                        additionalSettings();
+                        new EditLocationDialog("Edit Location", loc);
+                        if (EditLocationDialog.okPressed) {
+                            GeneralFrame.updateGrid(exchanger, getTableView(),
+                                    getTableDoc(), getSelect(), id, getPageSelector().getSelectedIndex());
+                        }
+                    } catch (RemoteException ex) {
+                        AIBclient.logAndShowMessage(ex);
                     }
-                } catch (RemoteException ex) {
-                    AIBclient.logAndShowMessage(ex);
                 }
             }
         };
@@ -95,15 +97,17 @@ public class LocationsGrid extends GeneralGridPanel {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 int id = getSelectedID();
-                try {
-                    Location loc = (Location) exchanger.loadDbObjectOnID(Location.class, id);
-                    if (loc != null && GeneralFrame.yesNo("Attention!", "Do you want to delete this record?") == JOptionPane.YES_OPTION) {
-                        exchanger.deleteObject(loc);
-                        GeneralFrame.updateGrid(exchanger, getTableView(), getTableDoc(),
-                                getSelect(), null, getPageSelector().getSelectedIndex());
+                if (id != 0) {
+                    try {
+                        Location loc = (Location) exchanger.loadDbObjectOnID(Location.class, id);
+                        if (loc != null && GeneralFrame.yesNo("Attention!", "Do you want to delete this record?") == JOptionPane.YES_OPTION) {
+                            exchanger.deleteObject(loc);
+                            GeneralFrame.updateGrid(exchanger, getTableView(), getTableDoc(),
+                                    getSelect(), null, getPageSelector().getSelectedIndex());
+                        }
+                    } catch (RemoteException ex) {
+                        AIBclient.logAndShowMessage(ex);
                     }
-                } catch (RemoteException ex) {
-                    AIBclient.logAndShowMessage(ex);
                 }
             }
         };

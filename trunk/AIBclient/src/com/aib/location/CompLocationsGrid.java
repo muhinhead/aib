@@ -21,7 +21,7 @@ public class CompLocationsGrid extends LocationsGrid {
     }
 
     @Override
-    protected void additionalSetttings() {
+    protected void additionalSettings() {
         EditLocationDialog.companyID = companyID;
     }
 }

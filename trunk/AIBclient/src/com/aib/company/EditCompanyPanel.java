@@ -293,25 +293,26 @@ class EditCompanyPanel extends EditPanelWithPhoto {
         comp.setComments(commentsTA.getText());
 
         boolean ok = saveDbRecord(comp, isNew);
-        comp = (Company) getDbObject();
+        if (ok) {
+            comp = (Company) getDbObject();
+            StringTokenizer tok = new StringTokenizer(linksListTF.getText(), ",");
+            while (tok.hasMoreTokens()) {
+                AIBclient.saveOrInsertCompanyLink(comp.getCompanyId(), tok.nextToken());
+            }
+            AIBclient.removeRedundantCompanyLinks(comp.getCompanyId(), linksListTF.getText());
 
-        StringTokenizer tok = new StringTokenizer(linksListTF.getText(), ",");
-        while (tok.hasMoreTokens()) {
-            AIBclient.saveOrInsertCompanyLink(comp.getCompanyId(), tok.nextToken());
-        }
-        AIBclient.removeRedundantCompanyLinks(comp.getCompanyId(), linksListTF.getText());
+            tok = new StringTokenizer(industriesListTF.getText(), ",");
+            while (tok.hasMoreTokens()) {
+                AIBclient.saveOrInsertCompanyIndustry(comp.getCompanyId(), tok.nextToken());
+            }
+            AIBclient.removeRedundantCompanyIndustries(comp.getCompanyId(), industriesListTF.getText());
 
-        tok = new StringTokenizer(industriesListTF.getText(), ",");
-        while (tok.hasMoreTokens()) {
-            AIBclient.saveOrInsertCompanyIndustry(comp.getCompanyId(), tok.nextToken());
+            tok = new StringTokenizer(mentionsListTF.getText(), ",");
+            while (tok.hasMoreTokens()) {
+                AIBclient.saveCompanyPublication(comp.getCompanyId(), tok.nextToken());
+            }
+            AIBclient.removeRedundantPublications(comp.getCompanyId(), mentionsListTF.getText());
         }
-        AIBclient.removeRedundantCompanyIndustries(comp.getCompanyId(), industriesListTF.getText());
-
-        tok = new StringTokenizer(mentionsListTF.getText(), ",");
-        while (tok.hasMoreTokens()) {
-            AIBclient.saveCompanyPublication(comp.getCompanyId(), tok.nextToken());
-        }
-        AIBclient.removeRedundantPublications(comp.getCompanyId(), mentionsListTF.getText());
         return ok;
     }
 

@@ -1,5 +1,6 @@
 package com.aib;
 
+import com.aib.people.PeopleGrid;
 import com.aib.FilteredListFrame;
 import com.aib.remote.IMessageSender;
 import java.rmi.RemoteException;
