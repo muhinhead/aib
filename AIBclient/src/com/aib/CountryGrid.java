@@ -4,9 +4,7 @@
  */
 package com.aib;
 
-import static com.aib.WorldRegionsGrid.SELECT;
 import com.aib.orm.Country;
-import com.aib.orm.Worldregion;
 import com.aib.remote.IMessageSender;
 import java.awt.event.ActionEvent;
 import java.rmi.RemoteException;
@@ -64,21 +62,23 @@ public class CountryGrid extends GeneralGridPanel {
 
     @Override
     protected AbstractAction editAction() {
-         return new AbstractAction("Edit") {
+        return new AbstractAction("Edit") {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int id = getSelectedID();
-                try {
-                    Country country = (Country) exchanger.loadDbObjectOnID(Country.class, id);
-                    EditCountryDialog.regionID = regionID;
-                    new EditCountryDialog("Edit Country", country);
-                    if (EditCountryDialog.okPressed) {
-                        AIBclient.clearRegionsAndCountries();
-                        GeneralFrame.updateGrid(exchanger, getTableView(),
-                                getTableDoc(), getSelect(), id, getPageSelector().getSelectedIndex());
+                if (id != 0) {
+                    try {
+                        Country country = (Country) exchanger.loadDbObjectOnID(Country.class, id);
+                        EditCountryDialog.regionID = regionID;
+                        new EditCountryDialog("Edit Country", country);
+                        if (EditCountryDialog.okPressed) {
+                            AIBclient.clearRegionsAndCountries();
+                            GeneralFrame.updateGrid(exchanger, getTableView(),
+                                    getTableDoc(), getSelect(), id, getPageSelector().getSelectedIndex());
+                        }
+                    } catch (RemoteException ex) {
+                        AIBclient.logAndShowMessage(ex);
                     }
-                } catch (RemoteException ex) {
-                    AIBclient.logAndShowMessage(ex);
                 }
             }
         };
@@ -90,16 +90,18 @@ public class CountryGrid extends GeneralGridPanel {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int id = getSelectedID();
-                try {
-                    Country country = (Country) exchanger.loadDbObjectOnID(Country.class, id);
-                    if (country != null && GeneralFrame.yesNo("Attention!", "Do you want to delete record?") == JOptionPane.YES_OPTION) {
-                        AIBclient.clearRegionsAndCountries();
-                        exchanger.deleteObject(country);
-                        GeneralFrame.updateGrid(exchanger, getTableView(), getTableDoc(),
-                                getSelect(), null, getPageSelector().getSelectedIndex());
+                if (id != 0) {
+                    try {
+                        Country country = (Country) exchanger.loadDbObjectOnID(Country.class, id);
+                        if (country != null && GeneralFrame.yesNo("Attention!", "Do you want to delete record?") == JOptionPane.YES_OPTION) {
+                            AIBclient.clearRegionsAndCountries();
+                            exchanger.deleteObject(country);
+                            GeneralFrame.updateGrid(exchanger, getTableView(), getTableDoc(),
+                                    getSelect(), null, getPageSelector().getSelectedIndex());
+                        }
+                    } catch (RemoteException ex) {
+                        AIBclient.logAndShowMessage(ex);
                     }
-                } catch (RemoteException ex) {
-                    AIBclient.logAndShowMessage(ex);
                 }
             }
         };

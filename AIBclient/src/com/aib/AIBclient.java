@@ -9,6 +9,8 @@ import com.aib.orm.Industry;
 import com.aib.orm.Link;
 import com.aib.orm.Locindustry;
 import com.aib.orm.Loclink;
+import com.aib.orm.Peopleindustry;
+import com.aib.orm.Peoplelink;
 import com.aib.orm.User;
 import com.aib.orm.Worldregion;
 import com.aib.orm.dbobject.ComboItem;
@@ -285,6 +287,17 @@ public class AIBclient {
         return new ComboItem[]{new ComboItem(0, "")};
     }
 
+    private static List loadStringsOnSelect(IMessageSender exchanger, String select) {
+        int pos = select.indexOf("select distinct ");
+        String slct = pos == 0 ? select.replaceFirst("select distinct ", "select distinct 0,") : select.replaceFirst("select ", "select 0,");
+        ComboItem[] itms = loadOnSelect(exchanger, slct);
+        List answerArray = new ArrayList();
+        for (int i = 0; i < itms.length; i++) {
+            answerArray.add(i, itms[i].getValue());
+        }
+        return answerArray;
+    }
+
     public static void clearRegionsAndCountries() {
         regionsDictionary = null;
         countryDictionary = null;
@@ -525,7 +538,35 @@ public class AIBclient {
             log(ex);
         }
     }
-    
+
+    public static void saveOrInsertPeopleIndustry(Integer peopleID, String industry) {
+        try {
+            Industry ind = null;
+            Peopleindustry pi = null;
+            DbObject[] recs = getExchanger().getDbObjects(Industry.class, "descr='" + industry + "'", null);
+            if (recs.length == 0) {
+                ind = new Industry(null);
+                ind.setIndustryId(0);
+                ind.setDescr(industry);
+                ind.setNew(true);
+                ind = (Industry) AIBclient.getExchanger().saveDbObject(ind);
+            } else {
+                ind = (Industry) recs[0];
+            }
+            if (getExchanger().getCount("select peopleindustry_id from peopleindustry where people_id="
+                    + peopleID + " and industry_id=" + ind.getIndustryId()) == 0) {
+                pi = new Peopleindustry(null);
+                pi.setPeopleindustryId(0);
+                pi.setPeopleId(peopleID);
+                pi.setIndustryId(ind.getIndustryId());
+                pi.setNew(true);
+                AIBclient.getExchanger().saveDbObject(pi);
+            }
+        } catch (Exception ex) {
+            log(ex);
+        }
+    }
+
     public static void saveOrInsertCompanyLink(Integer companyID, String link) {
         try {
             Link lnk = null;
@@ -554,6 +595,34 @@ public class AIBclient {
         }
     }
 
+    public static void saveOrInsertPeopleLink(Integer peopleID, String link) {
+        try {
+            Link lnk = null;
+            Peoplelink pl = null;
+            DbObject[] recs = getExchanger().getDbObjects(Link.class, "url='" + link + "'", null);
+            if (recs.length == 0) {
+                lnk = new Link(null);
+                lnk.setLinkId(0);
+                lnk.setUrl(link);
+                lnk.setNew(true);
+                lnk = (Link) AIBclient.getExchanger().saveDbObject(lnk);
+            } else {
+                lnk = (Link) recs[0];
+            }
+            if (getExchanger().getCount("select peoplelink_id from peoplelink where people_id="
+                    + peopleID + " and link_id=" + lnk.getLinkId()) == 0) {
+                pl = new Peoplelink(null);
+                pl.setPeoplelinkId(0);
+                pl.setPeopleId(peopleID);
+                pl.setLinkId(lnk.getLinkId());
+                pl.setNew(true);
+                AIBclient.getExchanger().saveDbObject(pl);
+            }
+        } catch (Exception ex) {
+            log(ex);
+        }
+    }
+
     public static void removeRedundantPublications(Integer companyID, String publicationList) {
         try {
             DbObject[] recs = getExchanger().getDbObjects(Comppublic.class,
@@ -568,33 +637,78 @@ public class AIBclient {
     }
 
     public static void removeRedundantCompanyIndustries(Integer companyID, String industryList) {
-        try {
-            DbObject[] recs = getExchanger().getDbObjects(Compindustry.class,
-                    "company_id=" + companyID + " and industry_id not in (select industry_id from industry where instr('" + industryList + "',descr)>0)", null);
-            for (DbObject rec : recs) {
-                getExchanger().deleteObject(rec);
-            }
-        } catch (RemoteException ex) {
-            log(ex);
-        }
+//        try {
+//            DbObject[] recs = getExchanger().getDbObjects(Compindustry.class,
+//                    "company_id=" + companyID + " and industry_id not in (select industry_id from industry where instr('" + industryList + "',descr)>0)", null);
+//            for (DbObject rec : recs) {
+//                getExchanger().deleteObject(rec);
+//            }
+//        } catch (RemoteException ex) {
+//            log(ex);
+//        }
+        removeRedundatnItms(Compindustry.class, companyID, "company", "industry", "descr", industryList);
     }
 
     public static void removeRedundantLocationIndustries(Integer locationID, String industryList) {
-        try {
-            DbObject[] recs = getExchanger().getDbObjects(Locindustry.class,
-                    "location_id=" + locationID + " and industry_id not in (select industry_id from industry where instr('" + industryList + "',descr)>0)", null);
-            for (DbObject rec : recs) {
-                getExchanger().deleteObject(rec);
-            }
-        } catch (RemoteException ex) {
-            log(ex);
-        }
+//        try {
+//            DbObject[] recs = getExchanger().getDbObjects(Locindustry.class,
+//                    "location_id=" + locationID + " and industry_id not in (select industry_id from industry where instr('" + industryList + "',descr)>0)", null);
+//            for (DbObject rec : recs) {
+//                getExchanger().deleteObject(rec);
+//            }
+//        } catch (RemoteException ex) {
+//            log(ex);
+//        }
+        removeRedundatnItms(Locindustry.class, locationID, "location", "industry", "descr", industryList);
+    }
+
+    public static void removeRedundantPeopleIndustries(Integer peopleID, String industryList) {
+//        try {
+//            DbObject[] recs = getExchanger().getDbObjects(Peopleindustry.class,
+//                    "people_id=" + peopleID + " and industry_id not in (select industry_id from industry where instr('" + industryList + "',descr)>0)", null);
+//            for (DbObject rec : recs) {
+//                getExchanger().deleteObject(rec);
+//            }
+//        } catch (RemoteException ex) {
+//            log(ex);
+//        }
+        removeRedundatnItms(Peopleindustry.class, peopleID, "people", "industry", "descr", industryList);
+    }
+
+    public static void removeRedundantPeopleLinks(Integer peopleID, String linkList) {
+//        try {
+//            DbObject[] recs = getExchanger().getDbObjects(Peoplelink.class,
+//                    "people_id=" + peopleID + " and link_id not in (select link_id from link where instr('" + linkList + "',url)>0)", null);
+//            for (DbObject rec : recs) {
+//                getExchanger().deleteObject(rec);
+//            }
+//        } catch (RemoteException ex) {
+//            log(ex);
+//        }
+        removeRedundatnItms(Peoplelink.class, peopleID, "people", "link", "url", linkList);
+    }
+
+    public static void removeRedundantCompanyLinks(Integer companyID, String linkList) {
+        removeRedundatnItms(Complink.class, companyID, "company", "link", "url", linkList);
     }
     
-    public static void removeRedundantCompanyLinks(Integer companyID, String linkList) {
+    public static void removeRedundantLocationLinks(Integer locationID, String linkList) {
+//        try {
+//            DbObject[] recs = getExchanger().getDbObjects(Loclink.class,
+//                    "location_id=" + locationID + " and link_id not in (select link_id from link where instr('" + linkList + "',url)>0)", null);
+//            for (DbObject rec : recs) {
+//                getExchanger().deleteObject(rec);
+//            }
+//        } catch (RemoteException ex) {
+//            log(ex);
+//        }
+        removeRedundatnItms(Loclink.class, locationID, "location", "link", "url", linkList);
+    }
+
+    private static void removeRedundatnItms(Class cl, Integer id, String source, String target, String fld, String list) {
         try {
-            DbObject[] recs = getExchanger().getDbObjects(Complink.class,
-                    "company_id=" + companyID + " and link_id not in (select link_id from link where instr('" + linkList + "',url)>0)", null);
+            DbObject[] recs = getExchanger().getDbObjects(cl,
+                    source + "_id=" + id + " and " + target + "_id not in (select " + target + "_id from " + target + " where instr('" + list + "'," + fld + ")>0)", null);
             for (DbObject rec : recs) {
                 getExchanger().deleteObject(rec);
             }
@@ -603,17 +717,7 @@ public class AIBclient {
         }
     }
 
-    public static void removeRedundantLocationLinks(Integer locationID, String linkList) {
-        try {
-            DbObject[] recs = getExchanger().getDbObjects(Loclink.class,
-                    "location_id=" + locationID + " and link_id not in (select link_id from link where instr('" + linkList + "',url)>0)", null);
-            for (DbObject rec : recs) {
-                getExchanger().deleteObject(rec);
-            }
-        } catch (RemoteException ex) {
-            log(ex);
-        }
-    }
+    
 
     public static String getLinkListOnLocationID(Integer locationID) {
         try {
@@ -631,7 +735,7 @@ public class AIBclient {
         }
         return "can't load link list";
     }
-    
+
     public static String getLinkListOnCompanyID(Integer companyID) {
         try {
             StringBuilder sb = new StringBuilder();
@@ -648,7 +752,24 @@ public class AIBclient {
         }
         return "can't load link list";
     }
-    
+
+    public static String getLinkListOnPeopleID(Integer peopleID) {
+        try {
+            StringBuilder sb = new StringBuilder();
+            DbObject[] recs = getExchanger().getDbObjects(Peoplelink.class, "people_id=" + peopleID, null);
+            for (DbObject rec : recs) {
+                Peoplelink pl = (Peoplelink) rec;
+                Link lnk = (Link) getExchanger().loadDbObjectOnID(Link.class, pl.getLinkId());
+                sb.append(sb.length() > 0 ? "," : "");
+                sb.append(lnk.getUrl());
+            }
+            return sb.toString();
+        } catch (RemoteException ex) {
+            log(ex);
+        }
+        return "can't load link list";
+    }
+
     public static String getIndustryListOnLocationID(Integer locationID) {
         try {
             StringBuilder sb = new StringBuilder();
@@ -683,6 +804,23 @@ public class AIBclient {
         return "can't load industry list";
     }
 
+    public static String getIndustryListOnPeopleID(Integer peopleID) {
+        try {
+            StringBuilder sb = new StringBuilder();
+            DbObject[] recs = getExchanger().getDbObjects(Peopleindustry.class, "people_id=" + peopleID, null);
+            for (DbObject rec : recs) {
+                Peopleindustry pi = (Peopleindustry) rec;
+                Industry ind = (Industry) getExchanger().loadDbObjectOnID(Industry.class, pi.getIndustryId());
+                sb.append(sb.length() > 0 ? "," : "");
+                sb.append(ind.getDescr());
+            }
+            return sb.toString();
+        } catch (RemoteException ex) {
+            log(ex);
+        }
+        return "can't load industry list";
+    }
+
     public static String getPublicationsOnCompanyID(Integer companyID) {
         try {
             StringBuilder sb = new StringBuilder();
@@ -698,5 +836,17 @@ public class AIBclient {
             log(ex);
         }
         return "can't load publications list";
+    }
+
+    public static List loadDistinctJobDisciplines() {
+        List ans = loadStringsOnSelect(getExchanger(), "select distinct job_discip from people order by job_discip");
+//        ans.add("bbb");
+        return ans;
+    }
+
+    public static List loadDistinctDepartaments() {
+        List ans = loadStringsOnSelect(getExchanger(), "select distinct department from people order by department");
+//        ans.add("aaa");
+        return ans;
     }
 }
