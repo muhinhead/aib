@@ -206,6 +206,29 @@ create table people
     constraint people_user_fk2 foreign key (sales_contact_id) references user (user_id)
 );
 
+create table peoplenote
+(
+    peoplenote_id    int not null auto_increment,
+    people_id        int not null,
+    comments         text,
+    note_date        date not null,
+    lastedited_by    int,
+    lastedit_date    datetime,
+    constraint peoplenote_pk primary key (peoplenote_id),
+    constraint peoplenote_people_fk foreign key (people_id) references people (people_id) on delete cascade,
+    constraint peoplenote_user_fk foreign key (lastedited_by) references user (user_id)
+);
+
+create table departmenthistory
+(
+    departmenthistory_id int not null auto_increment,
+    people_id            int not null,
+    department           varchar(128),
+    until_date           datetime,
+    constraint departmenthistory_pk primary key (departmenthistory_id),
+    constraint departmenthistory_people_fk foreign key (people_id) references people (people_id) on delete cascade
+);
+
 create table product 
 (
     product_id  int not null auto_increment,
@@ -285,3 +308,16 @@ create table peopleaward
     constraint peopleaib_aibaward_fk foreign key (aibaward_id) references aibaward (aibaward_id) on delete cascade
 );
 
+delimiter |
+
+CREATE TRIGGER tr_people_afterupdate
+AFTER UPDATE ON people
+FOR EACH ROW
+BEGIN
+    IF NOT old.department IS NULL AND new.department<>old.department THEN
+        INSERT INTO departmenthistory (people_id, department, until_date) VALUES (new.people_id,old.department,CURRENT_DATE);
+    END IF;
+END;
+|
+
+delimiter ;
