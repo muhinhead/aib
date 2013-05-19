@@ -69,7 +69,7 @@ public class DbConnection {
     }
 
     public static String getFtpURL() {
-        return props.getProperty("ftpURL", "ec2-23-22-145-131.compute-1.amazonaws.com");
+        return props.getProperty("ftpURL", "ec2-54-226-3-180.compute-1.amazonaws.com");
     }
 
     public static String getFtpPath() {
@@ -101,7 +101,7 @@ public class DbConnection {
                     "com.mysql.jdbc.Driver")).newInstance());
             connection = DriverManager.getConnection(
                     props.getProperty("dbConnection",
-                    "jdbc:mysql://ec2-23-22-145-131.compute-1.amazonaws.com/aibcontact1?characterEncoding=UTF8"),
+                    "jdbc:mysql://ec2-54-226-3-180.compute-1.amazonaws.com/aibcontact1?characterEncoding=UTF8"),
                     getLogin(), getPassword());
             connection.setAutoCommit(true);
             RmiMessageSender.isMySQL = (connection.getClass().getCanonicalName().indexOf("mysql") > -1);
