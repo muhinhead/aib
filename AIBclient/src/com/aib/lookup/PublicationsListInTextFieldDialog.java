@@ -6,8 +6,13 @@ package com.aib.lookup;
 
 import com.aib.AIBclient;
 import com.aib.EditMentionDialog;
+//import com.aib.orm.Aibaward;
 import com.aib.orm.Aibpublic;
+import com.aib.orm.dbobject.DbObject;
+import java.awt.event.ActionEvent;
+import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
+import javax.swing.AbstractAction;
 
 /**
  *
@@ -36,4 +41,34 @@ public class PublicationsListInTextFieldDialog extends ListInTextFieldDialog {
         }
         return name;
     }
+    
+        @Override
+    protected AbstractAction getEditAction() {
+        return new AbstractAction("Edit") {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                String itm = (String) urlJList.getSelectedValue();
+                
+                if (itm != null) {
+                    int row = urlJList.getSelectedIndex();
+                    try {
+                        DbObject[] recs = AIBclient.getExchanger().getDbObjects(
+                                Aibpublic.class, "concat(publication,' (',pub_date,')')='" + itm + "'", null);
+                        if (recs.length > 0) {
+                            EditMentionDialog ed = new EditMentionDialog("Edit action", recs[0]);
+                            if (EditMentionDialog.okPressed) {
+                                Aibpublic ap = (Aibpublic) ed.getEditPanel().getDbObject();
+                                String sdate = new SimpleDateFormat("yyyy-MM-dd").format(ap.getPubDate());
+                                selectedItems.set(row, ap.getPublication()+" ("+sdate + ")");
+                                urlJList.updateUI();
+                            }
+                        }
+                    } catch (RemoteException ex) {
+                        AIBclient.logAndShowMessage(ex);
+                    }
+                }
+            }
+        };
+    }
+
 }

@@ -1,5 +1,6 @@
 package com.aib;
 
+import com.aib.orm.Aibaward;
 import com.aib.orm.Aibpublic;
 import com.aib.orm.Compindustry;
 import com.aib.orm.Complink;
@@ -9,6 +10,7 @@ import com.aib.orm.Industry;
 import com.aib.orm.Link;
 import com.aib.orm.Locindustry;
 import com.aib.orm.Loclink;
+import com.aib.orm.Peopleaward;
 import com.aib.orm.Peopleindustry;
 import com.aib.orm.Peoplelink;
 import com.aib.orm.User;
@@ -289,7 +291,8 @@ public class AIBclient {
 
     private static List loadStringsOnSelect(IMessageSender exchanger, String select) {
         int pos = select.indexOf("select distinct ");
-        String slct = pos == 0 ? select.replaceFirst("select distinct ", "select distinct 0,") : select.replaceFirst("select ", "select 0,");
+        String slct = pos == 0 ? select.replaceAll("select distinct ", "select distinct 0,")
+                : select.replaceFirst("select ", "select 0,");
         ComboItem[] itms = loadOnSelect(exchanger, slct);
         List answerArray = new ArrayList();
         for (int i = 0; i < itms.length; i++) {
@@ -408,6 +411,23 @@ public class AIBclient {
         return null;
     }
 
+    public static List loadAllAwards() {
+        try {
+            DbObject[] aibArray = exchanger.getDbObjects(Aibaward.class, null, "award_date desc");
+            ArrayList pubs = new ArrayList();
+            int i = 1;
+            pubs.add("");
+            for (DbObject o : aibArray) {
+                Aibaward award = (Aibaward) o;
+                pubs.add(award.getAward() + " (" + award.getAwardDate() + ")");
+            }
+            return pubs;
+        } catch (RemoteException ex) {
+            log(ex);
+        }
+        return null;
+    }
+
     public static boolean publicationNotExist(String publicationWithDate) {
         int qty = 0;
         int p = publicationWithDate.indexOf("(");
@@ -425,6 +445,23 @@ public class AIBclient {
         return qty == 0;
     }
 
+    public static boolean awardNotExist(String awardWithDate) {
+        int qty = 0;
+        int p = awardWithDate.indexOf("(");
+        if (p > 0) {
+            String action = awardWithDate.substring(0, p).trim();
+            String pubDate = awardWithDate.substring(p + 1, awardWithDate.indexOf(")"));
+            try {
+                qty = exchanger.getCount(
+                        "select aibaward_id from aibaward where award='"
+                        + action + "' and award_date='" + pubDate + "'");
+            } catch (RemoteException ex) {
+                log(ex);
+            }
+        }
+        return qty == 0;
+    }
+
     public static Integer getRegionOnCountry(Integer countryId) {
         try {
             Country country = (Country) getExchanger().loadDbObjectOnID(Country.class, countryId);
@@ -433,6 +470,26 @@ public class AIBclient {
             log(ex);
         }
         return null;
+    }
+
+    public static void savePeopleAward(Integer peopleID, String award) {
+        try {
+            Aibaward aw = null;
+            Peopleaward pa = null;
+            DbObject[] recs = getExchanger().getDbObjects(Aibaward.class, "concat(award,' (',award_date,')')='" + award + "'", null);
+            aw = (Aibaward) recs[0];
+            if (getExchanger().getCount("select peopleaward_id from peopleaward where people_id="
+                    + peopleID + " and aibaward_id=" + aw.getAibawardId())==0) {
+                pa = new Peopleaward(null);
+                pa.setPeopleawardId(0);
+                pa.setPeopleId(peopleID);
+                pa.setAibawardId(aw.getAibawardId());
+                pa.setNew(true);
+                AIBclient.getExchanger().saveDbObject(pa);
+            }
+        } catch (Exception ex) {
+            log(ex);
+        }
     }
 
     public static void saveCompanyPublication(Integer companyID, String publication) {
@@ -622,6 +679,19 @@ public class AIBclient {
             log(ex);
         }
     }
+    
+    public static void removeRedundantAwards(Integer peopleID, String actionsList) {
+        try {
+            DbObject[] recs = getExchanger().getDbObjects(Peopleaward.class,
+                    "people_id=" + peopleID + " and aibaward_id not in "
+                    + "(select aibaward_id from aibaward where instr('" + actionsList + "',concat(award,' (',award_date,')'))>0)", null);
+            for (DbObject rec : recs) {
+                getExchanger().deleteObject(rec);
+            }
+        } catch (RemoteException ex) {
+            log(ex);
+        }
+    }
 
     public static void removeRedundantPublications(Integer companyID, String publicationList) {
         try {
@@ -691,7 +761,7 @@ public class AIBclient {
     public static void removeRedundantCompanyLinks(Integer companyID, String linkList) {
         removeRedundatnItms(Complink.class, companyID, "company", "link", "url", linkList);
     }
-    
+
     public static void removeRedundantLocationLinks(Integer locationID, String linkList) {
 //        try {
 //            DbObject[] recs = getExchanger().getDbObjects(Loclink.class,
@@ -716,8 +786,6 @@ public class AIBclient {
             log(ex);
         }
     }
-
-    
 
     public static String getLinkListOnLocationID(Integer locationID) {
         try {
@@ -818,9 +886,26 @@ public class AIBclient {
         } catch (RemoteException ex) {
             log(ex);
         }
-        return "can't load industry list";
+        return "can't load industries list";
     }
 
+    public static String getAwardsOnPeopleID(Integer peopleID) {
+        try {
+            StringBuilder sb = new StringBuilder();
+            DbObject[] recs = getExchanger().getDbObjects(Peopleaward.class, "people_id=" + peopleID, null);
+            for (DbObject rec : recs) {
+                Peopleaward pa = (Peopleaward) rec;
+                Aibaward aw = (Aibaward) getExchanger().loadDbObjectOnID(Aibaward.class, pa.getAibawardId());
+                sb.append(sb.length() > 0 ? "," : "");
+                sb.append(aw.getAward()).append(" (").append(aw.getAwardDate()).append(")");
+            }
+            return sb.toString();
+        } catch (RemoteException ex) {
+            log(ex);
+        }
+        return "can't load actions list";
+    }
+    
     public static String getPublicationsOnCompanyID(Integer companyID) {
         try {
             StringBuilder sb = new StringBuilder();
@@ -845,8 +930,8 @@ public class AIBclient {
     }
 
     public static List loadDistinctDepartaments() {
-        List ans = loadStringsOnSelect(getExchanger(), "select distinct department from people order by department");
-//        ans.add("aaa");
+        List ans = loadStringsOnSelect(getExchanger(),
+                "select distinct department from departmenthistory union select distinct department from people order by department");
         return ans;
     }
 }

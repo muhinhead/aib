@@ -42,8 +42,8 @@ public class ListInTextFieldDialog extends PopupDialog {
     private JButton okButton;
     private JButton cancelButton;
     private Java2sAutoComboBox urlField;
-    private ArrayList selectedItems;
-    private JList urlJList;
+    protected ArrayList selectedItems;
+    protected JList urlJList;
     private AbstractListModel listModel;
 //    private JTextField tf;
 
@@ -76,6 +76,10 @@ public class ListInTextFieldDialog extends PopupDialog {
             }
         }));
         JPanel delClearBtnPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        AbstractAction editAct = getEditAction();
+        if (editAct != null) {
+            delClearBtnPanel.add(new JButton(editAct));
+        }
         delClearBtnPanel.add(new JButton(getRemoveAction()));
         delClearBtnPanel.add(new JButton(getClearAllAction()));
         JPanel btnPanel = new JPanel(new GridLayout(1, 2));
@@ -194,5 +198,9 @@ public class ListInTextFieldDialog extends PopupDialog {
                 urlJList.updateUI();
             }
         };
+    }
+
+    protected AbstractAction getEditAction() {
+        return null;
     }
 }
