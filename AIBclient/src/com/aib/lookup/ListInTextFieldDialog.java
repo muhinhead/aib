@@ -30,7 +30,7 @@ import javax.swing.JScrollPane;
  */
 public class ListInTextFieldDialog extends PopupDialog {
 
-    private static String resultList;
+    protected static String resultList;
 
     /**
      * @return the resultList
@@ -38,7 +38,7 @@ public class ListInTextFieldDialog extends PopupDialog {
     public static String getResultList() {
         return resultList;
     }
-    private String oldList;
+    protected String oldList;
     private JButton okButton;
     private JButton cancelButton;
     private Java2sAutoComboBox urlField;
@@ -111,13 +111,7 @@ public class ListInTextFieldDialog extends PopupDialog {
         cPanel.add(upperPanel, BorderLayout.NORTH);
 
         selectedItems = new ArrayList();
-        if (oldList.length() > 0) {
-            for (Object url : linkList) {
-                if (oldList.indexOf((String) url) >= 0) {
-                    selectedItems.add(url);
-                }
-            }
-        }
+        fillJList(linkList);
 
         listModel = new AbstractListModel() {
             @Override
@@ -163,7 +157,7 @@ public class ListInTextFieldDialog extends PopupDialog {
         };
     }
 
-    private void syncTextField() {
+    protected void syncTextField() {
         StringBuilder sb = new StringBuilder();
         for (Object itm : selectedItems) {
             sb.append(sb.length() > 0 ? "," : "");
@@ -202,5 +196,15 @@ public class ListInTextFieldDialog extends PopupDialog {
 
     protected AbstractAction getEditAction() {
         return null;
+    }
+
+    protected void fillJList(List linkList) {
+        if (oldList.length() > 0) {
+            for (Object url : linkList) {
+                if (oldList.indexOf((String) url) >= 0) {
+                    selectedItems.add(url);
+                }
+            }
+        }
     }
 }

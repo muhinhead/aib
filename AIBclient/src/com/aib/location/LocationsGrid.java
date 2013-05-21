@@ -49,7 +49,7 @@ public class LocationsGrid extends GeneralGridPanel {
 
     @Override
     protected AbstractAction addAction() {
-        return new AbstractAction("Add Location") {
+        return new AbstractAction("Add") {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 try {
@@ -70,7 +70,7 @@ public class LocationsGrid extends GeneralGridPanel {
 
     @Override
     protected AbstractAction editAction() {
-        return new AbstractAction("Edit Location") {
+        return new AbstractAction("Edit") {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 int id = getSelectedID();
@@ -93,7 +93,7 @@ public class LocationsGrid extends GeneralGridPanel {
 
     @Override
     protected AbstractAction delAction() {
-        return new AbstractAction("Add Location") {
+        return new AbstractAction("Delete") {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 int id = getSelectedID();

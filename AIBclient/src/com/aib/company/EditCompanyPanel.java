@@ -8,10 +8,9 @@ import com.aib.AIBclient;
 import com.aib.EditAreaAction;
 //import com.aib.EditAreaAction;
 import com.aib.EditPanelWithPhoto;
-import com.aib.location.LocationsGrid;
 import com.aib.lookup.ListInTextFieldDialog;
-import static com.aib.RecordEditPanel.getBorderPanel;
-import static com.aib.RecordEditPanel.getGridPanel;
+//import static com.aib.RecordEditPanel.getBorderPanel;
+//import static com.aib.RecordEditPanel.getGridPanel;
 import com.aib.location.CompLocationsGrid;
 import com.aib.lookup.PublicationsListInTextFieldDialog;
 import com.aib.lookup.WorldRegionLookupAction;
@@ -31,8 +30,6 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.StringTokenizer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -108,7 +105,7 @@ class EditCompanyPanel extends EditPanelWithPhoto {
             "Main Phone:", //"Main Fax;"
             "Membership Level:",
             "AIB mentions:",
-            "Date last verified:" //"Last editor:" //"Last edited:
+            "Last verified:" //"Last editor:" //"Last edited:
         };
         regionWorldCbModel = new DefaultComboBoxModel();
         countryCbModel = new DefaultComboBoxModel();
@@ -157,8 +154,7 @@ class EditCompanyPanel extends EditPanelWithPhoto {
                 })
             }),
             getGridPanel(new JComponent[]{
-                comboPanelWithLookupBtn(regionWorldCb = new JComboBox(regionWorldCbModel),
-                new RegionsLookupAction(regionWorldCb)),
+                comboPanelWithLookupBtn(regionWorldCb = new JComboBox(regionWorldCbModel), new RegionsLookupAction(regionWorldCb)),
                 new JLabel("Country:", SwingConstants.RIGHT),
                 countryCB = new JComboBox(countryCbModel)
             }),
