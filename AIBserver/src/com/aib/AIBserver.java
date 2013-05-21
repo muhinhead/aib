@@ -37,7 +37,7 @@ import javax.swing.UIManager;
  */
 public class AIBserver {
 
-    private static final String version = "0.2";
+    private static final String version = "0.3";
     public static final String PROPERTYFILENAME = "AIBserver.config";
     private static final String ICONNAME = "aib.png";
     private static Logger logger = null;
