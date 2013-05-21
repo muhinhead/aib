@@ -69,6 +69,8 @@ create table company
     constraint company_user_fk foreign key (lastedited_by) references user (user_id)
 );
 
+create unique index company_abbreviation_uniq on company (abbreviation);
+
 create table link 
 (
     link_id     int not null auto_increment,
@@ -172,6 +174,7 @@ create table people
     last_name        varchar(32) not null,
     suffix           varchar(16),
     greeting         varchar(16),
+    location_id      int,
     photo            mediumblob,
     level            varchar(64),
     job_discip       varchar(64),
@@ -202,6 +205,7 @@ create table people
     lastedited_by    int,
     lastedit_date    datetime,
     constraint people_pk primary key (people_id),
+    constraint people_location_id foreign key (location_id) references location (location_id),
     constraint people_user_fk foreign key (lastedited_by) references user (user_id),
     constraint people_user_fk2 foreign key (sales_contact_id) references user (user_id)
 );
@@ -270,6 +274,16 @@ create table peoplelink
     constraint peoplelink_link_fk foreign key (link_id) references link (link_id) on delete cascade
 );
 
+create table peoplecompany 
+(
+    peoplecompany_id int not null auto_increment,
+    people_id      int not null,
+    company_id        int not null,
+    constraint peoplecompany_pk primary key (peoplecompany_id),
+    constraint peoplecompany_people_fk foreign key (people_id) references people (people_id) on delete cascade,
+    constraint peoplecompany_company_fk foreign key (company_id) references company (company_id) on delete cascade
+);
+
 create table peopleindustry 
 (
     peopleindustry_id int not null auto_increment,
@@ -279,16 +293,6 @@ create table peopleindustry
     constraint peopleindustry_people_fk foreign key (people_id) references people (people_id) on delete cascade,
     constraint peopleindustry_industry_fk foreign key (industry_id) references industry (industry_id) on delete cascade
 ); 
-
-create table peopleloc 
-(
-    peopleloc_id int not null auto_increment,
-    people_id          int not null,
-    location_id        int not null,
-    constraint peopleloc_pk primary key (peopleloc_id),
-    constraint peopleloc_people_fk foreign key (people_id) references people (people_id) on delete cascade,
-    constraint peopleloc_location_fk foreign key (location_id) references location (location_id) on delete cascade
-);
 
 create table aibaward 
 (
@@ -315,7 +319,7 @@ AFTER UPDATE ON people
 FOR EACH ROW
 BEGIN
     IF NOT old.department IS NULL AND new.department<>old.department THEN
-        INSERT INTO departmenthistory (people_id, department, until_date) VALUES (new.people_id,old.department,CURRENT_DATE);
+        INSERT INTO departmenthistory (people_id, department, until_date) VALUES (new.people_id,old.department,NOW());
     END IF;
 END;
 |
