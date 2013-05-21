@@ -7,7 +7,7 @@ import com.aib.orm.Company;
  *
  * @author Nick Mukhin
  */
-class EditCompanyDialog extends EditRecordDialog {
+public class EditCompanyDialog extends EditRecordDialog {
 
     public static boolean okPressed;
      public EditCompanyDialog(String title, Object obj) {

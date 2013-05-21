@@ -172,7 +172,7 @@ public abstract class EditPanelWithPhoto extends RecordEditPanel {
     private void setPhoto() {
         picPanel.setVisible(false);
         picPanel.removeAll();
-        String tmpImgFile = "$$$.img";
+        String tmpImgFile = System.getProperty("user.home")+File.separatorChar+"$$$.img";
         currentPicture = new ImageIcon(imageData);
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         Dimension d = new Dimension(screenSize.width / 3, screenSize.height / 3);

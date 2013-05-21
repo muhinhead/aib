@@ -43,7 +43,7 @@ public class CompaniesGrid extends GeneralGridPanel {
 
     @Override
     protected AbstractAction addAction() {
-        return new AbstractAction("Add Company") {
+        return new AbstractAction("Add") {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 try {
@@ -63,7 +63,7 @@ public class CompaniesGrid extends GeneralGridPanel {
 
     @Override
     protected AbstractAction editAction() {
-        return new AbstractAction("Edit Company") {
+        return new AbstractAction("Edit") {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 int id = getSelectedID();
@@ -85,7 +85,7 @@ public class CompaniesGrid extends GeneralGridPanel {
 
     @Override
     protected AbstractAction delAction() {
-        return new AbstractAction("Delete Company") {
+        return new AbstractAction("Delete") {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 int id = getSelectedID();
