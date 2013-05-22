@@ -46,17 +46,18 @@ public class CompaniesGrid extends GeneralGridPanel {
         return new AbstractAction("Add") {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                try {
+//                try {
                     EditCompanyDialog ed = new EditCompanyDialog("Add Company", null);
                     if (EditCompanyDialog.okPressed) {
                         Company comp = (Company) ed.getEditPanel().getDbObject();
-                        GeneralFrame.updateGrid(exchanger,
-                                getTableView(), getTableDoc(), getSelect(), comp.getCompanyId(),
-                                getPageSelector().getSelectedIndex());
+                        refresh(comp.getCompanyId());
+//                        GeneralFrame.updateGrid(exchanger,
+//                                getTableView(), getTableDoc(), getSelect(), comp.getCompanyId(),
+//                                getPageSelector().getSelectedIndex());
                     }
-                } catch (RemoteException ex) {
-                    AIBclient.logAndShowMessage(ex);
-                }
+//                } catch (RemoteException ex) {
+//                    AIBclient.logAndShowMessage(ex);
+//                }
             }
         };
     }
@@ -72,8 +73,9 @@ public class CompaniesGrid extends GeneralGridPanel {
                         Company comp = (Company) exchanger.loadDbObjectOnID(Company.class, id);
                         new EditCompanyDialog("Edit Company", comp);
                         if (EditCompanyDialog.okPressed) {
-                            GeneralFrame.updateGrid(exchanger, getTableView(),
-                                    getTableDoc(), getSelect(), id, getPageSelector().getSelectedIndex());
+//                            GeneralFrame.updateGrid(exchanger, getTableView(),
+//                                    getTableDoc(), getSelect(), id, getPageSelector().getSelectedIndex());
+                            refresh();
                         }
                     } catch (RemoteException ex) {
                         AIBclient.logAndShowMessage(ex);
@@ -94,8 +96,9 @@ public class CompaniesGrid extends GeneralGridPanel {
                         Company comp = (Company) exchanger.loadDbObjectOnID(Company.class, id);
                         if (comp != null && GeneralFrame.yesNo("Attention!", "Do you want to delete this record?") == JOptionPane.YES_OPTION) {
                             exchanger.deleteObject(comp);
-                            GeneralFrame.updateGrid(exchanger, getTableView(), getTableDoc(),
-                                    getSelect(), null, getPageSelector().getSelectedIndex());
+//                            GeneralFrame.updateGrid(exchanger, getTableView(), getTableDoc(),
+//                                    getSelect(), null, getPageSelector().getSelectedIndex());
+                            refresh();
                         }
                     } catch (RemoteException ex) {
                         AIBclient.logAndShowMessage(ex);

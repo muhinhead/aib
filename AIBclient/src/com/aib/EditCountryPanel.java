@@ -12,7 +12,6 @@ import com.aib.orm.dbobject.DbObject;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
-import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 
 /**

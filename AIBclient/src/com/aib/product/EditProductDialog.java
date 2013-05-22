@@ -1,23 +1,26 @@
-package com.aib.company;
+/*
+ * To change this template, choose Tools | Templates
+ * and open the template in the editor.
+ */
+package com.aib.product;
 
 import com.aib.EditRecordDialog;
-import com.aib.orm.Company;
 import com.aib.orm.dbobject.DbObject;
 
 /**
  *
  * @author Nick Mukhin
  */
-public class EditCompanyDialog extends EditRecordDialog {
-
+class EditProductDialog extends EditRecordDialog {
     public static boolean okPressed;
-     public EditCompanyDialog(String title, Object obj) {
+
+    public EditProductDialog(String title, Object obj) {
         super(title, obj);
     }
-    
+
     @Override
     protected void fillContent() {
-        super.fillContent(new EditCompanyPanel((DbObject) getObject()));
+        super.fillContent(new EditProductPanel((DbObject) getObject()));
     }
 
     @Override

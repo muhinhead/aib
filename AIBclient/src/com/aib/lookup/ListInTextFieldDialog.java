@@ -4,6 +4,7 @@
  */
 package com.aib.lookup;
 
+import com.aib.AIBclient;
 import com.aib.RecordEditPanel;
 import com.xlend.util.Java2sAutoComboBox;
 import com.xlend.util.PopupDialog;
@@ -53,7 +54,7 @@ public class ListInTextFieldDialog extends PopupDialog {
 
     @Override
     protected Color getHederBackground() {
-        return new Color(102, 125, 158);
+        return AIBclient.HDR_COLOR;
     }
 
     @Override

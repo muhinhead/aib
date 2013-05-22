@@ -29,8 +29,8 @@ public abstract class GeneralGridPanel extends DbTableGridPanel {
         isExternalView = (tabView != null);
 
         init(new AbstractAction[]{readOnly ? null : addAction(),
-                    readOnly ? null : editAction(),
-                    readOnly ? null : delAction()},
+            readOnly ? null : editAction(),
+            readOnly ? null : delAction()},
                 select, exchanger.getTableBody(select, 0, GeneralGridPanel.PAGESIZE), maxWidths, tabView);
         setIsMultilineSelection(false);
         refreshTotalRows();
@@ -109,14 +109,24 @@ public abstract class GeneralGridPanel extends DbTableGridPanel {
 
     protected void refresh() {
         int id = getSelectedID();
-        if (id > 0) {
-            try {
-                GeneralFrame.updateGrid(exchanger, getTableView(),
-                        getTableDoc(), getSelect(), id, getPageSelector().getSelectedIndex());
-                refreshTotalRows();
-            } catch (RemoteException ex) {
-                AIBclient.log(ex);
-            }
+//        if (id > 0) {
+        try {
+            GeneralFrame.updateGrid(exchanger, getTableView(),
+                    getTableDoc(), getSelect(), id, getPageSelector().getSelectedIndex());
+            refreshTotalRows();
+        } catch (RemoteException ex) {
+            AIBclient.logAndShowMessage(ex);
+        }
+//        }
+    }
+
+    protected void refresh(int id) {
+        try {
+            GeneralFrame.updateGrid(exchanger, getTableView(),
+                    getTableDoc(), getSelect(), id, getPageSelector().getSelectedIndex());
+            refreshTotalRows();
+        } catch (RemoteException ex) {
+            AIBclient.logAndShowMessage(ex);
         }
     }
 

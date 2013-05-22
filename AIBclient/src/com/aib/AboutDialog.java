@@ -35,7 +35,7 @@ public class AboutDialog extends PopupDialog {
     }
 
     protected void fillContent() {
-        Color fg = new Color(102, 125, 158);
+        Color fg = AIBclient.HDR_COLOR;
         super.fillContent();
         JPanel main = new TexturedPanel(BACKGROUNDIMAGE);
         getContentPane().add(main, BorderLayout.CENTER);

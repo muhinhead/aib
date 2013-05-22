@@ -2,9 +2,12 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.aib;
+package com.aib.product;
 
-import com.aib.orm.Country;
+import com.aib.AIBclient;
+import com.aib.GeneralFrame;
+import com.aib.GeneralGridPanel;
+import com.aib.orm.Peopleproduct;
 import com.aib.remote.IMessageSender;
 import java.awt.event.ActionEvent;
 import java.rmi.RemoteException;
@@ -14,28 +17,24 @@ import javax.swing.JOptionPane;
 
 /**
  *
- * @author nick
+ * @author Nick Mukhin
  */
-public class CountryGrid extends GeneralGridPanel {
+public class PurchasedProductsGrid extends GeneralGridPanel {
 
-    private Integer regionID;
-    public static final String SELECT =
-            "select country_id \"Id\", "
-            + "country \"Country name\", shortname \"Short name\" from country where worldregion_id=# order by country";
+    private static Integer purchaserID;
+    private static final String SELECT =
+            "select pp.peopleproduct_id \"ID\", pp.purchase_date \"Date\", p.descr \"Product\" "
+            + "from peopleproduct pp,product p "
+            + "where p.product_id=pp.product_id and pp.people_id=# "
+            + "order by pp.purchase_date desc";
     private static HashMap<Integer, Integer> maxWidths = new HashMap<Integer, Integer>();
 
     static {
         maxWidths.put(0, 40);
     }
 
-    public CountryGrid(IMessageSender exchanger) throws RemoteException {
-        super(exchanger, SELECT.replace("where worldregion_id=#", ""), maxWidths, false);
-        regionID = null;
-    }
-
-    public CountryGrid(IMessageSender exchanger, int reg_id) throws RemoteException {
-        super(exchanger, SELECT.replace("#", "" + reg_id), maxWidths, false);
-        regionID = new Integer(reg_id);
+    public PurchasedProductsGrid(IMessageSender exchanger, Integer peopleID) throws RemoteException {
+        super(exchanger, SELECT.replaceAll("#", (purchaserID = peopleID).toString()), maxWidths, false);
     }
 
     @Override
@@ -44,15 +43,14 @@ public class CountryGrid extends GeneralGridPanel {
             @Override
             public void actionPerformed(ActionEvent ae) {
 //                try {
-                    EditCountryDialog.regionID = regionID;
-                    EditCountryDialog ed = new EditCountryDialog("Add Country", null);
-                    if (EditCountryDialog.okPressed) {
-                        AIBclient.clearRegionsAndCountries();
-                        Country country = (Country) ed.getEditPanel().getDbObject();
+                    EditPurchaseDialog.peopleID = purchaserID;
+                    EditPurchaseDialog ed = new EditPurchaseDialog("Add Purchase", null);
+                    if (EditPurchaseDialog.okPressed) {
+                        Peopleproduct pp = (Peopleproduct) ed.getEditPanel().getDbObject();
+                        refresh(pp.getPeopleproductId());
 //                        GeneralFrame.updateGrid(exchanger,
-//                                getTableView(), getTableDoc(), getSelect(), country.getWorldregionId(),
+//                                getTableView(), getTableDoc(), getSelect(), pp.getPeopleproductId(),
 //                                getPageSelector().getSelectedIndex());
-                        refresh(country.getWorldregionId());
                     }
 //                } catch (RemoteException ex) {
 //                    AIBclient.logAndShowMessage(ex);
@@ -63,17 +61,16 @@ public class CountryGrid extends GeneralGridPanel {
 
     @Override
     protected AbstractAction editAction() {
-        return new AbstractAction("Edit") {
+         return new AbstractAction("Edit") {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int id = getSelectedID();
                 if (id != 0) {
                     try {
-                        Country country = (Country) exchanger.loadDbObjectOnID(Country.class, id);
-                        EditCountryDialog.regionID = regionID;
-                        new EditCountryDialog("Edit Country", country);
-                        if (EditCountryDialog.okPressed) {
-                            AIBclient.clearRegionsAndCountries();
+                        Peopleproduct pp = (Peopleproduct) exchanger.loadDbObjectOnID(Peopleproduct.class, id);
+                        EditPurchaseDialog.peopleID = purchaserID;
+                        new EditPurchaseDialog("Edit Purchase", pp);
+                        if (EditPurchaseDialog.okPressed) {
 //                            GeneralFrame.updateGrid(exchanger, getTableView(),
 //                                    getTableDoc(), getSelect(), id, getPageSelector().getSelectedIndex());
                             refresh();
@@ -94,10 +91,9 @@ public class CountryGrid extends GeneralGridPanel {
                 int id = getSelectedID();
                 if (id != 0) {
                     try {
-                        Country country = (Country) exchanger.loadDbObjectOnID(Country.class, id);
-                        if (country != null && GeneralFrame.yesNo("Attention!", "Do you want to delete this record?") == JOptionPane.YES_OPTION) {
-                            AIBclient.clearRegionsAndCountries();
-                            exchanger.deleteObject(country);
+                        Peopleproduct pp = (Peopleproduct) exchanger.loadDbObjectOnID(Peopleproduct.class, id);
+                        if (pp != null && GeneralFrame.yesNo("Attention!", "Do you want to delete this record?") == JOptionPane.YES_OPTION) {
+                            exchanger.deleteObject(pp);
 //                            GeneralFrame.updateGrid(exchanger, getTableView(), getTableDoc(),
 //                                    getSelect(), null, getPageSelector().getSelectedIndex());
                             refresh();

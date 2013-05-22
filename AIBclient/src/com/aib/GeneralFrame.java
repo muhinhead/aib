@@ -336,7 +336,7 @@ public abstract class GeneralFrame extends JFrame implements WindowListener {
                     doc.setBody(exchanger.getTableBody(select));
                 }
                 view.getController().updateExcept(null);
-                if (id != null) {
+                if (id != null && id.intValue() != 0) {
                     DbTableGridPanel.selectRowOnId(view, id);
                 } else {
                     row = row < view.getRowCount() ? row : row - 1;
@@ -428,11 +428,9 @@ public abstract class GeneralFrame extends JFrame implements WindowListener {
 //    protected void registerGrid(GeneralReportPanel repPanel) {
 //        reports.put(repPanel, repPanel.toString());
 //    }
-
 //    protected void registerGrid(HTMLpanel browserPanel) {
 //        browsers.put(browserPanel, browserPanel.getUrlString());
 //    }
-    
     /**
      * @return the exchanger
      */

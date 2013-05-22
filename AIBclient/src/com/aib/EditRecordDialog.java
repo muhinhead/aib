@@ -29,7 +29,7 @@ public abstract class EditRecordDialog extends PopupDialog {
 
     @Override
     protected Color getHederBackground() {
-        return new Color(102, 125, 158);
+        return AIBclient.HDR_COLOR;
     }
     
     protected void fillContent(RecordEditPanel editPanel) {
