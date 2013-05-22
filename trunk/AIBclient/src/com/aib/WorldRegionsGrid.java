@@ -43,18 +43,19 @@ public class WorldRegionsGrid extends GeneralGridPanel {
 
             @Override
             public void actionPerformed(ActionEvent ae) {
-                try {
+//                try {
                     EditRegionDialog ed = new EditRegionDialog("Add Region", null);
                     if (EditRegionDialog.okPressed) {
                         AIBclient.clearRegionsAndCountries();
                         Worldregion region = (Worldregion)ed.getEditPanel().getDbObject();
-                        GeneralFrame.updateGrid(exchanger,
-                                getTableView(), getTableDoc(), getSelect(), region.getWorldregionId(), 
-                                getPageSelector().getSelectedIndex());
+                        refresh(region.getWorldregionId());
+//                        GeneralFrame.updateGrid(exchanger,
+//                                getTableView(), getTableDoc(), getSelect(), region.getWorldregionId(), 
+//                                getPageSelector().getSelectedIndex());
                     }
-                } catch (RemoteException ex) {
-                    AIBclient.logAndShowMessage(ex);
-                }
+//                } catch (RemoteException ex) {
+//                    AIBclient.logAndShowMessage(ex);
+//                }
             }
         };
     }
@@ -70,8 +71,9 @@ public class WorldRegionsGrid extends GeneralGridPanel {
                     new EditRegionDialog("Edit Region", region);
                     if (EditRegionDialog.okPressed) {
                         AIBclient.clearRegionsAndCountries();
-                        GeneralFrame.updateGrid(exchanger, getTableView(),
-                                getTableDoc(), getSelect(), id, getPageSelector().getSelectedIndex());
+                        refresh();
+//                        GeneralFrame.updateGrid(exchanger, getTableView(),
+//                                getTableDoc(), getSelect(), id, getPageSelector().getSelectedIndex());
                     }
                 } catch (RemoteException ex) {
                     AIBclient.logAndShowMessage(ex);
@@ -91,8 +93,9 @@ public class WorldRegionsGrid extends GeneralGridPanel {
                     if (region != null && GeneralFrame.yesNo("Attention!", "Do you want to delete record?") == JOptionPane.YES_OPTION) {
                         AIBclient.clearRegionsAndCountries();
                         exchanger.deleteObject(region);
-                        GeneralFrame.updateGrid(exchanger, getTableView(), getTableDoc(),
-                                getSelect(), null, getPageSelector().getSelectedIndex());
+                        refresh();
+//                        GeneralFrame.updateGrid(exchanger, getTableView(), getTableDoc(),
+//                                getSelect(), null, getPageSelector().getSelectedIndex());
                     }
                 } catch (RemoteException ex) {
                     AIBclient.logAndShowMessage(ex);

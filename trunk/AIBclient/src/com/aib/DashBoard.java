@@ -46,7 +46,7 @@ public class DashBoard extends AbstractDashBoard {
         getContentPane().setLayout(new BorderLayout(10, 10));
         SceneApplet sa = new DashBoardApplet();
         JPanel headerPanel = new JPanel();
-        headerPanel.setBackground(new Color(102, 125, 158));
+        headerPanel.setBackground(AIBclient.HDR_COLOR);
         JLabel lbl = new JLabel(getTitle(), SwingConstants.CENTER);
         lbl.setFont(lbl.getFont().deriveFont(Font.BOLD, 18));
         headerPanel.add(lbl);

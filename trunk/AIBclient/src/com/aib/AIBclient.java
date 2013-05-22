@@ -11,6 +11,7 @@ import com.aib.orm.Industry;
 import com.aib.orm.Link;
 import com.aib.orm.Locindustry;
 import com.aib.orm.Loclink;
+import com.aib.orm.People;
 import com.aib.orm.Peopleaward;
 import com.aib.orm.Peoplecompany;
 import com.aib.orm.Peopleindustry;
@@ -20,6 +21,7 @@ import com.aib.orm.dbobject.ComboItem;
 import com.aib.orm.dbobject.DbObject;
 import com.aib.remote.IMessageSender;
 import com.jidesoft.plaf.LookAndFeelFactory;
+import java.awt.Color;
 import java.awt.Image;
 import java.awt.Window;
 import java.io.File;
@@ -62,6 +64,7 @@ public class AIBclient {
     private static ComboItem[] regionsDictionary;
     private static Country[] countryDictionary;
     private static ComboItem[] locationsDictionary;
+    public static final Color HDR_COLOR = new Color(102, 125, 158);
 
     /**
      * @param args the command line arguments
@@ -495,7 +498,7 @@ public class AIBclient {
             if (getExchanger().getCount("select peoplecompany_id "
                     + "from peoplecompany where people_id="
                     + peopleID + " and company_id=" + comp.getCompanyId()) == 0) {
-                pc= new Peoplecompany(null);
+                pc = new Peoplecompany(null);
                 pc.setPeoplecompanyId(0);
                 pc.setPeopleId(peopleID);
                 pc.setCompanyId(comp.getCompanyId());
@@ -718,7 +721,7 @@ public class AIBclient {
     public static void removeRedundantPeopleCompany(Integer peopleID, String abrreviationsList) {
         try {
             DbObject[] recs = getExchanger().getDbObjects(Peoplecompany.class,
-                    "people_id=" + peopleID + " and compamny_id not in "
+                    "people_id=" + peopleID + " and company_id not in "
                     + "(select company_id from company where instr('" + abrreviationsList + "',abbreviation)>0)", null);
             for (DbObject rec : recs) {
                 getExchanger().deleteObject(rec);
@@ -727,7 +730,7 @@ public class AIBclient {
             log(ex);
         }
     }
-    
+
     public static void removeRedundantAwards(Integer peopleID, String actionsList) {
         try {
             DbObject[] recs = getExchanger().getDbObjects(Peopleaward.class,
@@ -906,8 +909,9 @@ public class AIBclient {
         } catch (RemoteException ex) {
             log(ex);
         }
-        return "can't load actions list";    }
-    
+        return "can't load actions list";
+    }
+
     public static String getAwardsOnPeopleID(Integer peopleID) {
         try {
             StringBuilder sb = new StringBuilder();
@@ -970,5 +974,31 @@ public class AIBclient {
             logAndShowMessage(ex);
         }
         return true;
+    }
+
+    public static ComboItem[] loadAllProducts() {
+        return loadOnSelect(getExchanger(), "select product_id,descr from product order by descr");
+    }
+
+    public static ComboItem[] loadAllPeople() {
+        return loadOnSelect(getExchanger(),
+                "select people_id,concat(greeting,' ',substr(first_name,1,1),'.',last_name) "
+                + "from people order by last_name");
+    }
+
+    public static String getPeopleInfoOnID(Integer peopleID) {
+        DbObject rec;
+        try {
+            rec = getExchanger().loadDbObjectOnID(People.class, peopleID);
+            if (rec != null) {
+                People p = (People) rec;
+                return p.getGreeting() + " "
+                        + (p.getFirstName() != null && p.getFirstName().length() > 0 ? p.getFirstName().substring(0, 1) + "." : "")
+                        + p.getLastName();
+            }
+        } catch (RemoteException ex) {
+            Logger.getLogger(AIBclient.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        return "unknown";
     }
 }

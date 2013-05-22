@@ -7,6 +7,7 @@ package com.aib.people;
 import com.aib.AIBclient;
 import com.aib.EditAreaAction;
 import com.aib.EditPanelWithPhoto;
+import com.aib.GeneralFrame;
 import com.aib.RecordEditPanel;
 import static com.aib.RecordEditPanel.getBorderPanel;
 import static com.aib.RecordEditPanel.getGridPanel;
@@ -19,6 +20,7 @@ import com.aib.orm.People;
 import com.aib.orm.User;
 import com.aib.orm.dbobject.ComboItem;
 import com.aib.orm.dbobject.DbObject;
+import com.aib.product.PurchasedProductsDialog;
 import com.jidesoft.swing.JideTabbedPane;
 import com.xlend.util.EmailFocusAdapter;
 import com.xlend.util.Java2sAutoComboBox;
@@ -30,14 +32,18 @@ import java.rmi.RemoteException;
 import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.Icon;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
@@ -82,6 +88,10 @@ class EditPeoplePanel extends EditPanelWithPhoto {
     private JComboBox locationCB;
     private JTextField companiesListTF;
     private DefaultComboBoxModel locationCbModel;
+    private JCheckBox primaryContactCB;
+    private JCheckBox channelSubscriberCB;
+    private JCheckBox marketingIntelDistCB;
+    private JCheckBox mediaBriefingDistCB;
 
     public EditPeoplePanel(DbObject dbObject) {
         super(dbObject);
@@ -102,12 +112,9 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             "Main email:", // "Alternate email:"
             "PA:", // "PA phone:", //"PA email:"
             "Other contact info:",// "AIB actions/date:",
-            "Last verified", //"Last editor:" //"Last edited:
-        //            
-        //            "AIB involvement:",
-        //            "Primary contact:", //"Channel subscriber","Marketing Intel dist.", "Media briefing dist."
-        //            "Purchases:",
-        //            "Purchase interest:",
+            "",
+            "Purchases:", // "Purchase interest:",
+            "Last verified" //"Last editor:" //"Last edited:
         //            "Prospecting level:",
         //            "Purchase timescale:",
         //            "Sales contact:",
@@ -211,6 +218,16 @@ class EditPeoplePanel extends EditPanelWithPhoto {
                     new JButton(getAwardsListAction("..."))
                 })
             }),
+            getGridPanel(new JComponent[]{
+                primaryContactCB = new JCheckBox("Primary contact"),
+                channelSubscriberCB = new JCheckBox("Channel subscriber"),
+                marketingIntelDistCB = new JCheckBox("Marketing Intel dist."),
+                mediaBriefingDistCB = new JCheckBox("Media briefing dist.")
+            }),
+            getGridPanel(new JComponent[]{
+                new JButton(showPurchasesAction("Purchases / Dates...")),
+                new JButton("Purchase Interest...")
+            }),
             getBorderPanel(new JComponent[]{
                 lastVerifiedDateSP = new SelectedDateSpinner(),
                 null,
@@ -226,6 +243,10 @@ class EditPeoplePanel extends EditPanelWithPhoto {
                 })
             })
         };
+        primaryContactCB.setHorizontalTextPosition(SwingConstants.LEFT);
+        channelSubscriberCB.setHorizontalTextPosition(SwingConstants.LEFT);
+        marketingIntelDistCB.setHorizontalTextPosition(SwingConstants.LEFT);
+        mediaBriefingDistCB.setHorizontalTextPosition(SwingConstants.LEFT);
         sp1.setPreferredSize(new Dimension(sp1.getPreferredSize().width, idField.getPreferredSize().height));
         idField.setEnabled(false);
         mailingAddressTA.setEditable(false);
@@ -237,7 +258,8 @@ class EditPeoplePanel extends EditPanelWithPhoto {
         Util.addFocusSelectAllAction(lastEditedSP);
         linksListTF.setEditable(false);
         industriesListTF.setEditable(false);
-
+        companiesListTF.setEditable(false);
+        aibAwardsListTF.setEditable(false);
         lastEditorTF.setEnabled(false);
         lastEditedSP.setEnabled(false);
 
@@ -287,6 +309,10 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             paTF.setText(person.getPa());
             paPhoneTF.setText(person.getPaPhone());
             paEmailTF.setText(person.getPaEmail());
+            primaryContactCB.setSelected(person.getIsPrimary() != null && person.getIsPrimary() == 1);
+            channelSubscriberCB.setSelected(person.getIsSubscriber() != null && person.getIsSubscriber() == 1);
+            marketingIntelDistCB.setSelected(person.getIsMarketintl() != null && person.getIsMarketintl() == 1);
+            mediaBriefingDistCB.setSelected(person.getIsMediabrief() != null && person.getIsMediabrief() == 1);
             if (person.getLasteditDate() != null) {
                 Timestamp t = person.getLasteditDate();
                 lastEditedSP.setValue(new java.util.Date(t.getTime()));
@@ -330,6 +356,10 @@ class EditPeoplePanel extends EditPanelWithPhoto {
         person.setPa(paTF.getText());
         person.setPaEmail(paEmailTF.getText());
         person.setPaPhone(paPhoneTF.getText());
+        person.setIsPrimary(primaryContactCB.isSelected() ? 1 : 0);
+        person.setIsSubscriber(channelSubscriberCB.isSelected() ? 1 : 0);
+        person.setIsMarketintl(marketingIntelDistCB.isSelected() ? 1 : 0);
+        person.setIsMediabrief(mediaBriefingDistCB.isSelected() ? 1 : 0);
         person.setLasteditedBy(AIBclient.getCurrentUser().getUserId());
         dt = Calendar.getInstance().getTime();
         person.setLasteditDate(new java.sql.Timestamp(dt.getTime()));
@@ -413,6 +443,29 @@ class EditPeoplePanel extends EditPanelWithPhoto {
                 new CompanyListInTextFieldDialog("Companies List",
                         new Object[]{companiesListTF.getText(), AIBclient.loadAllCompaniesShortNames(), "Company short name:"});
                 companiesListTF.setText(ListInTextFieldDialog.getResultList());
+            }
+        };
+    }
+
+    private AbstractAction showPurchasesAction(String label) {
+        return new AbstractAction(label) {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                Integer peopleID = getDbObject() == null ? null : ((People) getDbObject()).getPeopleId();
+                if (getDbObject() == null && GeneralFrame.yesNo("Attention!",
+                        "Do you want to save this person's record?") == JOptionPane.YES_OPTION) {
+                    try {
+                        if (save()) {
+                            peopleID = ((People) getDbObject()).getPeopleId();
+                        }
+                    } catch (Exception ex) {
+                        peopleID = null;
+                        AIBclient.logAndShowMessage(ex);
+                    }
+                }
+                if (peopleID != null) {
+                    new PurchasedProductsDialog("Purchases", peopleID);
+                }
             }
         };
     }
