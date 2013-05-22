@@ -12,7 +12,11 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Vector;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  *
@@ -20,17 +24,38 @@ import java.util.Vector;
  */
 public class RmiMessageSender extends java.rmi.server.UnicastRemoteObject implements IMessageSender {
 
+    private static final int CACHESIZE = 1000;
     public static Boolean isMySQL = null;
-//    private Connection connection;
+    private static ConcurrentHashMap dbObjectMap = new ConcurrentHashMap();
+    private static List synchList = (List) Collections.synchronizedList(new ArrayList());
 
     public RmiMessageSender() throws java.rmi.RemoteException {
-        //        connection = DbConnection.getConnection();
-        //        if (null == connection) {
-        //            throw new java.rmi.RemoteException("Can't establish database connection");
-        //        }
     }
 
-//    @Override
+    private static void put2cache(String key, DbObject dbobj) {
+        if (synchList.size() >= CACHESIZE) {
+            dbObjectMap.remove((String) synchList.get(0));
+            synchList.remove(0);
+        }
+        dbObjectMap.put(key, dbobj);
+        synchList.add(key);
+    }
+
+    private static DbObject getFromCache(String key) {
+        return (DbObject) dbObjectMap.get(key);
+    }
+
+    private static void removeFromCache(String key) {
+        dbObjectMap.remove(key);
+        for (int i = synchList.size() - 1; i >= 0; i--) {
+            if (synchList.get(i).equals(key)) {
+                synchList.remove(i);
+                break;
+            }
+        }
+    }
+
+    @Override
     public DbObject[] getDbObjects(Class dbobClass, String whereCondition,
             String orderCondition) throws RemoteException {
         DbObject[] rows = null;
@@ -38,6 +63,9 @@ public class RmiMessageSender extends java.rmi.server.UnicastRemoteObject implem
         try {
             Method method = dbobClass.getDeclaredMethod("load", Connection.class, String.class, String.class);
             rows = (DbObject[]) method.invoke(null, connection, whereCondition, orderCondition);
+            for (int i = 0; rows.length < CACHESIZE - synchList.size() && i < rows.length; i++) {
+                put2cache(dbobClass.getName() + "#" + rows[i].getPK_ID(), rows[i]);
+            }
         } catch (Exception ex) {
             AIBserver.log(ex);
             throw new java.rmi.RemoteException(ex.getMessage());
@@ -52,7 +80,7 @@ public class RmiMessageSender extends java.rmi.server.UnicastRemoteObject implem
         return rows;
     }
 
-//    @Override
+    @Override
     public DbObject saveDbObject(DbObject dbob) throws RemoteException {
         if (dbob != null) {
             Connection connection = DbConnection.getConnection();
@@ -60,9 +88,8 @@ public class RmiMessageSender extends java.rmi.server.UnicastRemoteObject implem
                 boolean wasNew = dbob.isNew();
                 dbob.setConnection(connection);
                 dbob.save();
-//                Connection logConnection = DbConnection.getLogDBconnection();
-//                Object[] asRow = dbob.getAsRow();
-//                logDbOperation(logConnection, dbob.getClass().getCanonicalName(), (Integer) asRow[0], wasNew ? 1 : 0);
+                String key = dbob.getClass().getName() + "#" + dbob.getPK_ID();
+                put2cache(key, dbob);
             } catch (Exception ex) {
                 AIBserver.log(ex);
                 throw new java.rmi.RemoteException("Can't save DB object:", ex);
@@ -78,25 +105,32 @@ public class RmiMessageSender extends java.rmi.server.UnicastRemoteObject implem
         return dbob;
     }
 
-//    @Override
+    @Override
     public DbObject loadDbObjectOnID(Class dbobClass, int id) throws RemoteException {
-        Connection connection = DbConnection.getConnection();
-        DbObject dbob = null;
-        try {
-            Constructor constructor = dbobClass.getConstructor(Connection.class);
-            dbob = (DbObject) constructor.newInstance(connection);//DbConnection.getConnection());
-            return dbob.loadOnId(id);
-        } catch (Exception ex) {
-            AIBserver.log(ex);
-            throw new java.rmi.RemoteException(ex.getMessage());
-        } finally {
+        String key = dbobClass.getName() + "#" + id;
+        DbObject dbob = getFromCache(key);
+        if (dbob == null) {
+            Connection connection = DbConnection.getConnection();
             try {
-                DbConnection.closeConnection(connection);
-            } catch (SQLException ex) {
+                Constructor constructor = dbobClass.getConstructor(Connection.class);
+                dbob = (DbObject) constructor.newInstance(connection);
+                dbob = dbob.loadOnId(id);
+                put2cache(key, dbob);
+            } catch (Exception ex) {
                 AIBserver.log(ex);
                 throw new java.rmi.RemoteException(ex.getMessage());
+            } finally {
+                try {
+                    DbConnection.closeConnection(connection);
+                } catch (SQLException ex) {
+                    AIBserver.log(ex);
+                    throw new java.rmi.RemoteException(ex.getMessage());
+                }
             }
+//        } else {
+//            System.out.println("!!cashed object found:" + key);
         }
+        return dbob;
     }
 
 ////    @Override
@@ -265,14 +299,12 @@ public class RmiMessageSender extends java.rmi.server.UnicastRemoteObject implem
 //    @Override
     public void deleteObject(DbObject dbob) throws RemoteException {
         if (dbob != null) {
+            String key = dbob.getClass().getName() + "#" + dbob.getPK_ID();
             Connection connection = DbConnection.getConnection();
             try {
                 dbob.setConnection(connection);
                 dbob.delete();
-//                Connection logConnection = DbConnection.getLogDBconnection();
-//                Object[] asRow = dbob.getAsRow();
-//                int id = ((Integer) asRow[0]).intValue();
-//                logDbOperation(logConnection, dbob.getClass().getCanonicalName(), id < 0 ? -id : id, -1);
+                removeFromCache(key);
             } catch (Exception ex) {
                 AIBserver.log(ex);
                 throw new java.rmi.RemoteException(ex.getMessage());
@@ -405,7 +437,8 @@ public class RmiMessageSender extends java.rmi.server.UnicastRemoteObject implem
         } finally {
             try {
                 ps.close();
-            } catch(Exception e){}
+            } catch (Exception e) {
+            }
             try {
                 DbConnection.closeConnection(connection);
             } catch (SQLException ex) {
