@@ -21,6 +21,7 @@ create table user
     initials char(2) not null,
     login varchar(32),
     passwd varchar(32),
+    photo            mediumblob,
     constraint user_pk primary key (user_id)
 );
 
@@ -254,11 +255,10 @@ create table peopleproduct
 create table peopleinterest
 ( #-- purchase interest
     peopleinterest_id int not null auto_increment,
-    purchase_date     date not null,
+    purchase_date     date,
     people_id         int not null,
     product_id        int not null,
-    prospecting_level varchar(32),
-    purchase_time     decimal(4,2),
+    prospecting_level varchar(64),
     constraint peopleinterest_pk primary key (peopleinterest_id),
     constraint peoplinterest_people_fk foreign key (people_id) references people (people_id) on delete cascade,
     constraint peoplinterest_product_fk foreign key (product_id) references product (product_id) on delete cascade
