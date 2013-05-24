@@ -2,12 +2,13 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.aib.product;
+package com.aib.people;
 
 import com.aib.AIBclient;
 import com.aib.GeneralFrame;
 import com.aib.GeneralGridPanel;
-import com.aib.orm.Peopleproduct;
+import com.aib.orm.People;
+import com.aib.orm.User;
 import com.aib.remote.IMessageSender;
 import java.awt.event.ActionEvent;
 import java.rmi.RemoteException;
@@ -19,22 +20,20 @@ import javax.swing.JOptionPane;
  *
  * @author Nick Mukhin
  */
-public class PurchasedProductsGrid extends GeneralGridPanel {
+public class UserGrid extends GeneralGridPanel {
 
-    private static Integer peopleID;
-    private static final String SELECT =
-            "select pp.peopleproduct_id \"ID\", pp.purchase_date \"Date\", p.descr \"Product\" "
-            + "from peopleproduct pp,product p "
-            + "where p.product_id=pp.product_id and pp.people_id=# "
-            + "order by pp.purchase_date desc";
+    public static final String SELECT = "select user_id \"ID\","
+            + "first_name \"First name\",last_name \"Last Name\","
+            + "initials \"Initials\", login \"Login\" "
+            + "from user";
     private static HashMap<Integer, Integer> maxWidths = new HashMap<Integer, Integer>();
 
     static {
         maxWidths.put(0, 40);
     }
 
-    public PurchasedProductsGrid(IMessageSender exchanger, Integer byerID) throws RemoteException {
-        super(exchanger, SELECT.replaceAll("#", (peopleID = byerID).toString()), maxWidths, false);
+    public UserGrid(IMessageSender exchanger) throws RemoteException {
+        super(exchanger, SELECT, maxWidths, false);
     }
 
     @Override
@@ -42,12 +41,10 @@ public class PurchasedProductsGrid extends GeneralGridPanel {
         return new AbstractAction("Add") {
             @Override
             public void actionPerformed(ActionEvent ae) {
-
-                EditPurchaseDialog.peopleID = peopleID;
-                EditPurchaseDialog ed = new EditPurchaseDialog("Add Purchase", null);
-                if (EditPurchaseDialog.okPressed) {
-                    Peopleproduct pp = (Peopleproduct) ed.getEditPanel().getDbObject();
-                    refresh(pp.getPeopleproductId());
+                EditUserDialog ed = new EditUserDialog("Register User", null);
+                if (EditUserDialog.okPressed) {
+                    People person = (People) ed.getEditPanel().getDbObject();
+                    refresh(person.getPeopleId());
                 }
             }
         };
@@ -57,14 +54,13 @@ public class PurchasedProductsGrid extends GeneralGridPanel {
     protected AbstractAction editAction() {
         return new AbstractAction("Edit") {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent ae) {
                 int id = getSelectedID();
                 if (id != 0) {
                     try {
-                        Peopleproduct pp = (Peopleproduct) exchanger.loadDbObjectOnID(Peopleproduct.class, id);
-                        EditPurchaseDialog.peopleID = peopleID;
-                        new EditPurchaseDialog("Edit Purchase", pp);
-                        if (EditPurchaseDialog.okPressed) {
+                        User user = (User) exchanger.loadDbObjectOnID(User.class, id);
+                        new EditUserDialog("Edit User", user);
+                        if (EditUserDialog.okPressed) {
                             refresh();
                         }
                     } catch (RemoteException ex) {
@@ -79,13 +75,16 @@ public class PurchasedProductsGrid extends GeneralGridPanel {
     protected AbstractAction delAction() {
         return new AbstractAction("Delete") {
             @Override
-            public void actionPerformed(ActionEvent e) {
+            public void actionPerformed(ActionEvent ae) {
                 int id = getSelectedID();
                 if (id != 0) {
                     try {
-                        Peopleproduct pp = (Peopleproduct) exchanger.loadDbObjectOnID(Peopleproduct.class, id);
-                        if (pp != null && GeneralFrame.yesNo("Attention!", "Do you want to delete this record?") == JOptionPane.YES_OPTION) {
-                            exchanger.deleteObject(pp);
+                        User user = (User) exchanger.loadDbObjectOnID(User.class, id);
+                        if (user.getLogin().equals("admin")) {
+                            GeneralFrame.errMessageBox("Sorry!", "You can not delete this user!");
+                        } else if (user != null && GeneralFrame.yesNo("Attention!",
+                                "Do you want to delete this record?") == JOptionPane.YES_OPTION) {
+                            exchanger.deleteObject(user);
                             refresh();
                         }
                     } catch (RemoteException ex) {
