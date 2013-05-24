@@ -8,36 +8,36 @@ import com.aib.AIBclient;
 import com.aib.EditAreaAction;
 import com.aib.EditPanelWithPhoto;
 import com.aib.GeneralFrame;
-import com.aib.RecordEditPanel;
+import com.aib.ModalGridDialog;
 import static com.aib.RecordEditPanel.getBorderPanel;
 import static com.aib.RecordEditPanel.getGridPanel;
 import com.aib.lookup.CompanyListInTextFieldDialog;
 import com.aib.lookup.AIBawardsListInTextFieldDialog;
+import com.aib.lookup.CompanyLookupAction;
 import com.aib.lookup.ListInTextFieldDialog;
 import com.aib.lookup.LocationLookupAction;
-import com.aib.orm.Company;
+import com.aib.lookup.UserLookupAction;
 import com.aib.orm.People;
 import com.aib.orm.User;
 import com.aib.orm.dbobject.ComboItem;
 import com.aib.orm.dbobject.DbObject;
-import com.aib.product.PurchasedProductsDialog;
-import com.jidesoft.swing.JideTabbedPane;
+import com.aib.product.PurchaseInterestGrid;
+import com.aib.product.PurchasedProductsGrid;
 import com.xlend.util.EmailFocusAdapter;
 import com.xlend.util.Java2sAutoComboBox;
 import com.xlend.util.SelectedDateSpinner;
 import com.xlend.util.Util;
 import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.rmi.RemoteException;
 import java.sql.Timestamp;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.StringTokenizer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.AbstractAction;
-import javax.swing.ComboBoxModel;
+import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
-import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -58,11 +58,11 @@ import javax.swing.SwingConstants;
 class EditPeoplePanel extends EditPanelWithPhoto {
 
     private JTextField idField;
-    private JTextField titleTF;
+    private Java2sAutoComboBox titleCB;
     private JTextField firstNameTF;
     private JTextField familyName;
-    private JTextField suffixTF;
-    private JTextField greetingTF;
+    private Java2sAutoComboBox suffixCB;
+    private Java2sAutoComboBox greetingCB;
     private JTextField linksListTF;
     private Java2sAutoComboBox jobDisciplineCB;
     private Java2sAutoComboBox departmentCB;
@@ -80,7 +80,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
     private JTextField paPhoneTF;
     private JTextField paEmailTF;
     private JTextField lastEditorTF;
-    private JSpinner lastEditedSP;
+    private SelectedDateSpinner lastEditedSP;
     private JTextField otherContactTF;
     private JTextField aibAwardsListTF;
     private SelectedDateSpinner lastVerifiedDateSP;
@@ -92,6 +92,12 @@ class EditPeoplePanel extends EditPanelWithPhoto {
     private JCheckBox channelSubscriberCB;
     private JCheckBox marketingIntelDistCB;
     private JCheckBox mediaBriefingDistCB;
+    private DefaultComboBoxModel salesContactCbModel;
+    private JComboBox salesContactCB;
+    private JTextArea nextActionTA;
+    private SelectedDateSpinner actionDateSP;
+    private JTextField extUserNameTF;
+    private JTextField extPassworTF;
 
     public EditPeoplePanel(DbObject dbObject) {
         super(dbObject);
@@ -114,17 +120,16 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             "Other contact info:",// "AIB actions/date:",
             "",
             "Purchases:", // "Purchase interest:",
+            "Sales contact:",//"Action date:", "External user name:", "External user password:"
             "Last verified" //"Last editor:" //"Last edited:
-        //            "Prospecting level:",
-        //            "Purchase timescale:",
-        //            "Sales contact:",
-        //            "Action date:", //"Next action:"
-        //            "External user name:", //"External user password:"
-        //            "Date last verified:" //"Last editor:" //"Last edited:
         };
         locationCbModel = new DefaultComboBoxModel();
         for (ComboItem ci : AIBclient.loadAllLocations()) {
             locationCbModel.addElement(ci);
+        }
+        salesContactCbModel = new DefaultComboBoxModel();
+        for (ComboItem ci : AIBclient.loadAllUsersInitials()) {
+            salesContactCbModel.addElement(ci);
         }
         JLabel paEmailLBL;
         JLabel alterEmailLBL;
@@ -136,11 +141,11 @@ class EditPeoplePanel extends EditPanelWithPhoto {
                     familyName = new JTextField(16)})
             }),
             getGridPanel(new JComponent[]{
-                titleTF = new JTextField(),
+                titleCB = new Java2sAutoComboBox(AIBclient.loadDistinctTitles()),//JTextField(),
                 new JLabel("Suffix:", SwingConstants.RIGHT),
-                suffixTF = new JTextField(6),
+                suffixCB = new Java2sAutoComboBox(AIBclient.loadDistinctSuffixes()),
                 new JLabel("Greeting:", SwingConstants.RIGHT),
-                greetingTF = new JTextField()
+                greetingCB = new Java2sAutoComboBox(AIBclient.loadDistinctGreetings())
             }),
             getGridPanel(new JComponent[]{
                 getBorderPanel(new JComponent[]{
@@ -226,7 +231,18 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             }),
             getGridPanel(new JComponent[]{
                 new JButton(showPurchasesAction("Purchases / Dates...")),
-                new JButton("Purchase Interest...")
+                new JButton(showPurchaseInterestAction("Purchase Interest..."))
+            }),
+            getBorderPanel(new JComponent[]{
+                comboPanelWithLookupBtn(salesContactCB = new JComboBox(salesContactCbModel), new UserLookupAction(salesContactCB)),
+                getBorderPanel(new JComponent[]{
+                    new JLabel(" Action date:", SwingConstants.RIGHT),
+                    getBorderPanel(new JComponent[]{
+                        actionDateSP = new SelectedDateSpinner(),
+                        getGridPanel(new JComponent[]{
+                            getBorderPanel(new JComponent[]{new JLabel(" Ext.user name:"), extUserNameTF = new JTextField(6)}),
+                            getBorderPanel(new JComponent[]{new JLabel("Ext.user passwd:"), extPassworTF = new JTextField(6)}),})
+                    }),})
             }),
             getBorderPanel(new JComponent[]{
                 lastVerifiedDateSP = new SelectedDateSpinner(),
@@ -243,19 +259,26 @@ class EditPeoplePanel extends EditPanelWithPhoto {
                 })
             })
         };
+
         primaryContactCB.setHorizontalTextPosition(SwingConstants.LEFT);
         channelSubscriberCB.setHorizontalTextPosition(SwingConstants.LEFT);
         marketingIntelDistCB.setHorizontalTextPosition(SwingConstants.LEFT);
         mediaBriefingDistCB.setHorizontalTextPosition(SwingConstants.LEFT);
         sp1.setPreferredSize(new Dimension(sp1.getPreferredSize().width, idField.getPreferredSize().height));
+//        salesContactCB.setPreferredSize(new Dimension(salesContactCB.getPreferredSize().width, idField.getPreferredSize().height));
         idField.setEnabled(false);
         mailingAddressTA.setEditable(false);
-        jobDisciplineCB.setEditable(true);
-        jobDisciplineCB.setStrict(false);
-        departmentCB.setEditable(true);
-        departmentCB.setStrict(false);
-        lastEditedSP.setEditor(new JSpinner.DateEditor(lastEditedSP, DD_MM_YYYY));
-        Util.addFocusSelectAllAction(lastEditedSP);
+
+        for (Java2sAutoComboBox cb : new Java2sAutoComboBox[]{jobDisciplineCB, departmentCB, titleCB, greetingCB, suffixCB}) {
+            cb.setEditable(true);
+            cb.setStrict(false);
+        }
+
+        for (SelectedDateSpinner sp : new SelectedDateSpinner[]{lastEditedSP, lastVerifiedDateSP, actionDateSP}) {
+            sp.setEditor(new JSpinner.DateEditor(sp, DD_MM_YYYY));
+            Util.addFocusSelectAllAction(sp);
+        }
+
         linksListTF.setEditable(false);
         industriesListTF.setEditable(false);
         companiesListTF.setEditable(false);
@@ -265,17 +288,26 @@ class EditPeoplePanel extends EditPanelWithPhoto {
 
         organizePanels(titles, edits, null);
 
-        JideTabbedPane downTabs = new JideTabbedPane();
-        JScrollPane sp = new JScrollPane(commentsTA = new JTextArea());
-        sp.setPreferredSize(new Dimension(400, 150));
-        downTabs.add(sp, "Comments");
+        JPanel downTabs = new JPanel(new GridLayout(1, 2, 5, 5));
+        JScrollPane spComments = new JScrollPane(commentsTA = new JTextArea(),
+                JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        spComments.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Comments"));
+        downTabs.add(spComments);
 
-        downTabs.setPreferredSize(new Dimension(downTabs.getPreferredSize().width, 200));
+        JScrollPane spNextActions = new JScrollPane(nextActionTA = new JTextArea(),
+                JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        spNextActions.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Next Action"));
+        downTabs.add(spNextActions);
+
+        downTabs.setPreferredSize(new Dimension(downTabs.getPreferredSize().width, 150));
         add(downTabs);
 
+        titleCB.setPreferredSize(new Dimension(titleCB.getPreferredSize().width, idField.getPreferredSize().height));
         linksListTF.setPreferredSize(new Dimension(linksListTF.getPreferredSize().width, idField.getPreferredSize().height));
         jobDisciplineCB.setPreferredSize(new Dimension(jobDisciplineCB.getPreferredSize().width, idField.getPreferredSize().height));
         departmentCB.setPreferredSize(new Dimension(departmentCB.getPreferredSize().width, idField.getPreferredSize().height));
+        suffixCB.setPreferredSize(new Dimension(suffixCB.getPreferredSize().width, idField.getPreferredSize().height));
+        greetingCB.setPreferredSize(new Dimension(greetingCB.getPreferredSize().width, idField.getPreferredSize().height));
 
         paEmailTF.addFocusListener(new EmailFocusAdapter(paEmailLBL, paEmailTF));
         alterEmailTF.addFocusListener(new EmailFocusAdapter(alterEmailLBL, alterEmailTF));
@@ -287,11 +319,11 @@ class EditPeoplePanel extends EditPanelWithPhoto {
         People person = (People) getDbObject();
         if (person != null) {
             idField.setText(person.getPeopleId().toString());
-            titleTF.setText(person.getTitle());
+            titleCB.setSelectedItem(person.getTitle());
             firstNameTF.setText(person.getFirstName());
             familyName.setText(person.getLastName());
-            suffixTF.setText(person.getSuffix());
-            greetingTF.setText(person.getGreeting());
+            suffixCB.setSelectedItem(person.getSuffix());
+            greetingCB.setSelectedItem(person.getGreeting());
             jobDisciplineCB.setSelectedItem(person.getJobDiscip());
             departmentCB.setSelectedItem(person.getDepartment());
             linksListTF.setText(AIBclient.getLinkListOnPeopleID(person.getPeopleId()));
@@ -313,6 +345,13 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             channelSubscriberCB.setSelected(person.getIsSubscriber() != null && person.getIsSubscriber() == 1);
             marketingIntelDistCB.setSelected(person.getIsMarketintl() != null && person.getIsMarketintl() == 1);
             mediaBriefingDistCB.setSelected(person.getIsMediabrief() != null && person.getIsMediabrief() == 1);
+            commentsTA.setText(person.getComments());
+            nextActionTA.setText(person.getNextAction());
+            extUserNameTF.setText(person.getExternalUser());
+            extPassworTF.setText(person.getExternalPasswd());
+            if (person.getActionDate() != null) {
+                actionDateSP.setValue(new java.util.Date(person.getActionDate().getTime()));
+            }
             if (person.getLasteditDate() != null) {
                 Timestamp t = person.getLasteditDate();
                 lastEditedSP.setValue(new java.util.Date(t.getTime()));
@@ -341,11 +380,11 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             person.setPeopleId(0);
             isNew = true;
         }
-        person.setTitle(titleTF.getText());
+        person.setTitle((String) titleCB.getSelectedItem());
         person.setFirstName(firstNameTF.getText());
         person.setLastName(familyName.getText());
-        person.setSuffix(suffixTF.getText());
-        person.setGreeting(greetingTF.getText());
+        person.setSuffix((String) suffixCB.getSelectedItem());
+        person.setGreeting((String) greetingCB.getSelectedItem());
         person.setJobDiscip((String) jobDisciplineCB.getSelectedItem());
         person.setDepartment((String) departmentCB.getSelectedItem());
         person.setDeskPhone(deskPhoneTF.getText());
@@ -363,6 +402,15 @@ class EditPeoplePanel extends EditPanelWithPhoto {
         person.setLasteditedBy(AIBclient.getCurrentUser().getUserId());
         dt = Calendar.getInstance().getTime();
         person.setLasteditDate(new java.sql.Timestamp(dt.getTime()));
+        dt = (Date) lastVerifiedDateSP.getValue();
+        person.setVerifyDate(new java.sql.Date(dt.getTime()));
+        dt = (Date) actionDateSP.getValue();
+        person.setActionDate(new java.sql.Date(dt.getTime()));
+        person.setComments(commentsTA.getText());
+        person.setNextAction(nextActionTA.getText());
+        person.setSalesContactId(getSelectedCbItem(salesContactCB));
+        person.setExternalUser(extUserNameTF.getText());
+        person.setExternalPasswd(extPassworTF.getText());
         person.setPhoto(imageData);
 
         boolean ok = saveDbRecord(person, isNew);
@@ -451,22 +499,47 @@ class EditPeoplePanel extends EditPanelWithPhoto {
         return new AbstractAction(label) {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                Integer peopleID = getDbObject() == null ? null : ((People) getDbObject()).getPeopleId();
-                if (getDbObject() == null && GeneralFrame.yesNo("Attention!",
-                        "Do you want to save this person's record?") == JOptionPane.YES_OPTION) {
+                Integer peopleID = getPeopleID();
+                if (peopleID != null) {
                     try {
-                        if (save()) {
-                            peopleID = ((People) getDbObject()).getPeopleId();
-                        }
-                    } catch (Exception ex) {
-                        peopleID = null;
+                        new ModalGridDialog("Purchases", new PurchasedProductsGrid(AIBclient.getExchanger(), peopleID));
+                    } catch (RemoteException ex) {
                         AIBclient.logAndShowMessage(ex);
                     }
                 }
+            }
+        };
+    }
+
+    private AbstractAction showPurchaseInterestAction(String label) {
+        return new AbstractAction(label) {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                Integer peopleID = getPeopleID();
                 if (peopleID != null) {
-                    new PurchasedProductsDialog("Purchases", peopleID);
+                    try {
+                        new ModalGridDialog("Purchase Interest", new PurchaseInterestGrid(AIBclient.getExchanger(), peopleID));
+                    } catch (RemoteException ex) {
+                        AIBclient.logAndShowMessage(ex);
+                    }
                 }
             }
         };
+    }
+
+    private Integer getPeopleID() {
+        Integer peopleID = getDbObject() == null ? null : ((People) getDbObject()).getPeopleId();
+        if (getDbObject() == null && GeneralFrame.yesNo("Attention!",
+                "Do you want to save this person's record?") == JOptionPane.YES_OPTION) {
+            try {
+                if (save()) {
+                    peopleID = ((People) getDbObject()).getPeopleId();
+                }
+            } catch (Exception ex) {
+                peopleID = null;
+                AIBclient.logAndShowMessage(ex);
+            }
+        }
+        return peopleID;
     }
 }

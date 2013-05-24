@@ -7,7 +7,8 @@ package com.aib.product;
 import com.aib.AIBclient;
 import com.aib.GeneralFrame;
 import com.aib.GeneralGridPanel;
-import com.aib.orm.Peopleproduct;
+import com.aib.orm.Peopleinterest;
+//import com.aib.orm.Peopleproduct;
 import com.aib.remote.IMessageSender;
 import java.awt.event.ActionEvent;
 import java.rmi.RemoteException;
@@ -19,35 +20,35 @@ import javax.swing.JOptionPane;
  *
  * @author Nick Mukhin
  */
-public class PurchasedProductsGrid extends GeneralGridPanel {
+public class PurchaseInterestGrid extends GeneralGridPanel {
 
     private static Integer peopleID;
     private static final String SELECT =
-            "select pp.peopleproduct_id \"ID\", pp.purchase_date \"Date\", p.descr \"Product\" "
-            + "from peopleproduct pp,product p "
-            + "where p.product_id=pp.product_id and pp.people_id=# "
-            + "order by pp.purchase_date desc";
+            "select pi.peopleinterest_id \"Id\", pr.descr \"Product\", "
+            + "ifnull(pi.purchase_date,'unknown') \"Approx.date\", pi.prospecting_level \"Prospecting level\" "
+            + "from peopleinterest pi,product pr "
+            + "where pr.product_id=pi.product_id and people_id=# "
+            + "order by pi.purchase_date";
     private static HashMap<Integer, Integer> maxWidths = new HashMap<Integer, Integer>();
 
     static {
         maxWidths.put(0, 40);
     }
 
-    public PurchasedProductsGrid(IMessageSender exchanger, Integer byerID) throws RemoteException {
+    public PurchaseInterestGrid(IMessageSender exchanger, Integer byerID) throws RemoteException {
         super(exchanger, SELECT.replaceAll("#", (peopleID = byerID).toString()), maxWidths, false);
     }
-
     @Override
     protected AbstractAction addAction() {
         return new AbstractAction("Add") {
             @Override
             public void actionPerformed(ActionEvent ae) {
 
-                EditPurchaseDialog.peopleID = peopleID;
-                EditPurchaseDialog ed = new EditPurchaseDialog("Add Purchase", null);
-                if (EditPurchaseDialog.okPressed) {
-                    Peopleproduct pp = (Peopleproduct) ed.getEditPanel().getDbObject();
-                    refresh(pp.getPeopleproductId());
+                EditPurchaseInterestDialog.peopleID = peopleID;
+                EditPurchaseInterestDialog ed = new EditPurchaseInterestDialog("Add Purchase Interest", null);
+                if (EditPurchaseInterestDialog.okPressed) {
+                    Peopleinterest pi = (Peopleinterest) ed.getEditPanel().getDbObject();
+                    refresh(pi.getPeopleinterestId());
                 }
             }
         };
@@ -61,10 +62,10 @@ public class PurchasedProductsGrid extends GeneralGridPanel {
                 int id = getSelectedID();
                 if (id != 0) {
                     try {
-                        Peopleproduct pp = (Peopleproduct) exchanger.loadDbObjectOnID(Peopleproduct.class, id);
-                        EditPurchaseDialog.peopleID = peopleID;
-                        new EditPurchaseDialog("Edit Purchase", pp);
-                        if (EditPurchaseDialog.okPressed) {
+                        Peopleinterest pi = (Peopleinterest) exchanger.loadDbObjectOnID(Peopleinterest.class, id);
+                        EditPurchaseInterestDialog.peopleID = peopleID;
+                        new EditPurchaseInterestDialog("Edit Purchase Interest", pi);
+                        if (EditPurchaseInterestDialog.okPressed) {
                             refresh();
                         }
                     } catch (RemoteException ex) {
@@ -83,9 +84,9 @@ public class PurchasedProductsGrid extends GeneralGridPanel {
                 int id = getSelectedID();
                 if (id != 0) {
                     try {
-                        Peopleproduct pp = (Peopleproduct) exchanger.loadDbObjectOnID(Peopleproduct.class, id);
-                        if (pp != null && GeneralFrame.yesNo("Attention!", "Do you want to delete this record?") == JOptionPane.YES_OPTION) {
-                            exchanger.deleteObject(pp);
+                        Peopleinterest pi = (Peopleinterest)  exchanger.loadDbObjectOnID(Peopleinterest.class, id);
+                        if (pi != null && GeneralFrame.yesNo("Attention!", "Do you want to delete this record?") == JOptionPane.YES_OPTION) {
+                            exchanger.deleteObject(pi);
                             refresh();
                         }
                     } catch (RemoteException ex) {
@@ -95,4 +96,5 @@ public class PurchasedProductsGrid extends GeneralGridPanel {
             }
         };
     }
+    
 }

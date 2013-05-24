@@ -89,7 +89,7 @@ public class LookupDialog extends PopupDialog {
                     } else {
                         select = select.substring(0, w + 7) + addWhereCond.toString() + " aNd " + select.substring(w + 7);//select.substring(o);
                     }
-                    System.out.println("!!"+select);
+//                    System.out.println("!!"+select);
                     grid.setSelect(select);
                     try {
                         GeneralFrame.updateGrid(AIBclient.getExchanger(),

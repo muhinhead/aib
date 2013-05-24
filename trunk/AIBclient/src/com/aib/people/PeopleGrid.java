@@ -52,19 +52,12 @@ public class PeopleGrid extends GeneralGridPanel {
         return new AbstractAction("Add") {
             @Override
             public void actionPerformed(ActionEvent ae) {
-//                try {
-                    additionalSettings();
-                    EditPeopleDialog ed = new EditPeopleDialog("Add Person", null);
-                    if (EditPeopleDialog.okPressed) {
-                        People person = (People) ed.getEditPanel().getDbObject();
-//                        GeneralFrame.updateGrid(exchanger,
-//                                getTableView(), getTableDoc(), getSelect(), person.getPeopleId(),
-//                                getPageSelector().getSelectedIndex());
-                        refresh(person.getPeopleId());
-                    }
-//                } catch (RemoteException ex) {
-//                    AIBclient.logAndShowMessage(ex);
-//                }
+                additionalSettings();
+                EditPeopleDialog ed = new EditPeopleDialog("Add Person", null);
+                if (EditPeopleDialog.okPressed) {
+                    People person = (People) ed.getEditPanel().getDbObject();
+                    refresh(person.getPeopleId());
+                }
             }
         };
     }
@@ -81,8 +74,6 @@ public class PeopleGrid extends GeneralGridPanel {
                         additionalSettings();
                         new EditPeopleDialog("Edit Person", person);
                         if (EditPeopleDialog.okPressed) {
-//                            GeneralFrame.updateGrid(exchanger, getTableView(),
-//                                    getTableDoc(), getSelect(), id, getPageSelector().getSelectedIndex());
                             refresh();
                         }
                     } catch (RemoteException ex) {
@@ -104,8 +95,6 @@ public class PeopleGrid extends GeneralGridPanel {
                         People person = (People) exchanger.loadDbObjectOnID(People.class, id);
                         if (person != null && GeneralFrame.yesNo("Attention!", "Do you want to delete this record?") == JOptionPane.YES_OPTION) {
                             exchanger.deleteObject(person);
-//                            GeneralFrame.updateGrid(exchanger, getTableView(), getTableDoc(),
-//                                    getSelect(), null, getPageSelector().getSelectedIndex());
                             refresh();
                         }
                     } catch (RemoteException ex) {

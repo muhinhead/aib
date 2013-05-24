@@ -65,6 +65,7 @@ public class AIBclient {
     private static Country[] countryDictionary;
     private static ComboItem[] locationsDictionary;
     public static final Color HDR_COLOR = new Color(102, 125, 158);
+    private static List prospLevelList;
 
     /**
      * @param args the command line arguments
@@ -244,7 +245,13 @@ public class AIBclient {
         return props;
     }
 
-    public static List loadAllLogins() {
+    public static ComboItem[] loadAllUsersInitials() {
+        return loadOnSelect(exchanger,
+                "select user_id,concat(initials,' (',first_name,' ',last_name,')') "
+                + "from user order by initials");
+    }
+    
+    public static List loadAllLogins(String fld) {
         try {
             DbObject[] users = exchanger.getDbObjects(User.class, null, "login");
             ArrayList logins = new ArrayList();
@@ -252,7 +259,11 @@ public class AIBclient {
             int i = 1;
             for (DbObject o : users) {
                 User up = (User) o;
-                logins.add(up.getLogin());
+                if (fld.equals("login")) {
+                    logins.add(up.getLogin());
+                } else if(fld.equals("initials")) {
+                    logins.add(up.getInitials());
+                }
             }
             return logins;
         } catch (RemoteException ex) {
@@ -948,13 +959,34 @@ public class AIBclient {
 
     public static List loadDistinctJobDisciplines() {
         List ans = loadStringsOnSelect(getExchanger(), "select distinct job_discip from people order by job_discip");
-//        ans.add("bbb");
+        ans.add("");
         return ans;
     }
 
     public static List loadDistinctDepartaments() {
         List ans = loadStringsOnSelect(getExchanger(),
                 "select distinct department from departmenthistory union select distinct department from people order by department");
+        ans.add("");
+        return ans;
+    }
+
+    public static List loadDistinctTitles() {
+        List ans = loadStringsOnSelect(getExchanger(),
+                "select distinct title from people order by title");
+        return ans;
+    }
+
+    public static List loadDistinctSuffixes() {
+        List ans = loadStringsOnSelect(getExchanger(),
+                "select distinct suffix from people order by suffix");
+        ans.add("");
+        return ans;
+    }
+
+    public static List loadDistinctGreetings() {
+        List ans = loadStringsOnSelect(getExchanger(),
+                "select distinct greeting from people order by greeting");
+        ans.add("");
         return ans;
     }
 
@@ -1000,5 +1032,16 @@ public class AIBclient {
             Logger.getLogger(AIBclient.class.getName()).log(Level.SEVERE, null, ex);
         }
         return "unknown";
+    }
+
+    public static List getProspLevelsList() {
+        if (prospLevelList == null) {
+            prospLevelList = new ArrayList<String>();
+            prospLevelList.add("No budget or not sure");
+            prospLevelList.add("Planned purchase in next 1 month");
+            prospLevelList.add("Planned purchase in next 3 months");
+            prospLevelList.add("Planned purchase in next 6 months");
+        }
+        return prospLevelList;
     }
 }
