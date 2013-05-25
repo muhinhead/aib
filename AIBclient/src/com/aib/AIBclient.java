@@ -15,12 +15,14 @@ import com.aib.orm.People;
 import com.aib.orm.Peopleaward;
 import com.aib.orm.Peoplecompany;
 import com.aib.orm.Peopleindustry;
+import com.aib.orm.Peopleinterest;
 import com.aib.orm.Peoplelink;
 import com.aib.orm.User;
 import com.aib.orm.dbobject.ComboItem;
 import com.aib.orm.dbobject.DbObject;
 import com.aib.remote.IMessageSender;
 import com.jidesoft.plaf.LookAndFeelFactory;
+import com.xlend.util.SelectedDateSpinner;
 import java.awt.Color;
 import java.awt.Image;
 import java.awt.Window;
@@ -74,7 +76,6 @@ public class AIBclient {
         System.out.println(System.getProperty("user.home"));
         LookAndFeelFactory.installDefaultLookAndFeelAndExtension();
         String serverIP = readProperty("ServerAddress", "localhost");
-//        IMessageSender exchanger;
         while (true) {
             try {
                 exchanger = (IMessageSender) Naming.lookup("rmi://" + serverIP + "/AIBserver");
@@ -177,7 +178,7 @@ public class AIBclient {
                     props.load(new FileInputStream(propFile));
                 }
             } catch (IOException e) {
-                e.printStackTrace();
+                log(e);
                 return deflt;
             }
         }
@@ -250,7 +251,7 @@ public class AIBclient {
                 "select user_id,concat(initials,' (',first_name,' ',last_name,')') "
                 + "from user order by initials");
     }
-    
+
     public static List loadAllLogins(String fld) {
         try {
             DbObject[] users = exchanger.getDbObjects(User.class, null, "login");
@@ -261,7 +262,7 @@ public class AIBclient {
                 User up = (User) o;
                 if (fld.equals("login")) {
                     logins.add(up.getLogin());
-                } else if(fld.equals("initials")) {
+                } else if (fld.equals("initials")) {
                     logins.add(up.getInitials());
                 }
             }
@@ -1029,7 +1030,7 @@ public class AIBclient {
                         + p.getLastName();
             }
         } catch (RemoteException ex) {
-            Logger.getLogger(AIBclient.class.getName()).log(Level.SEVERE, null, ex);
+            log(ex);
         }
         return "unknown";
     }
@@ -1043,5 +1044,25 @@ public class AIBclient {
             prospLevelList.add("Planned purchase in next 6 months");
         }
         return prospLevelList;
+    }
+
+    public static java.util.Date getNearestPurchaseTimeScale(Integer peopleId, SelectedDateSpinner timescaleSP) {
+        java.util.Date dt = (java.util.Date) timescaleSP.getValue();
+        timescaleSP.setVisible(false);
+        try {
+            DbObject[] recs = getExchanger().getDbObjects(Peopleinterest.class, 
+                    "people_id=" + peopleId + " and purchase_date="
+                    + "(select min(purchase_date) from peopleinterest where people_id="+peopleId+" and purchase_date>=now())", null);
+            if (recs.length > 0) {
+                Peopleinterest pi = (Peopleinterest) recs[0];
+                dt = new java.util.Date(pi.getPurchaseDate().getTime());
+                timescaleSP.setValue(dt);
+                timescaleSP.setVisible(true);
+            } 
+        } catch (RemoteException ex) {
+            log(ex);
+        }
+
+        return dt;
     }
 }
