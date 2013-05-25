@@ -35,6 +35,8 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
@@ -56,7 +58,7 @@ import javax.swing.SwingConstants;
  * @author Nick Mukhin
  */
 class EditPeoplePanel extends EditPanelWithPhoto {
-
+    
     private JTextField idField;
     private Java2sAutoComboBox titleCB;
     private JTextField firstNameTF;
@@ -84,7 +86,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
     private JTextField otherContactTF;
     private JTextField aibAwardsListTF;
     private SelectedDateSpinner lastVerifiedDateSP;
-    private JTextArea commentsTA;
+//    private JTextArea commentsTA;
     private JComboBox locationCB;
     private JTextField companiesListTF;
     private DefaultComboBoxModel locationCbModel;
@@ -99,11 +101,12 @@ class EditPeoplePanel extends EditPanelWithPhoto {
     private JTextField extUserNameTF;
     private JTextField extPassworTF;
     private SelectedDateSpinner timescaleSP;
-
+    private PeopleCommentsGrid commentsGrid;
+    
     public EditPeoplePanel(DbObject dbObject) {
         super(dbObject);
     }
-
+    
     @Override
     protected void fillContent() {
         String titles[] = new String[]{
@@ -267,7 +270,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
                 })
             })
         };
-
+        
         primaryContactCB.setHorizontalTextPosition(SwingConstants.LEFT);
         channelSubscriberCB.setHorizontalTextPosition(SwingConstants.LEFT);
         marketingIntelDistCB.setHorizontalTextPosition(SwingConstants.LEFT);
@@ -276,19 +279,19 @@ class EditPeoplePanel extends EditPanelWithPhoto {
 //        salesContactCB.setPreferredSize(new Dimension(salesContactCB.getPreferredSize().width, idField.getPreferredSize().height));
         idField.setEnabled(false);
         mailingAddressTA.setEditable(false);
-
+        
         for (Java2sAutoComboBox cb : new Java2sAutoComboBox[]{jobDisciplineCB, departmentCB, titleCB, greetingCB, suffixCB}) {
             cb.setEditable(true);
             cb.setStrict(false);
         }
-
+        
         for (SelectedDateSpinner sp : new SelectedDateSpinner[]{lastEditedSP, lastVerifiedDateSP, actionDateSP}) {
             sp.setEditor(new JSpinner.DateEditor(sp, DD_MM_YYYY));
             Util.addFocusSelectAllAction(sp);
         }
         timescaleSP.setEditor(new JSpinner.DateEditor(timescaleSP, MMM_YYYY));
         Util.addFocusSelectAllAction(timescaleSP);
-
+        
         linksListTF.setEditable(false);
         industriesListTF.setEditable(false);
         companiesListTF.setEditable(false);
@@ -296,35 +299,44 @@ class EditPeoplePanel extends EditPanelWithPhoto {
         lastEditorTF.setEnabled(false);
         lastEditedSP.setEnabled(false);
         timescaleSP.setEnabled(false);
-
+        
         organizePanels(titles, edits, null);
-
+        
         JPanel downTabs = new JPanel(new GridLayout(1, 2, 5, 5));
-        JScrollPane spComments = new JScrollPane(commentsTA = new JTextArea(),
-                JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-        spComments.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Comments"));
-        downTabs.add(spComments);
-
+        try {
+            commentsGrid = new PeopleCommentsGrid(AIBclient.getExchanger(), null, this);
+            commentsGrid.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Comments"));
+            downTabs.add(commentsGrid);
+        } catch (RemoteException ex) {
+            downTabs.add(new JLabel("Comments loading failed", SwingConstants.CENTER));
+            AIBclient.logAndShowMessage(ex);
+        }
+        
+        if (EditPeopleDialog.locationID != null) {
+            selectComboItem(locationCB, EditPeopleDialog.locationID);
+            locationCB.setEnabled(false);
+        }
+        
         JScrollPane spNextActions = new JScrollPane(nextActionTA = new JTextArea(),
                 JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
         spNextActions.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Next Action"));
         downTabs.add(spNextActions);
-
+        
         downTabs.setPreferredSize(new Dimension(downTabs.getPreferredSize().width, 150));
         add(downTabs);
-
+        
         titleCB.setPreferredSize(new Dimension(titleCB.getPreferredSize().width, idField.getPreferredSize().height));
         linksListTF.setPreferredSize(new Dimension(linksListTF.getPreferredSize().width, idField.getPreferredSize().height));
         jobDisciplineCB.setPreferredSize(new Dimension(jobDisciplineCB.getPreferredSize().width, idField.getPreferredSize().height));
         departmentCB.setPreferredSize(new Dimension(departmentCB.getPreferredSize().width, idField.getPreferredSize().height));
         suffixCB.setPreferredSize(new Dimension(suffixCB.getPreferredSize().width, idField.getPreferredSize().height));
         greetingCB.setPreferredSize(new Dimension(greetingCB.getPreferredSize().width, idField.getPreferredSize().height));
-
+        
         paEmailTF.addFocusListener(new EmailFocusAdapter(paEmailLBL, paEmailTF));
         alterEmailTF.addFocusListener(new EmailFocusAdapter(alterEmailLBL, alterEmailTF));
         mainEmailTF.addFocusListener(new EmailFocusAdapter(labels[10], mainEmailTF));
     }
-
+    
     @Override
     public void loadData() {
         People person = (People) getDbObject();
@@ -336,6 +348,9 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             suffixCB.setSelectedItem(person.getSuffix());
             greetingCB.setSelectedItem(person.getGreeting());
             jobDisciplineCB.setSelectedItem(person.getJobDiscip());
+//            locationCB.setSelectedIndex(person.getLocationId());
+            selectComboItem(locationCB,person.getLocationId());
+            selectComboItem(salesContactCB, person.getSalesContactId());
             departmentCB.setSelectedItem(person.getDepartment());
             linksListTF.setText(AIBclient.getLinkListOnPeopleID(person.getPeopleId()));
             industriesListTF.setText(AIBclient.getIndustryListOnPeopleID(person.getPeopleId()));
@@ -356,7 +371,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             channelSubscriberCB.setSelected(person.getIsSubscriber() != null && person.getIsSubscriber() == 1);
             marketingIntelDistCB.setSelected(person.getIsMarketintl() != null && person.getIsMarketintl() == 1);
             mediaBriefingDistCB.setSelected(person.getIsMediabrief() != null && person.getIsMediabrief() == 1);
-            commentsTA.setText(person.getComments());
+//            commentsTA.setText(person.getComments());
             nextActionTA.setText(person.getNextAction());
             extUserNameTF.setText(person.getExternalUser());
             extPassworTF.setText(person.getExternalPasswd());
@@ -377,11 +392,12 @@ class EditPeoplePanel extends EditPanelWithPhoto {
                     AIBclient.log(ex);
                 }
             }
+            commentsGrid.setPeopleID(person.getPeopleId());//updateContent(person.getPeopleId());
             imageData = (byte[]) person.getPhoto();
             setImage(imageData);
         }
     }
-
+    
     @Override
     public boolean save() throws Exception {
         java.util.Date dt;
@@ -395,6 +411,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
         person.setTitle((String) titleCB.getSelectedItem());
         person.setFirstName(firstNameTF.getText());
         person.setLastName(familyName.getText());
+        person.setLocationId(getSelectedCbItem(locationCB));
         person.setSuffix((String) suffixCB.getSelectedItem());
         person.setGreeting((String) greetingCB.getSelectedItem());
         person.setJobDiscip((String) jobDisciplineCB.getSelectedItem());
@@ -418,13 +435,13 @@ class EditPeoplePanel extends EditPanelWithPhoto {
         person.setVerifyDate(new java.sql.Date(dt.getTime()));
         dt = (Date) actionDateSP.getValue();
         person.setActionDate(new java.sql.Date(dt.getTime()));
-        person.setComments(commentsTA.getText());
+//        person.setComments(commentsTA.getText());
         person.setNextAction(nextActionTA.getText());
         person.setSalesContactId(getSelectedCbItem(salesContactCB));
         person.setExternalUser(extUserNameTF.getText());
         person.setExternalPasswd(extPassworTF.getText());
         person.setPhoto(imageData);
-
+        
         boolean ok = saveDbRecord(person, isNew);
         if (ok) {
             person = (People) getDbObject();
@@ -433,25 +450,28 @@ class EditPeoplePanel extends EditPanelWithPhoto {
                 AIBclient.saveOrInsertPeopleLink(person.getPeopleId(), tok.nextToken());
             }
             AIBclient.removeRedundantPeopleLinks(person.getPeopleId(), linksListTF.getText());
+            
             tok = new StringTokenizer(industriesListTF.getText(), ",");
             while (tok.hasMoreTokens()) {
                 AIBclient.saveOrInsertPeopleIndustry(person.getPeopleId(), tok.nextToken());
             }
             AIBclient.removeRedundantPeopleIndustries(person.getPeopleId(), industriesListTF.getText());
+            
             tok = new StringTokenizer(aibAwardsListTF.getText(), ",");
             while (tok.hasMoreTokens()) {
                 AIBclient.savePeopleAward(person.getPeopleId(), tok.nextToken());
             }
             AIBclient.removeRedundantAwards(person.getPeopleId(), aibAwardsListTF.getText());
+            
             tok = new StringTokenizer(companiesListTF.getText(), ",");
             while (tok.hasMoreTokens()) {
                 AIBclient.savePeopleCompany(person.getPeopleId(), tok.nextToken());
             }
-            AIBclient.removeRedundantPeopleCompany(person.getPeopleId(), aibAwardsListTF.getText());
+            AIBclient.removeRedundantPeopleCompany(person.getPeopleId(), companiesListTF.getText());
         }
         return ok;
     }
-
+    
     private AbstractAction getLinkListAction(String lbl) {
         return new AbstractAction(lbl) {
             @Override
@@ -461,7 +481,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             }
         };
     }
-
+    
     private AbstractAction getIndustryListAction(String lbl) {
         return new AbstractAction(lbl) {
             @Override
@@ -473,7 +493,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             }
         };
     }
-
+    
     private AbstractAction getHistoryAction(String lbl) {
         return new AbstractAction(lbl) {
             @Override
@@ -483,7 +503,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             }
         };
     }
-
+    
     private AbstractAction getAwardsListAction(String lbl) {
         return new AbstractAction(lbl) {
             @Override
@@ -495,7 +515,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             }
         };
     }
-
+    
     private AbstractAction getCompaniesListAction(String lbl) {
         return new AbstractAction(lbl) {
             @Override
@@ -506,7 +526,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             }
         };
     }
-
+    
     private AbstractAction showPurchasesAction(String label) {
         return new AbstractAction(label) {
             @Override
@@ -522,7 +542,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             }
         };
     }
-
+    
     private AbstractAction showPurchaseInterestAction(String label) {
         return new AbstractAction(label) {
             @Override
@@ -539,11 +559,11 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             }
         };
     }
-
+    
     private Integer getPeopleID() {
         Integer peopleID = getDbObject() == null ? null : ((People) getDbObject()).getPeopleId();
         if (getDbObject() == null && GeneralFrame.yesNo("Attention!",
-                "Do you want to save this person's record?") == JOptionPane.YES_OPTION) {
+                "Do you want to save this person's record before adding dependant info?") == JOptionPane.YES_OPTION) {
             try {
                 if (save()) {
                     peopleID = ((People) getDbObject()).getPeopleId();

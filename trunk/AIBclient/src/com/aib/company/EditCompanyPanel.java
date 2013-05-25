@@ -8,6 +8,7 @@ import com.aib.AIBclient;
 import com.aib.EditAreaAction;
 //import com.aib.EditAreaAction;
 import com.aib.EditPanelWithPhoto;
+import com.aib.MyJideTabbedPane;
 import com.aib.lookup.ListInTextFieldDialog;
 //import static com.aib.RecordEditPanel.getBorderPanel;
 //import static com.aib.RecordEditPanel.getGridPanel;
@@ -18,6 +19,8 @@ import com.aib.orm.Company;
 import com.aib.orm.User;
 import com.aib.orm.dbobject.ComboItem;
 import com.aib.orm.dbobject.DbObject;
+import com.aib.people.PeopleCommentsGrid;
+import com.aib.people.PeopleGrid;
 import com.jidesoft.swing.JideTabbedPane;
 import com.xlend.util.SelectedDateSpinner;
 import com.xlend.util.SelectedNumberSpinner;
@@ -199,7 +202,7 @@ class EditCompanyPanel extends EditPanelWithPhoto {
         regionWorldCb.setSelectedIndex(0);
         organizePanels(titles, edits, null);
 
-        JideTabbedPane downTabs = new JideTabbedPane();
+        MyJideTabbedPane downTabs = new MyJideTabbedPane();
 
         JScrollPane sp = new JScrollPane(commentsTA = new JTextArea());
         sp.setPreferredSize(new Dimension(400, 150));
@@ -208,9 +211,13 @@ class EditCompanyPanel extends EditPanelWithPhoto {
             Company comp = (Company) getDbObject();
             Integer compID = comp == null ? new Integer(0) : comp.getCompanyId();
             downTabs.add(new CompLocationsGrid(AIBclient.getExchanger(), compID), "Company Locations");
+            downTabs.add(new PeopleGrid(AIBclient.getExchanger(),PeopleGrid.SELECT
+                    +" where people_id in (select people_id from peoplecompany where company_id="+compID+")"), "People");
         } catch (RemoteException ex) {
             AIBclient.logAndShowMessage(ex);
         }
+        
+        
         downTabs.setPreferredSize(new Dimension(downTabs.getPreferredSize().width, 200));
         add(downTabs);
     }

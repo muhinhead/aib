@@ -52,19 +52,12 @@ public class LocationsGrid extends GeneralGridPanel {
         return new AbstractAction("Add") {
             @Override
             public void actionPerformed(ActionEvent ae) {
-//                try {
-                    additionalSettings();
-                    EditLocationDialog ed = new EditLocationDialog("Add Location", null);
-                    if (EditLocationDialog.okPressed) {
-                        Location loc = (Location) ed.getEditPanel().getDbObject();
-                        refresh(loc.getLocationId());
-//                        GeneralFrame.updateGrid(exchanger,
-//                                getTableView(), getTableDoc(), getSelect(), loc.getLocationId(),
-//                                getPageSelector().getSelectedIndex());
-                    }
-//                } catch (RemoteException ex) {
-//                    AIBclient.logAndShowMessage(ex);
-//                }
+                additionalSettings();
+                EditLocationDialog ed = new EditLocationDialog("Add Location", null);
+                if (EditLocationDialog.okPressed) {
+                    Location loc = (Location) ed.getEditPanel().getDbObject();
+                    refresh(loc.getLocationId());
+                }
             }
         };
     }
@@ -81,8 +74,6 @@ public class LocationsGrid extends GeneralGridPanel {
                         additionalSettings();
                         new EditLocationDialog("Edit Location", loc);
                         if (EditLocationDialog.okPressed) {
-//                            GeneralFrame.updateGrid(exchanger, getTableView(),
-//                                    getTableDoc(), getSelect(), id, getPageSelector().getSelectedIndex());
                             refresh();
                         }
                     } catch (RemoteException ex) {
@@ -102,10 +93,9 @@ public class LocationsGrid extends GeneralGridPanel {
                 if (id != 0) {
                     try {
                         Location loc = (Location) exchanger.loadDbObjectOnID(Location.class, id);
-                        if (loc != null && GeneralFrame.yesNo("Attention!", "Do you want to delete this record?") == JOptionPane.YES_OPTION) {
+                        if (loc != null && GeneralFrame.yesNo("Attention!", 
+                                "Do you want to delete this record?") == JOptionPane.YES_OPTION) {
                             exchanger.deleteObject(loc);
-//                            GeneralFrame.updateGrid(exchanger, getTableView(), getTableDoc(),
-//                                    getSelect(), null, getPageSelector().getSelectedIndex());
                             refresh();
                         }
                     } catch (RemoteException ex) {
