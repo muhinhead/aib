@@ -197,7 +197,6 @@ create table people
     is_marketintl    bit default 0,
     is_mediabrief    bit default 0,
     verify_date      date,
-    comments         text,
     sales_contact_id int,
     action_date      date,
     next_action      varchar(512),
@@ -324,4 +323,18 @@ BEGIN
 END;
 |
 
+create function to_char(dt datetime, fmt varchar(32))
+returns varchar(32) deterministic
+begin
+   declare fmt char(32) default fmt;
+   set fmt = replace(fmt,'DD','%e');
+   set fmt = replace(fmt,'MM','%m');
+   set fmt = replace(fmt,'YYYY','%Y');
+   set fmt = replace(fmt,'YY','%y');
+   set fmt = replace(fmt,'HH24','%H');
+   set fmt = replace(fmt,'MI','%i');
+   set fmt = replace(fmt,'SS','%S');
+   return DATE_FORMAT(dt, fmt);
+end;
+|
 delimiter ;
