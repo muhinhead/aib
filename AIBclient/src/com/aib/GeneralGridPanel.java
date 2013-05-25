@@ -109,7 +109,6 @@ public abstract class GeneralGridPanel extends DbTableGridPanel {
 
     protected void refresh() {
         int id = getSelectedID();
-//        if (id > 0) {
         try {
             GeneralFrame.updateGrid(exchanger, getTableView(),
                     getTableDoc(), getSelect(), id, getPageSelector().getSelectedIndex());
@@ -117,7 +116,6 @@ public abstract class GeneralGridPanel extends DbTableGridPanel {
         } catch (RemoteException ex) {
             AIBclient.logAndShowMessage(ex);
         }
-//        }
     }
 
     protected void refresh(int id) {

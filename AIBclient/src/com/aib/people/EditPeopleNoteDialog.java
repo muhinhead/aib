@@ -11,23 +11,22 @@ import com.aib.orm.dbobject.DbObject;
  *
  * @author Nick Mukhin
  */
-public class EditPeopleDialog extends EditRecordDialog {
+class EditPeopleNoteDialog extends EditRecordDialog {
 
+    static Integer peopleID;
     public static boolean okPressed;
-    static Integer companyID;
-    static Integer locationID;
-    
-    public EditPeopleDialog(String title, Object obj) {
+
+    public EditPeopleNoteDialog(String title, DbObject obj) {
         super(title, obj);
     }
-    
-     @Override
+
+    @Override
     protected void fillContent() {
-        super.fillContent(new EditPeoplePanel((DbObject) getObject()));
+        super.fillContent(new EditPeopleNotePanel((DbObject) getObject()));
     }
 
     @Override
     protected void setOkPressed(boolean b) {
         okPressed = b;
-    }   
+    }
 }

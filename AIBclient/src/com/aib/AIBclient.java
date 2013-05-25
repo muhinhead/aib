@@ -1050,19 +1050,19 @@ public class AIBclient {
         java.util.Date dt = (java.util.Date) timescaleSP.getValue();
         timescaleSP.setVisible(false);
         try {
-            DbObject[] recs = getExchanger().getDbObjects(Peopleinterest.class, 
+            DbObject[] recs = getExchanger().getDbObjects(Peopleinterest.class,
                     "people_id=" + peopleId + " and purchase_date="
-                    + "(select min(purchase_date) from peopleinterest where people_id="+peopleId+" and purchase_date>=now())", null);
+                    + "(select min(purchase_date) from peopleinterest where people_id="
+                    + peopleId + " and purchase_date>=now())", null);
             if (recs.length > 0) {
                 Peopleinterest pi = (Peopleinterest) recs[0];
                 dt = new java.util.Date(pi.getPurchaseDate().getTime());
                 timescaleSP.setValue(dt);
                 timescaleSP.setVisible(true);
-            } 
+            }
         } catch (RemoteException ex) {
             log(ex);
         }
-
         return dt;
     }
 }

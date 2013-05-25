@@ -20,12 +20,14 @@ import javax.swing.JOptionPane;
  *
  * @author nick
  */
-public class PeopleGrid extends GeneralGridPanel {
-
-    private static final String SELECT = "select people_id \"ID\","
+public class PeopleGrid extends GeneralGridPanel {    
+    
+    public static final String SELECT = "select people_id \"ID\","
             + "title \"Title\",first_name \"First Name\", "
             + "last_name \"Last Name\",suffix \"Suffix\", greeting \"Greeting\", "
-            + "desk_phone \"Desk Phone\", mobile_phone \"Mobile Phone\", lastedit_date \"Last Edited\" "
+            + "desk_phone \"Desk Phone\", mobile_phone \"Mobile Phone\", "
+            + "lastedit_date \"Last Edited\", "
+            + "(select initials from user where user_id=people.lastedited_by) \"Editor\" "
             + "from people";
     private static HashMap<Integer, Integer> maxWidths = new HashMap<Integer, Integer>();
 
@@ -34,6 +36,7 @@ public class PeopleGrid extends GeneralGridPanel {
         maxWidths.put(1, 80);
         maxWidths.put(4, 80);
         maxWidths.put(5, 80);
+        maxWidths.put(9, 40);
     }
 
     public PeopleGrid(IMessageSender exchanger) throws RemoteException {
@@ -41,10 +44,17 @@ public class PeopleGrid extends GeneralGridPanel {
     }
 
     public PeopleGrid(IMessageSender exchanger, String select) throws RemoteException {
-        super(exchanger, select, maxWidths, true);
+        super(exchanger, select, maxWidths, false);
+        EditPeopleDialog.locationID = null;
+    }
+
+    public void filterOnLocationID(Integer locationID) {
+        setSelect(SELECT + " where location_id=" + (EditPeopleDialog.locationID = locationID));
+        refresh();
     }
 
     protected void additionalSettings() {
+        
     }
 
     @Override
