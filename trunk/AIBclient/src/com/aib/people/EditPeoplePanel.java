@@ -98,6 +98,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
     private SelectedDateSpinner actionDateSP;
     private JTextField extUserNameTF;
     private JTextField extPassworTF;
+    private SelectedDateSpinner timescaleSP;
 
     public EditPeoplePanel(DbObject dbObject) {
         super(dbObject);
@@ -231,7 +232,13 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             }),
             getGridPanel(new JComponent[]{
                 new JButton(showPurchasesAction("Purchases / Dates...")),
-                new JButton(showPurchaseInterestAction("Purchase Interest..."))
+                new JButton(showPurchaseInterestAction("Purchase Interest...")),
+                getBorderPanel(new JComponent[]{
+                    null,
+                    new JLabel("Purchase timescale:", SwingConstants.RIGHT),
+                    timescaleSP = new SelectedDateSpinner()
+                }),
+                new JPanel()
             }),
             getBorderPanel(new JComponent[]{
                 comboPanelWithLookupBtn(salesContactCB = new JComboBox(salesContactCbModel), new UserLookupAction(salesContactCB)),
@@ -242,7 +249,8 @@ class EditPeoplePanel extends EditPanelWithPhoto {
                         getGridPanel(new JComponent[]{
                             getBorderPanel(new JComponent[]{new JLabel(" Ext.user name:"), extUserNameTF = new JTextField(6)}),
                             getBorderPanel(new JComponent[]{new JLabel("Ext.user passwd:"), extPassworTF = new JTextField(6)}),})
-                    }),})
+                    })
+                })
             }),
             getBorderPanel(new JComponent[]{
                 lastVerifiedDateSP = new SelectedDateSpinner(),
@@ -278,6 +286,8 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             sp.setEditor(new JSpinner.DateEditor(sp, DD_MM_YYYY));
             Util.addFocusSelectAllAction(sp);
         }
+        timescaleSP.setEditor(new JSpinner.DateEditor(timescaleSP, MMM_YYYY));
+        Util.addFocusSelectAllAction(timescaleSP);
 
         linksListTF.setEditable(false);
         industriesListTF.setEditable(false);
@@ -285,6 +295,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
         aibAwardsListTF.setEditable(false);
         lastEditorTF.setEnabled(false);
         lastEditedSP.setEnabled(false);
+        timescaleSP.setEnabled(false);
 
         organizePanels(titles, edits, null);
 
@@ -349,6 +360,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             nextActionTA.setText(person.getNextAction());
             extUserNameTF.setText(person.getExternalUser());
             extPassworTF.setText(person.getExternalPasswd());
+            timescaleSP.setValue(AIBclient.getNearestPurchaseTimeScale(person.getPeopleId(), timescaleSP));
             if (person.getActionDate() != null) {
                 actionDateSP.setValue(new java.util.Date(person.getActionDate().getTime()));
             }
@@ -519,6 +531,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
                 if (peopleID != null) {
                     try {
                         new ModalGridDialog("Purchase Interest", new PurchaseInterestGrid(AIBclient.getExchanger(), peopleID));
+                        AIBclient.getNearestPurchaseTimeScale(peopleID, timescaleSP);
                     } catch (RemoteException ex) {
                         AIBclient.logAndShowMessage(ex);
                     }

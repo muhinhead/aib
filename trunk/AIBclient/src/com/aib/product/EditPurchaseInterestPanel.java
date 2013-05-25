@@ -85,8 +85,7 @@ class EditPurchaseInterestPanel extends RecordEditPanel {
         if (EditPurchaseInterestDialog.peopleID != null) {
             purchaserLbl.setBorder(BorderFactory.createEtchedBorder());
         }
-        purchaseDateSP.setEditor(new JSpinner.DateEditor(purchaseDateSP, DD_MM_YYYY));
-//        purchaseDateSP.setEnabled(false);
+        purchaseDateSP.setEditor(new JSpinner.DateEditor(purchaseDateSP, MMM_YYYY));
         Util.addFocusSelectAllAction(purchaseDateSP);
         prospLevelCB.addActionListener(new ActionListener() {
             @Override

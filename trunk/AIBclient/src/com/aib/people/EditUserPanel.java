@@ -51,7 +51,7 @@ class EditUserPanel extends EditPanelWithPhoto {
             "Family name:",
             "Initials:",
             "Login:",
-            "Password:", //"Show password:"
+            "Password:",
             "show password",
             "", ""
         };
