@@ -7,6 +7,7 @@ import com.aib.orm.Compindustry;
 import com.aib.orm.Complink;
 import com.aib.orm.Comppublic;
 import com.aib.orm.Country;
+import com.aib.orm.Filter;
 import com.aib.orm.Industry;
 import com.aib.orm.Link;
 import com.aib.orm.Locindustry;
@@ -55,7 +56,7 @@ import javax.swing.SpinnerNumberModel;
  */
 public class AIBclient {
 
-    private static final String version = "0.3";
+    private static final String version = "0.4";
 //    private static Userprofile currentUser;
     private static Logger logger = null;
     private static FileHandler fh;
@@ -1065,4 +1066,42 @@ public class AIBclient {
         }
         return dt;
     }
+
+    public static DbObject[] allFilters(String tabname) {
+        DbObject[] ans = new DbObject[0];
+        try {
+            ans = getExchanger().getDbObjects(Filter.class, "tablename='"+tabname+"'", "name");
+        } catch (RemoteException ex) {
+            log(ex);
+        }
+        return ans;
+    }
+    
+//    public static ListModel loadFilterList(String tabname) throws RemoteException {
+//        final DbObject[] recs = getExchanger().getDbObjects(Filter.class, "tablename='"+tabname+"'", "name");
+//        
+//        return new ListModel() {
+//
+//            @Override
+//            public int getSize() {
+//                return recs.length;
+//            }
+//
+//            @Override
+//            public Object getElementAt(int i) {
+//                Filter f = (Filter) recs[i];
+//                return f.getName();
+//            }
+//
+//            @Override
+//            public void addListDataListener(ListDataListener ll) {
+//                
+//            }
+//
+//            @Override
+//            public void removeListDataListener(ListDataListener ll) {
+//                
+//            }
+//        };
+//    }
 }

@@ -5,7 +5,6 @@
 package com.aib.location;
 
 import com.aib.EditRecordDialog;
-import com.aib.orm.Company;
 import com.aib.orm.dbobject.DbObject;
 
 /**

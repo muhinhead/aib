@@ -94,6 +94,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
     private JCheckBox channelSubscriberCB;
     private JCheckBox marketingIntelDistCB;
     private JCheckBox mediaBriefingDistCB;
+    private JCheckBox sourceBookCB;
     private DefaultComboBoxModel salesContactCbModel;
     private JComboBox salesContactCB;
     private JTextArea nextActionTA;
@@ -230,8 +231,9 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             getGridPanel(new JComponent[]{
                 primaryContactCB = new JCheckBox("Primary contact"),
                 channelSubscriberCB = new JCheckBox("Channel subscriber"),
-                marketingIntelDistCB = new JCheckBox("Marketing Intel dist."),
-                mediaBriefingDistCB = new JCheckBox("Media briefing dist.")
+                marketingIntelDistCB = new JCheckBox("Market Intel dist."),
+                mediaBriefingDistCB = new JCheckBox("Industry briefing dist."),
+                sourceBookCB = new JCheckBox("Sourcebook")
             }),
             getGridPanel(new JComponent[]{
                 new JButton(showPurchasesAction("Purchases / Dates...")),
@@ -275,6 +277,8 @@ class EditPeoplePanel extends EditPanelWithPhoto {
         channelSubscriberCB.setHorizontalTextPosition(SwingConstants.LEFT);
         marketingIntelDistCB.setHorizontalTextPosition(SwingConstants.LEFT);
         mediaBriefingDistCB.setHorizontalTextPosition(SwingConstants.LEFT);
+        sourceBookCB.setHorizontalTextPosition(SwingConstants.LEFT);
+        
         sp1.setPreferredSize(new Dimension(sp1.getPreferredSize().width, idField.getPreferredSize().height));
 //        salesContactCB.setPreferredSize(new Dimension(salesContactCB.getPreferredSize().width, idField.getPreferredSize().height));
         idField.setEnabled(false);
@@ -349,7 +353,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             greetingCB.setSelectedItem(person.getGreeting());
             jobDisciplineCB.setSelectedItem(person.getJobDiscip());
 //            locationCB.setSelectedIndex(person.getLocationId());
-            selectComboItem(locationCB,person.getLocationId());
+            selectComboItem(locationCB, person.getLocationId());
             selectComboItem(salesContactCB, person.getSalesContactId());
             departmentCB.setSelectedItem(person.getDepartment());
             linksListTF.setText(AIBclient.getLinkListOnPeopleID(person.getPeopleId()));
@@ -371,6 +375,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             channelSubscriberCB.setSelected(person.getIsSubscriber() != null && person.getIsSubscriber() == 1);
             marketingIntelDistCB.setSelected(person.getIsMarketintl() != null && person.getIsMarketintl() == 1);
             mediaBriefingDistCB.setSelected(person.getIsMediabrief() != null && person.getIsMediabrief() == 1);
+            sourceBookCB.setSelected(person.getIsInsourcebook() != null && person.getIsInsourcebook() == 1);
 //            commentsTA.setText(person.getComments());
             nextActionTA.setText(person.getNextAction());
             extUserNameTF.setText(person.getExternalUser());
@@ -428,6 +433,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
         person.setIsSubscriber(channelSubscriberCB.isSelected() ? 1 : 0);
         person.setIsMarketintl(marketingIntelDistCB.isSelected() ? 1 : 0);
         person.setIsMediabrief(mediaBriefingDistCB.isSelected() ? 1 : 0);
+        person.setIsInsourcebook(sourceBookCB.isSelected() ? 1 : 0);
         person.setLasteditedBy(AIBclient.getCurrentUser().getUserId());
         dt = Calendar.getInstance().getTime();
         person.setLasteditDate(new java.sql.Timestamp(dt.getTime()));

@@ -5,14 +5,18 @@
 package com.aib;
 
 import com.aib.remote.IMessageSender;
+import java.awt.Color;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 /**
  *
  * @author nick
  */
-public abstract class FilteredListFrame extends GeneralFrame  {
+public abstract class FilteredListFrame extends GeneralFrame {
+
     private static String[] sheetList = new String[]{
         "List", "Filter"
     };
@@ -20,7 +24,7 @@ public abstract class FilteredListFrame extends GeneralFrame  {
     public FilteredListFrame(String title, IMessageSender exch) {
         super(title, exch);
     }
-    
+
     @Override
     protected String[] getSheetList() {
         return sheetList;
@@ -28,9 +32,17 @@ public abstract class FilteredListFrame extends GeneralFrame  {
 
     @Override
     protected JTabbedPane getMainPanel() {
+
         MyJideTabbedPane workTab = new MyJideTabbedPane();
         workTab.add(getListPanel(), sheetList[0]);
         workTab.add(getFilterPanel(), sheetList[1]);
+        workTab.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent ce) {
+                MyJideTabbedPane tp = (MyJideTabbedPane) ce.getSource();
+                filterMenu.setEnabled(tp.getSelectedIndex() == 1);
+            }
+        });
         return workTab;
     }
 
