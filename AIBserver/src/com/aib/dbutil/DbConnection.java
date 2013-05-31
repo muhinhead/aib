@@ -14,8 +14,14 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Calendar;
+import java.util.Date;
 import java.util.Locale;
 import java.util.Properties;
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -27,32 +33,63 @@ public class DbConnection {
 
         boolean isBusy = false;
         Connection connection = null;
+        long lastUsage = Calendar.getInstance().getTimeInMillis();
 
         ConnectionWithFlag(Connection c) {
             connection = c;
             isBusy = true;
+//            AIBserver.log("connection (" + new Date(lastUsage).toString() + ") opened");
         }
 
         private void freeConnection() {
             isBusy = false;
+//            AIBserver.log("connection (" + new Date(lastUsage).toString() + ") released");
         }
     }
-//    private static Connection logDBconnection = null;
+
+    private static class ConnectionTouchTask extends TimerTask {
+
+        private final boolean withLog;
+
+        public ConnectionTouchTask(boolean withLog) {
+            super();
+            this.withLog = withLog;
+        }
+
+        @Override
+        public void run() {
+            for (ConnectionWithFlag cf : connections) {
+                if (!cf.isBusy) {
+                    if (Calendar.getInstance().getTimeInMillis() - cf.lastUsage > 20 * 60 * 1000) {
+                        try {
+                            cf.connection.close();
+                            connections.remove(cf);
+                            AIBserver.log("connection (" + new Date(cf.lastUsage).toString() + ") closed on timeout");
+                            return;
+                        } catch (SQLException ex) {
+                            AIBserver.log(ex);
+                        }
+                    }
+                } else {
+                    AIBserver.log("connection busy");
+                }
+            }
+        }
+    }
     private static final int DB_VERSION_ID = 1;
     public static final String DB_VERSION = "0.1";
     private static boolean isFirstTime = true;
     private static Properties props = new Properties();
     private static String[] createLocalDBsqls = loadDDLscript("crebas.sql", ";");
     private static ArrayList<ConnectionWithFlag> connections = new ArrayList<ConnectionWithFlag>();
-
     private static String[] fixLocalDBsqls = new String[]{
         "update dbversion set version_id = " + DB_VERSION_ID + ",version = '" + DB_VERSION + "'",
         "delete from link where not exists("
-            + "select complink_id from complink where link_id=link.link_id) and not exists("
-            + "select peoplelink_id from peoplelink where link_id=link.link_id)",        
+        + "select complink_id from complink where link_id=link.link_id) and not exists("
+        + "select peoplelink_id from peoplelink where link_id=link.link_id)",
         "delete from industry where not exists("
-            + "select compindustry_id from compindustry where industry_id=industry.industry_id) and not exists("
-            + "select peopleindustry_id from peopleindustry where industry_id=industry.industry_id)",
+        + "select compindustry_id from compindustry where industry_id=industry.industry_id) and not exists("
+        + "select peopleindustry_id from peopleindustry where industry_id=industry.industry_id)",
         "delete from aibpublic where not exists(select comppublic_id from comppublic where aibpublic_id=aibpublic.aibpublic_id)"
     };
 
@@ -88,7 +125,8 @@ public class DbConnection {
         for (ConnectionWithFlag con : connections) {
             if (!con.isBusy) {
                 con.isBusy = true;
-//                System.out.println("!! connection FOUND");
+                AIBserver.log("connection (" + new Date(con.lastUsage).toString() + ") used");
+                con.lastUsage = Calendar.getInstance().getTimeInMillis();
                 return con.connection;
             }
         }
@@ -105,18 +143,19 @@ public class DbConnection {
                     getLogin(), getPassword());
             connection.setAutoCommit(true);
             RmiMessageSender.isMySQL = (connection.getClass().getCanonicalName().indexOf("mysql") > -1);
-            
+
         } catch (Exception e) {
             AIBserver.log(e);
         }
         if (isFirstTime) {
             initLocalDB(connection);
             fixLocalDB(connection);
+            Timer timer = new Timer();
+            timer.schedule(new ConnectionTouchTask(false), 1000, 5 * 60 * 1000);
             isFirstTime = false;
         }
         if (connection != null) {
             connections.add(new ConnectionWithFlag(connection));
-//            System.out.println("!! connection CREATED");
             return checkVersion(connection);
         } else {
             return null;
@@ -130,6 +169,27 @@ public class DbConnection {
     public static void fixLocalDB(Connection connection) {
         sqlBatch(fixLocalDBsqls, connection, props.getProperty("LogDbFixes", "false").equalsIgnoreCase("true"));
 //        fixWrongAssignments(connection);
+    }
+
+    public static void sqlBatch(String sql, Connection connection, boolean tolog) {
+        PreparedStatement ps = null;
+        try {
+            ps = connection.prepareStatement(sql);
+            ps.execute();
+            if (tolog) {
+                AIBserver.log("STATEMENT [" + sql.substring(0,
+                        sql.length() > 60 ? 60 : sql.length()) + "]... processed");
+            }
+        } catch (SQLException e) {
+            if (tolog) {
+                AIBserver.log(e);
+            }
+        } finally {
+            try {
+                ps.close();
+            } catch (SQLException ex) {
+            }
+        }
     }
 
     public static void sqlBatch(String[] sqls, Connection connection, boolean tolog) {
@@ -167,19 +227,16 @@ public class DbConnection {
     public static void closeConnection(Connection connection) throws SQLException {
         for (ConnectionWithFlag cf : connections) {
             if (cf.connection == connection) {
-                cf.isBusy = false;
-//                System.out.println("!! connection FREED");
+                cf.freeConnection();
                 return;
             }
         }
-//        connection.close();
         connection = null;
     }
 
     public static void closeAllConnections() throws SQLException {
         for (ConnectionWithFlag cf : connections) {
             cf.connection.close();
-//            System.out.println("!! connection CLOSED");
             cf.connection = null;
         }
         connections.clear();
@@ -236,20 +293,6 @@ public class DbConnection {
         return connection;
     }
 
-//    public static void shutDownDatabase() {
-//        Connection connection = null;
-//        try {
-//            connection = getConnection();
-//            sqlBatch(new String[]{"sрutdown"}, connection, true);
-//        } catch (RemoteException ex) {
-//            AIBserver.log(ex);
-//        } finally {
-//            try {
-//                closeConnection(connection);
-//            } catch (SQLException ex1) {
-//            }
-//        }
-//    }
     public static String[] loadDDLscript(String fname, String splitter) {
         String[] ans = new String[0];
         File sqlFile = new File(fname);
@@ -292,119 +335,4 @@ public class DbConnection {
         }
         return ans;
     }
-
-    private static ArrayList<Integer> getAnomalies(Connection connection, String stmt) {
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-//        System.out.println("!![" + stmt + "]");
-        ArrayList<Integer> anomalies = new ArrayList<Integer>();
-        try {
-            ps = connection.prepareStatement(stmt);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                anomalies.add(rs.getInt(1));
-            }
-        } catch (SQLException ex) {
-            AIBserver.log(ex);
-        } finally {
-            try {
-                if (rs != null) {
-                    try {
-                        rs.close();
-                    } catch (SQLException ex) {
-                    }
-                }
-            } finally {
-                if (ps != null) {
-                    try {
-                        ps.close();
-                    } catch (SQLException ex) {
-                    }
-                }
-            }
-        }
-        return anomalies;
-    }
-//    private static void fixWrongAssignments(Connection connection) {
-//        AIBserver.log("Checking assignments...");
-//        String stmt = "select xemployee_id from xopmachassing "
-//                + "where date_end is null and not xemployee_id is null group by xemployee_id having count(*)>1";
-//        fixOperatorsAssignments(connection, getAnomalies(connection, stmt));
-//        stmt = "select xmachine_id from xopmachassing "
-//                + "where date_end is null and not xmachine_id is null group by xmachine_id having count(*)>1";
-//        fixMachineAssignments(connection, getAnomalies(connection, stmt));
-//        stmt = "select xemployee_id from xopmachassing o "
-//                + "where not exists(select * from xopmachassing "
-//                + " where xemployee_id=o.xemployee_id and date_end is null)"
-//                + "and not xemployee_id is null order by xemployee_id,xopmachassing_id";
-//        addCurrentAssignment(connection, getAnomalies(connection, stmt), "xemployee_id");
-//        stmt = "select xmachine_id from xopmachassing o "
-//                + "where not exists(select * from xopmachassing "
-//                + " where xmachine_id=o.xmachine_id and date_end is null)"
-//                + "and not xmachine_id is null order by xmachine_id,xopmachassing_id";
-//        addCurrentAssignment(connection, getAnomalies(connection, stmt), "xmachine_id");
-//    }
-//
-//    private static void fixOperatorsAssignments(Connection connection, ArrayList<Integer> operatorAnomalies) {
-//        fixAssignment(connection, operatorAnomalies, "xemployee_id");
-//    }
-//
-//    private static void fixMachineAssignments(Connection connection, ArrayList<Integer> machineAnomalies) {
-//        fixAssignment(connection, machineAnomalies, "xmachine_id");
-//    }
-//
-//    private static void fixAssignment(Connection connection, ArrayList<Integer> anomalies, String fld) {
-//        for (Integer itemID : anomalies) {
-//            try {
-//                Xopmachassing cur = null;
-//                Xopmachassing next = null;
-//                DbObject[] assigns = Xopmachassing.load(connection, fld + "=" + itemID, "xopmachassing_id");
-//                for (int i = 0; i < assigns.length; i++) {
-//                    cur = (Xopmachassing) assigns[i];
-//                    if (cur.getDateEnd() == null && i < assigns.length - 1) {
-//                        next = (Xopmachassing) assigns[i + 1];
-//                        if (cur.getXmachineId() == 0) {
-//                            cur.setXmachineId(null);
-//                        }
-//                        if (cur.getXemployeeId() == 0) {
-//                            cur.setXemployeeId(null);
-//                        }
-//                        cur.setDateEnd(next.getDateStart());
-//                        cur.save();
-//                    }
-//                }
-//                if (cur.getDateEnd() != null) {
-//                    addAssignment(cur, fld);
-//                }
-//            } catch (Exception ex) {
-//                AIBserver.log(ex);
-//            }
-//        }
-//    }
-//
-//    private static void addCurrentAssignment(Connection connection, ArrayList<Integer> anomalies, String fld) {
-//        for (Integer itemID : anomalies) {
-//            try {
-//                DbObject[] assigns = Xopmachassing.load(connection, fld + "=" + itemID, "xopmachassing_id desc");
-//                Xopmachassing cur = (Xopmachassing) assigns[0];
-//                addAssignment(cur, fld);
-//            } catch (Exception ex) {
-//                AIBserver.log(ex);
-//            }
-//        }
-//    }
-//
-//    private static void addAssignment(Xopmachassing cur, String fld) throws SQLException, ForeignKeyViolationException {
-//        Date dt = cur.getDateEnd();
-//        cur.setXopmachassingId(0);
-//        cur.setNew(true);
-//        cur.setDateStart(dt);
-//        cur.setDateEnd(null);
-//        if (fld.equals("xemployee_id")) {
-//            cur.setXmachineId(null);
-//        } else if (fld.equals("xmachine_id")) {
-//            cur.setXemployeeId(null);
-//        }
-//        cur.save();
-//    }
 }

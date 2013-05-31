@@ -154,7 +154,8 @@ public class RmiMessageSender extends java.rmi.server.UnicastRemoteObject implem
         return new Vector[]{headers, getRows(select, headers.size(), startrow, endrow)};
     }
 
-    private Vector getColNames(String select) throws RemoteException {
+    @Override
+    public Vector getColNames(String select) throws RemoteException {
         Connection connection = DbConnection.getConnection();
         Vector colNames = new Vector();
         PreparedStatement ps = null;
