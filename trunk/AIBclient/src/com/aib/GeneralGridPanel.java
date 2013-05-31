@@ -104,10 +104,12 @@ public abstract class GeneralGridPanel extends DbTableGridPanel {
     }
 
     protected void refreshTotalRows() {
-        countLabel.setText("Total: " + getTableView().getRowCount() + " rows");
+        if (countLabel != null) {
+            countLabel.setText("Total: " + getTableView().getRowCount() + " rows");
+        }
     }
 
-    protected void refresh() {
+    public void refresh() {
         int id = getSelectedID();
         try {
             GeneralFrame.updateGrid(exchanger, getTableView(),
@@ -118,7 +120,7 @@ public abstract class GeneralGridPanel extends DbTableGridPanel {
         }
     }
 
-    protected void refresh(int id) {
+    public void refresh(int id) {
         try {
             GeneralFrame.updateGrid(exchanger, getTableView(),
                     getTableDoc(), getSelect(), id, getPageSelector().getSelectedIndex());

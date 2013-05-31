@@ -48,6 +48,7 @@ public abstract class GeneralFrame extends JFrame implements WindowListener {
     private JTextField srcField;
 //    private JLabel fltrLabel;
 //    private JTextField fltrField;
+    protected JMenu filterMenu;
 
     public GeneralFrame(String title, IMessageSender exch) {
         super(title);
@@ -272,7 +273,7 @@ public abstract class GeneralFrame extends JFrame implements WindowListener {
         statusLabel1.setText(lbl);
     }
 
-    private void buildMenu() {
+    protected void buildMenu() {
         JMenuBar bar = new JMenuBar();
         JMenu m = createMenu("File", "File Operations");
         JMenuItem mi = createMenuItem("Hide", "Hide this window");
@@ -284,12 +285,18 @@ public abstract class GeneralFrame extends JFrame implements WindowListener {
         m.add(mi);
         bar.add(m);
 
-//        m = createMenu("Edit", "Edit operations");
-//        mi = createMenuItem("Find...", "Search on fragment");
-//        mi.addActionListener(getSearchAction());
-//        m.add(mi);
-//        bar.add(m);
-
+        filterMenu = createMenu("Filter", "Filters editor operations");
+        mi = createMenuItem("Create", "Create new filter");
+        mi.addActionListener(addNewFilterAction());
+        filterMenu.add(mi);
+        mi = createMenuItem("Edit", "Edit saved filter");
+        mi.addActionListener(editFilterAction());
+        filterMenu.add(mi);
+        mi = createMenuItem("Delete", "Delete saved filter");
+        mi.addActionListener(editFilterAction());
+        filterMenu.add(mi);
+        bar.add(filterMenu);
+        filterMenu.setEnabled(false);
         setJMenuBar(bar);
     }
 
@@ -453,4 +460,10 @@ public abstract class GeneralFrame extends JFrame implements WindowListener {
     protected JToggleButton getSearchButton() {
         return searchButton;
     }
+
+    protected abstract ActionListener addNewFilterAction();
+
+    protected abstract ActionListener editFilterAction();
+
+    protected abstract ActionListener delFilterAction();
 }
