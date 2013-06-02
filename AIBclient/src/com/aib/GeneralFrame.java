@@ -48,7 +48,7 @@ public abstract class GeneralFrame extends JFrame implements WindowListener {
     private JTextField srcField;
 //    private JLabel fltrLabel;
 //    private JTextField fltrField;
-    protected JMenu filterMenu;
+//    protected JMenu filterMenu;
 
     public GeneralFrame(String title, IMessageSender exch) {
         super(title);
@@ -285,18 +285,18 @@ public abstract class GeneralFrame extends JFrame implements WindowListener {
         m.add(mi);
         bar.add(m);
 
-        filterMenu = createMenu("Filter", "Filters editor operations");
-        mi = createMenuItem("Create", "Create new filter");
-        mi.addActionListener(addNewFilterAction());
-        filterMenu.add(mi);
-        mi = createMenuItem("Edit", "Edit saved filter");
-        mi.addActionListener(editFilterAction());
-        filterMenu.add(mi);
-        mi = createMenuItem("Delete", "Delete saved filter");
-        mi.addActionListener(editFilterAction());
-        filterMenu.add(mi);
-        bar.add(filterMenu);
-        filterMenu.setEnabled(false);
+//        filterMenu = createMenu("Filter", "Filters editor operations");
+//        mi = createMenuItem("Create", "Create new filter");
+//        mi.addActionListener(addNewFilterAction());
+//        filterMenu.add(mi);
+//        mi = createMenuItem("Edit", "Edit saved filter");
+//        mi.addActionListener(editFilterAction());
+//        filterMenu.add(mi);
+//        mi = createMenuItem("Delete", "Delete saved filter");
+//        mi.addActionListener(editFilterAction());
+//        filterMenu.add(mi);
+//        bar.add(filterMenu);
+//        filterMenu.setEnabled(false);
         setJMenuBar(bar);
     }
 

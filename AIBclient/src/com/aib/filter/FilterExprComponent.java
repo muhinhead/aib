@@ -4,41 +4,28 @@
  */
 package com.aib.filter;
 
+import com.aib.AIBclient;
 import com.aib.RecordEditPanel;
 import java.awt.BorderLayout;
-import java.awt.CardLayout;
 import java.awt.event.ActionEvent;
+import java.text.ParseException;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.Stack;
-import java.util.Vector;
 import javax.swing.AbstractAction;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
-import javax.swing.JTextField;
-import javax.swing.SwingConstants;
 
 /**
  *
  * @author nick
  */
-public class FilterExprComponent extends JPanel {
-
-    private static final String TEXT_FLD = "textFieldPanel";
-    private static final String BETWEEN_FLD = "betweenFieldPanel";
-    private static final String DECIMAL_FLD = "decomalFieldPanel";
-    private static final String INT_FLD = "intFieldPanel";
-    private static final String DATE_FLD = "dateFieldPanel";
-    private static final String DATETIME_FLD = "dateTimeFieldPanel";
+public class FilterExprComponent extends FilterComponent {
     private static int level = 0;
     private static Stack<Type> lastType = new Stack<Type>();
-    private JPanel valuePanel;
-    private CardLayout cl;
-    private JTextField valueTF;
-    private JTextField fromValueTF;
-    private JTextField toValueTF;
-    private JComboBox operatorCB;
     private JComboBox fldCB;
+    private HashMap<String, Integer> fldNamesTypes;
 
     /**
      * @return the type
@@ -48,12 +35,10 @@ public class FilterExprComponent extends JPanel {
     }
 
     public static enum Type {
-
         EXPRESSION, AND, OR, NOT, LEFT_BRACKET, RIGHT_BRACKET
     };
 
     public static enum Operator {
-
         EQUALS,
         NOT_EQUALS,
         GREATER, LESS,
@@ -64,61 +49,94 @@ public class FilterExprComponent extends JPanel {
         BETWEEN;
     };
     private Type type;
-    private Operator operator;
-    private String field;
-    private String[] fldList;
-
+    
     /**
      * @return the level
      */
     public static int getLevel() {
         return level;
     }
-    
+
     public static void resetLevel() {
         level = 0;
-    }
-    
-    public FilterExprComponent(Type type) {
-        this(type, null);
+        lastType.clear();
     }
 
-    public FilterExprComponent(Type type, Vector fldlist) {
-        super(new BorderLayout());
+    public FilterExprComponent(Type type) {
+        this(type, null, null, null);
+    }
+
+    public FilterExprComponent(Type type, final HashMap<String, Integer> fldNamesTypes, IFilterPanel parentPanel, String expr) {
+        super(parentPanel);
         this.type = type;
+        this.fldNamesTypes = fldNamesTypes;
         lastType.push(type);
         if (type == Type.RIGHT_BRACKET && level > 0) {
             level--;
         }
         add(new JLabel(replicate(' ', getLevel() * 2)), BorderLayout.WEST);
         if (type == Type.EXPRESSION) {
+            Object[] fldlist = fldNamesTypes.keySet().toArray();
             add(RecordEditPanel.getGridPanel(new JComponent[]{
                 RecordEditPanel.getBorderPanel(new JComponent[]{
                     null,
                     fldCB = new JComboBox(fldlist),
-                    operatorCB = new JComboBox(new String[]{
-                        "==",//Operator.EQUALS.toString(),
-                        "!=",//Operator.NOT_EQUALS.toString(),
-                        ">",//Operator.GREATER.toString(),
-                        "<",//Operator.LESS.toString(),
-                        ">=",//Operator.GREATER_EQ.toString(),
-                        "<=",//Operator.LESS_EQ.toString(),
-                        "LIKE",//Operator.LIKE.toString(),
-                        "IN",//Operator.IN.toString(),
-                        "BETWEEN",//Operator.BETWEEN.toString()
-                    })}),
+                    operatorCB
+                }),
                 getValuePanel()
             }), BorderLayout.CENTER);
+            fldCB.addActionListener(new AbstractAction() {
+                @Override
+                public void actionPerformed(ActionEvent ae) {
+                    touchParent();
+                    selectControls2show((String) fldCB.getSelectedItem(), 
+                            fldNamesTypes.get((String) fldCB.getSelectedItem()));
+                }
+            });
             operatorCB.addActionListener(new AbstractAction() {
                 @Override
                 public void actionPerformed(ActionEvent ae) {
-                    if (operatorCB.getSelectedItem().equals("BETWEEN")) {
-                        cl.show(valuePanel, BETWEEN_FLD);
-                    } else {
-                        cl.show(valuePanel, TEXT_FLD);
-                    }
+                    touchParent();
+                    selectControls2show((String) fldCB.getSelectedItem(), 
+                            fldNamesTypes.get((String) fldCB.getSelectedItem()));
                 }
             });
+            if (expr != null) {
+                int p = expr.indexOf(" ");
+                int pp = expr.indexOf(" ", p + 1);
+                fldCB.setSelectedItem(expr.substring(0, p));
+                if (expr.substring(p + 1).startsWith(IS_NULL)) {
+                    operatorCB.setSelectedItem(IS_NULL);
+                } else {
+                    operatorCB.setSelectedItem(expr.substring(p + 1, pp));
+                    String fld = (String) fldCB.getSelectedItem();
+                    Integer tp = fldNamesTypes.get(fld);
+                    if (expr.substring(p + 1, pp).equals(BETWEEN_STR)) {
+                        p = expr.indexOf(BETWEEN_STR) + BETWEEN_STR.length();
+                        if (tp != null && tp.intValue() == java.sql.Types.DATE) {
+                            pp = expr.indexOf(" and ", p + 1);
+                            try {
+                                Date date = dateFormat.parse(expr.substring(p + 1, pp));
+                                fromDateSP.setValue(date);
+                                date = dateFormat.parse(expr.substring(pp + 5));
+                                toDateSP.setValue(date);
+                            } catch (ParseException ex) {
+                                AIBclient.log(ex);
+                            }
+                        } else {
+                            pp = expr.indexOf("' and '", p + 1);
+                            fromValueTF.setText(removeQuotes(expr.substring(p + 1, pp)));
+                            toValueTF.setText(removeQuotes(expr.substring(pp + 7)));
+                        }
+                    } else {
+                        if (operatorCB.getSelectedItem().equals(IN)) {
+                            valueTF.setText(removeQuotes(expr.substring(pp + 1).replaceAll("','", ",")));
+                        } else {
+                            valueTF.setText(removeQuotes(expr.substring(pp + 1)));
+                        }
+                    }
+                }
+            }
         } else if (type == Type.LEFT_BRACKET) {
             add(new JLabel("("));
             level++;
@@ -134,19 +152,6 @@ public class FilterExprComponent extends JPanel {
 
     }
 
-    private JPanel getValuePanel() {
-        if (valuePanel == null) {
-            valuePanel = new JPanel(cl = new CardLayout());
-            valuePanel.add(valueTF = new JTextField(), TEXT_FLD);
-            valuePanel.add(RecordEditPanel.getBorderPanel(new JComponent[]{
-                fromValueTF = new JTextField(10),
-                new JLabel("and", SwingConstants.CENTER),
-                toValueTF = new JTextField(10)
-            }), BETWEEN_FLD);
-        }
-        return valuePanel;
-    }
-
     public static void backSpace() {
         if (lastType.peek().equals(Type.LEFT_BRACKET) && getLevel() > 0) {
             level--;
@@ -154,14 +159,6 @@ public class FilterExprComponent extends JPanel {
             level++;
         }
         lastType.pop();
-    }
-
-    private String replicate(char ch, int level) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < level; i++) {
-            sb.append(ch);
-        }
-        return sb.toString();
     }
 
     public static void checkOrder(AbstractAction expr, AbstractAction and,
@@ -220,9 +217,23 @@ public class FilterExprComponent extends JPanel {
                 sb.append("NOT\n");
                 break;
             case EXPRESSION:
-                sb.append(fldCB.getSelectedItem()).append(" "+operatorCB.getSelectedItem()+" ");
+                String fld = (String) fldCB.getSelectedItem();
+                Integer tp = fldNamesTypes.get(fld);
+                sb.append(fld).append(" ").append(operatorCB.getSelectedItem()).append(" ");
                 if (operatorCB.getSelectedItem().equals("BETWEEN")) {
-                    sb.append("'").append(fromValueTF.getText()).append("' and '").append(toValueTF.getText()).append("'");
+                    if (tp != null && tp.intValue() == java.sql.Types.DATE) {
+                        Date dt1 = (Date) fromDateSP.getValue();
+                        Date dt2 = (Date) toDateSP.getValue();
+                        sb.append(dateFormat.format(dt1)).append(" and ").append(dateFormat.format(dt2));
+                    } else {
+                        sb.append("'").append(fromValueTF.getText()).append("' and '").append(toValueTF.getText()).append("'");
+                    }
+                } else if (operatorCB.getSelectedItem().equals(IS_NULL)) {
+                } else if (operatorCB.getSelectedItem().equals(IN)) {
+                    sb.append("'").append(valueTF.getText().replaceAll(",", "','")).append("'");
+                } else if(tp.intValue() == java.sql.Types.DATE) {
+                    Date dt1 = (Date) fromDateSP.getValue();
+                    sb.append(dateFormat.format(dt1));
                 } else {
                     sb.append("'").append(valueTF.getText()).append("'");
                 }
@@ -232,4 +243,3 @@ public class FilterExprComponent extends JPanel {
         return sb.toString();
     }
 }
-

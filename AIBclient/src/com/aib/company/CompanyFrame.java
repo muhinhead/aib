@@ -71,7 +71,7 @@ public class CompanyFrame extends FilteredListFrame {
             filterPanel = new JPanel(new BorderLayout());
             JSplitPane sp = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
             sp.setTopComponent(new CompanyFilterPanel());
-            sp.setBottomComponent(new JLabel("Here would be the query results", SwingConstants.CENTER));
+            sp.setBottomComponent(new JLabel("Here would be a query expression", SwingConstants.CENTER));
             filterPanel.add(sp, BorderLayout.CENTER);
         }
         return filterPanel;
