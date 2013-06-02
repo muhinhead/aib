@@ -14,6 +14,7 @@ import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
@@ -168,6 +169,46 @@ public class RmiMessageSender extends java.rmi.server.UnicastRemoteObject implem
                 colNames.add(md.getColumnLabel(i + 1));
             }
             return colNames;
+        } catch (SQLException ex) {
+            AIBserver.log(ex);
+            throw new java.rmi.RemoteException(ex.getMessage());
+        } finally {
+            try {
+                if (rs != null) {
+                    rs.close();
+                }
+            } catch (SQLException se1) {
+            } finally {
+                try {
+                    if (ps != null) {
+                        ps.close();
+                    }
+                } catch (SQLException se2) {
+                }
+            }
+            try {
+                DbConnection.closeConnection(connection);
+            } catch (SQLException ex) {
+                AIBserver.log(ex);
+                throw new java.rmi.RemoteException(ex.getMessage());
+            }
+        }
+    }
+
+    @Override
+    public HashMap<String, Integer> getColNamesTypes(String select) throws RemoteException {
+        Connection connection = DbConnection.getConnection();
+        HashMap<String, Integer> types = new HashMap<String, Integer>();
+        PreparedStatement ps = null;
+        ResultSet rs = null;
+        try {
+            ps = connection.prepareStatement(select);
+            rs = ps.executeQuery();
+            ResultSetMetaData md = rs.getMetaData();
+            for (int i = 0; i < md.getColumnCount(); i++) {
+                types.put(md.getColumnLabel(i + 1), new Integer(md.getColumnType(i + 1)));
+            }
+            return types;
         } catch (SQLException ex) {
             AIBserver.log(ex);
             throw new java.rmi.RemoteException(ex.getMessage());
