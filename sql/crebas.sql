@@ -196,6 +196,7 @@ create table people
     is_subscriber    bit default 0,
     is_marketintl    bit default 0,
     is_mediabrief    bit default 0,
+    is_insourcebook  bit default 0,
     verify_date      date,
     sales_contact_id int,
     action_date      date,
@@ -303,12 +304,25 @@ create table aibaward
 
 create table peopleaward
 (
-    peopleaward_id int not null auto_increment,
+    peopleaward_id     int not null auto_increment,
     people_id          int not null,
     aibaward_id        int not null,
     constraint peopleaward_pk primary key (peopleaward_id),
     constraint peopleaib_people_fk foreign key (people_id) references people (people_id) on delete cascade,
     constraint peopleaib_aibaward_fk foreign key (aibaward_id) references aibaward (aibaward_id) on delete cascade
+);
+
+create table filter
+(
+    filter_id  int not null auto_increment,
+    tablename  varchar(32) not null,
+    name       varchar(64) not null,
+    descr      text,
+    owner_id   int not null,
+    query      text,
+    is_complex bit default 1,
+    constraint filter_pk primary key (filter_id),
+    constraint filter_user_fk foreign key (owner_id) references user (user_id)
 );
 
 delimiter |
