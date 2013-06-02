@@ -17,8 +17,8 @@ import javax.swing.text.MaskFormatter;
  */
 public abstract class RecordEditPanel extends JPanel {
 
-    protected static final String DD_MM_YYYY = "dd/MM/yyyy";
-    protected static final String MMM_YYYY = "MMM-yyyy";
+    public static final String DD_MM_YYYY = "dd/MM/yyyy";
+    public static final String MMM_YYYY = "MMM-yyyy";
     protected static final String SELECT_HERE = "--select here--";
     private DbObject dbObject;
     protected JPanel lblPanel;
