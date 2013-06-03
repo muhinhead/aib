@@ -977,6 +977,12 @@ public class AIBclient {
                 "select distinct title from people order by title");
         return ans;
     }
+    
+    public static List loadDistinctAbbreviations() {
+        List ans = loadStringsOnSelect(getExchanger(),
+                "select distinct abbreviation from company order by abbreviation");
+        return ans;
+    }
 
     public static List loadDistinctSuffixes() {
         List ans = loadStringsOnSelect(getExchanger(),
