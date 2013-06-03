@@ -5,6 +5,7 @@
 package com.aib.filter;
 
 import com.aib.AIBclient;
+import com.aib.GeneralFrame;
 import com.aib.MyJideTabbedPane;
 import com.aib.RecordEditPanel;
 import com.aib.orm.Filter;
@@ -68,13 +69,17 @@ public class CompanyFilterPanel extends JPanel implements IFilterPanel {
     private HashMap<String, Integer> colNamesTypes;
     private AbstractAction saveComplexBtnAct;
     private JLabel changedComplexQueryLbl;
-    private AbstractAction reloadBtnAct;
-//    private final CompanyFilterPanel _this;
+    private JLabel changedSimpleQueryLbl;
+    private JLabel changedLbl;
+    private AbstractAction reloadComplexBtnAct;
     private MyJideTabbedPane complexOrSimpleTab;
     private JPanel edSimpleLabelPanel;
     private JPanel edSimpleComponentPanel;
-    private JLabel changedSimpleQueryLbl;
     private JTextField simpleFilterNameTF;
+    private AbstractAction saveSimpleBtnAct;
+    private AbstractAction reloadSimleBtnAct;
+    private AbstractAction applySimpleBtnAct;
+    private AbstractAction applyComplexBtnAct;
 
     public class FilterTable extends DbTableView {
 
@@ -148,7 +153,7 @@ public class CompanyFilterPanel extends JPanel implements IFilterPanel {
     }
 
     private JComponent getFilterEditor() {
-        String simpleEditor = "Simplified queries editor";
+        String simpleEditor = "Simple queries editor";
         String complexEditor = "Complex queries editor";
         complexOrSimpleTab = new MyJideTabbedPane();
 
@@ -156,17 +161,20 @@ public class CompanyFilterPanel extends JPanel implements IFilterPanel {
         complexOrSimpleTab.add(complexEditorPanel = new JPanel(new BorderLayout(5, 5)), complexEditor);
         complexEditorPanel.add(getHeaderPanel(complexEditor), BorderLayout.NORTH);
         simpleEditorPanel.add(getHeaderPanel(simpleEditor), BorderLayout.NORTH);
+        changedLbl = changedSimpleQueryLbl;
 
         complexOrSimpleTab.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent ce) {
                 switch (complexOrSimpleTab.getSelectedIndex()) {
                     case 0:
+                        changedLbl = changedSimpleQueryLbl;
                         cfg.setSelect(FilterGrid.SELECT.replace("@", "company")
                                 .replace("where ", "where " + "not is_complex and "));
                         cfg.refresh();
                         break;
                     case 1:
+                        changedLbl = changedComplexQueryLbl;
                         cfg.setSelect(FilterGrid.SELECT.replace("@", "company")
                                 .replace("where ", "where " + "is_complex and "));
                         cfg.refresh();
@@ -227,8 +235,16 @@ public class CompanyFilterPanel extends JPanel implements IFilterPanel {
         hdr2.setForeground(Color.BLUE);
 
         changedComplexQueryLbl.setForeground(Color.BLUE);
-        complexEditorPanel.add(getToolbarPanel(), BorderLayout.EAST);
+        changedSimpleQueryLbl.setForeground(Color.BLUE);
+        complexEditorPanel.add(getComplexToolbarPanel(), BorderLayout.EAST);
+        simpleEditorPanel.add(getSimpleToolbarPanel(), BorderLayout.EAST);
         filterNameTF.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent ke) {
+                setChanged(true);
+            }
+        });
+        simpleFilterNameTF.addKeyListener(new KeyAdapter() {
             @Override
             public void keyTyped(KeyEvent ke) {
                 setChanged(true);
@@ -303,23 +319,15 @@ public class CompanyFilterPanel extends JPanel implements IFilterPanel {
     private void fillSimpleEditorPanel(JPanel papa, JComponent[] labels, JComponent[] comps) {
         JPanel upperPanel = new JPanel(new BorderLayout());
         edSimpleLabelPanel = new JPanel(new GridLayout(labels.length, 1, 5, 5));
-//        edSimpleLabelPanel.setLayout(new BoxLayout(edSimpleLabelPanel, BoxLayout.Y_AXIS));
 
         edSimpleComponentPanel = new JPanel(new GridLayout(comps.length, 1, 5, 5));
-//        edSimpleComponentPanel.setLayout(new BoxLayout(edSimpleComponentPanel, BoxLayout.Y_AXIS));
 
         for (JComponent lbl : labels) {
             edSimpleLabelPanel.add(lbl);
         }
-//        for (int i=0; i<comps.length-labels.length;i++) {
-//            edSimpleLabelPanel.add(new JPanel());
-//        }
         for (JComponent comp : comps) {
             edSimpleComponentPanel.add(comp);
         }
-//        for (int i=0; i<labels.length-comps.length;i++) {
-//            edSimpleComponentPanel.add(new JPanel());
-//        }
         upperPanel.add(edSimpleLabelPanel, BorderLayout.WEST);
         upperPanel.add(edSimpleComponentPanel, BorderLayout.CENTER);
         JPanel uprPanel = new JPanel(new BorderLayout());
@@ -327,7 +335,17 @@ public class CompanyFilterPanel extends JPanel implements IFilterPanel {
         papa.add(new JScrollPane(uprPanel), BorderLayout.CENTER);
     }
 
-    private JPanel getToolbarPanel() {
+    private JPanel getSimpleToolbarPanel() {
+        JPanel tb = new JPanel(new BorderLayout());
+        JPanel panel = new JPanel(new GridLayout(3, 1, 2, 2));
+        panel.add(new JButton(saveSimpleBtnAct = saveSimpleAction("Save")));
+        panel.add(new JButton(reloadSimleBtnAct = reloadSimpleAction("Reload")));
+        panel.add(new JButton(applySimpleBtnAct = applySimpleAction("Apply")));
+        tb.add(panel, BorderLayout.NORTH);
+        return tb;
+    }
+
+    private JPanel getComplexToolbarPanel() {
         JPanel tb = new JPanel(new BorderLayout());
         JPanel panel = new JPanel(new GridLayout(11, 1, 2, 2));
         panel.add(new JButton(exprBtnAct = addExpressionLineAction("EXPR")));
@@ -341,8 +359,8 @@ public class CompanyFilterPanel extends JPanel implements IFilterPanel {
         panel.add(new JButton(backBtnAct = backSpaceAction("Back")));
         panel.add(new JSeparator());
         panel.add(new JButton(saveComplexBtnAct = saveComplexAction("Save")));
-        panel.add(new JButton(reloadBtnAct = reloadAction("Reload")));
-        panel.add(new JButton("Apply"));
+        panel.add(new JButton(reloadComplexBtnAct = reloadComplexAction("Reload")));
+        panel.add(new JButton(applyComplexBtnAct = applyComplexAction("Apply")));
         tb.add(panel, BorderLayout.NORTH);
         backBtnAct.setEnabled(false);
         saveComplexBtnAct.setEnabled(false);
@@ -403,7 +421,7 @@ public class CompanyFilterPanel extends JPanel implements IFilterPanel {
         return new AbstractAction(lbl) {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                addOperator(FilterExprComponent.Type.NOT);
+                addOperator(FilterExprComponent.Type.NOT)                                                  ;
             }
         };
     }
@@ -442,11 +460,51 @@ public class CompanyFilterPanel extends JPanel implements IFilterPanel {
         setChanged(true);
     }
 
-    private AbstractAction reloadAction(String lbl) {
+    private AbstractAction reloadComplexAction(String lbl) {
         return new AbstractAction(lbl) {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 filterTable.reloadSelectedFilter();
+            }
+        };
+    }
+
+    private AbstractAction applySimpleAction(String lbl) {
+        return new AbstractAction(lbl) {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                GeneralFrame.notImplementedYet();
+                //TODO: save simple query
+            }
+        };
+    } 
+    
+    private AbstractAction applyComplexAction(String lbl) {
+        return new AbstractAction(lbl) {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                GeneralFrame.notImplementedYet();
+                //TODO: save simple query
+            }
+        };
+    }
+    
+    private AbstractAction reloadSimpleAction(String lbl) {
+        return new AbstractAction(lbl) {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                GeneralFrame.notImplementedYet();
+                //TODO: save simple query
+            }
+        };
+    }
+
+    private AbstractAction saveSimpleAction(String lbl) {
+        return new AbstractAction(lbl) {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                GeneralFrame.notImplementedYet();
+                //TODO: save simple query
             }
         };
     }
@@ -497,10 +555,13 @@ public class CompanyFilterPanel extends JPanel implements IFilterPanel {
         filterTable.setEnabled(!changed);
         if (complexOrSimpleTab.getSelectedIndex() == 1) {
             boolean isComplete = isFilterComplete();
-            changedComplexQueryLbl.setText(changed ? (!isFilterComplete() ? " incomplete" : " changed") : " saved");
-            changedComplexQueryLbl.setForeground(changedComplexQueryLbl.getText().equals(" saved") ? Color.BLUE : Color.RED);
+            changedLbl.setText(changed ? (!isFilterComplete() ? " incomplete" : " changed") : " saved");
             saveComplexBtnAct.setEnabled(changed && isComplete);
+        } else {
+            //TODO!
+            changedLbl.setText(changed ? " changed" : " saved");
         }
+        changedLbl.setForeground(changedLbl.getText().equals(" saved") ? Color.BLUE : Color.RED);
     }
 
     private boolean isFilterComplete() {
