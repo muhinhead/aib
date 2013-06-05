@@ -5,11 +5,14 @@
 package com.aib.filter;
 
 import com.aib.AIBclient;
+import com.aib.FilteredListFrame;
 import com.aib.GeneralFrame;
+import com.aib.GeneralGridPanel;
 import com.aib.MyJideTabbedPane;
 import com.aib.RecordEditPanel;
 import com.aib.orm.Filter;
 import com.aib.orm.dbobject.ComboItem;
+import com.aib.orm.dbobject.ForeignKeyViolationException;
 import com.xlend.mvc.dbtable.DbTableView;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -22,8 +25,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.rmi.RemoteException;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -47,7 +53,7 @@ import javax.swing.event.ListSelectionEvent;
  * @author Nick Mukhin
  */
 public class CompanyFilterPanel extends JPanel implements IFilterPanel {
-
+    
     private JPanel complexEditorPanel;
     private JPanel simpleEditorPanel;
     private boolean changed;
@@ -59,7 +65,7 @@ public class CompanyFilterPanel extends JPanel implements IFilterPanel {
     private JPanel upPerCenterPanel;
     private AbstractAction lftBraketBtnAct;
     private AbstractAction rghtBraketBtnAct;
-    private JTextField filterNameTF;
+    private JTextField complexFilterNameTF;
     private JComboBox ownerCB;
     private AbstractAction exprBtnAct;
     private AbstractAction andBtnAct;
@@ -80,38 +86,42 @@ public class CompanyFilterPanel extends JPanel implements IFilterPanel {
     private AbstractAction reloadSimleBtnAct;
     private AbstractAction applySimpleBtnAct;
     private AbstractAction applyComplexBtnAct;
-
+    private int rowNumSimple = 0;
+    private int rowNumComplex = 0;
+//    private final GeneralGridPanel gridPanel;
+    private final FilteredListFrame parentFrame;
+    
     public class FilterTable extends DbTableView {
-
+        
         @Override
         public void valueChanged(ListSelectionEvent lse) {
             super.valueChanged(lse);
             reloadSelectedFilter();
         }
-
+        
         public void reloadSelectedFilter() {
             FilterExprComponent.resetLevel();
             loadFilter(getSelectedFilter());
         }
     }
-
+    
     protected static Color getHederBackground() {
         return new Color(102, 125, 158);
     }
-
+    
     protected static Color getHeaderForeground() {
         return new Color(255, 255, 255);
     }
-
-    public CompanyFilterPanel() {
+    
+    public CompanyFilterPanel(FilteredListFrame parentFrame) {
         super(new BorderLayout());
+        this.parentFrame = parentFrame;
         try {
             colNamesTypes = AIBclient.getExchanger().getColNamesTypes(
                     "select * from company where company_id<0");
         } catch (RemoteException ex) {
             AIBclient.log(ex);
         }
-        JScrollPane sp;
         JSplitPane split = new JSplitPane();
         try {
             split.setTopComponent((Component) (cfg = new FilterGrid(
@@ -120,15 +130,14 @@ public class CompanyFilterPanel extends JPanel implements IFilterPanel {
         } catch (RemoteException ex) {
             AIBclient.logAndShowMessage(ex);
         }
-
+        
         cfg.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Saved filters"));
         cfg.setPreferredSize(new Dimension(300, 200));
         split.setMinimumSize(new Dimension(split.getPreferredSize().width, 200));
         split.setBottomComponent(getFilterEditor());
-
         add(split);
     }
-
+    
     public Filter getSelectedFilter() {
         int id = cfg.getSelectedID();
         Filter flt = null;
@@ -141,7 +150,7 @@ public class CompanyFilterPanel extends JPanel implements IFilterPanel {
         }
         return flt;
     }
-
+    
     private JPanel getHeaderPanel(String title) {
         JPanel headerPanel = new JPanel();
         headerPanel.setBackground(getHederBackground());
@@ -151,18 +160,19 @@ public class CompanyFilterPanel extends JPanel implements IFilterPanel {
         headerPanel.add(lbl);
         return headerPanel;
     }
-
+    
     private JComponent getFilterEditor() {
         String simpleEditor = "Simple queries editor";
         String complexEditor = "Complex queries editor";
         complexOrSimpleTab = new MyJideTabbedPane();
-
+        
         complexOrSimpleTab.add(simpleEditorPanel = new JPanel(new BorderLayout(10, 10)), simpleEditor);
         complexOrSimpleTab.add(complexEditorPanel = new JPanel(new BorderLayout(5, 5)), complexEditor);
         complexEditorPanel.add(getHeaderPanel(complexEditor), BorderLayout.NORTH);
         simpleEditorPanel.add(getHeaderPanel(simpleEditor), BorderLayout.NORTH);
-        changedLbl = changedSimpleQueryLbl;
-
+        changedLbl = changedSimpleQueryLbl = new JLabel(" ", SwingConstants.LEFT);
+        changedComplexQueryLbl = new JLabel(" ", SwingConstants.LEFT);
+        
         complexOrSimpleTab.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent ce) {
@@ -170,30 +180,32 @@ public class CompanyFilterPanel extends JPanel implements IFilterPanel {
                     case 0:
                         changedLbl = changedSimpleQueryLbl;
                         cfg.setSelect(FilterGrid.SELECT.replace("@", "company")
-                                .replace("where ", "where " + "not is_complex and "));
+                                .replace("where ", "where " + "(is_complex is null or not is_complex) and "));
                         cfg.refresh();
+                        cfg.getTableView().gotoRow(getRowNumSimple());
                         break;
                     case 1:
                         changedLbl = changedComplexQueryLbl;
                         cfg.setSelect(FilterGrid.SELECT.replace("@", "company")
                                 .replace("where ", "where " + "is_complex and "));
                         cfg.refresh();
+                        cfg.getTableView().gotoRow(getRowNumComplex());
                         break;
                 }
             }
         });
-
+        
         userCbModel = new DefaultComboBoxModel();
         for (ComboItem ci : AIBclient.loadAllUsersInitials()) {
             userCbModel.addElement(ci);
         }
-
+        
         fillComplexEditorPanel(complexEditorPanel, new JComponent[]{
             new JLabel(" Filter Name:", SwingConstants.RIGHT),
-            changedComplexQueryLbl = new JLabel(" ", SwingConstants.RIGHT)
+            changedComplexQueryLbl
         }, new JComponent[]{
             RecordEditPanel.getGridPanel(new JComponent[]{
-                filterNameTF = new JTextField(),
+                complexFilterNameTF = new JTextField(),
                 RecordEditPanel.getBorderPanel(new JComponent[]{
                     new JLabel(" Owner:", SwingConstants.RIGHT),
                     ownerCB = new JComboBox(userCbModel)
@@ -203,14 +215,16 @@ public class CompanyFilterPanel extends JPanel implements IFilterPanel {
         });
         JLabel hdr1;
         JLabel hdr2;
-        //TODO: here should be simple query editor pane filling
+        
         fillSimpleEditorPanel(simpleEditorPanel, new JComponent[]{
             new JLabel(" Filter Name:", SwingConstants.RIGHT),
-            changedSimpleQueryLbl = new JLabel(" ", SwingConstants.RIGHT),
-            hdr1 = new JLabel("Company details", SwingConstants.LEFT),
+            changedSimpleQueryLbl,
+            //            hdr1 = new JLabel("Company details", SwingConstants.LEFT),
+            new JPanel(),
             new JLabel("Company name:", SwingConstants.RIGHT),
             new JLabel("Abbreviation:", SwingConstants.RIGHT),
-            hdr2 = new JLabel("Contact person's details", SwingConstants.LEFT),
+            //            hdr2 = new JLabel("Contact person's details", SwingConstants.LEFT),
+            new JPanel(),
             new JLabel("Title:", SwingConstants.RIGHT),
             new JLabel("First Name:", SwingConstants.RIGHT),
             new JLabel("Last Name:", SwingConstants.RIGHT),
@@ -220,25 +234,33 @@ public class CompanyFilterPanel extends JPanel implements IFilterPanel {
         }, new JComponent[]{
             simpleFilterNameTF = new JTextField(),
             new JPanel(),
-            new JSeparator(),
-            new ColumnFilterComponent("company.full_name", java.sql.Types.VARCHAR, this),
-            new ColumnFilterComponent("company.abbreviation", java.sql.Types.VARCHAR, this),
-            new JSeparator(),
-            new ColumnFilterComponent("people.title", java.sql.Types.VARCHAR, this),
-            new ColumnFilterComponent("people.first_name", java.sql.Types.VARCHAR, this),
-            new ColumnFilterComponent("people.last_name", java.sql.Types.VARCHAR, this),
-            new ColumnFilterComponent("people.suffix", java.sql.Types.VARCHAR, this),
-            new ColumnFilterComponent("people.job_discip", java.sql.Types.VARCHAR, this),
-            new ColumnFilterComponent("people.main_email", java.sql.Types.VARCHAR, this)
+            hdr1 = new JLabel("Company details", SwingConstants.LEFT),
+            new ColumnFilterComponent(
+            ColumnFilterComponent.FULLNAME, java.sql.Types.VARCHAR, this),
+            new ColumnFilterComponent(
+            ColumnFilterComponent.ABBREVIATION, java.sql.Types.VARCHAR, this),
+            hdr2 = new JLabel("Contact person's details", SwingConstants.LEFT),
+            new ColumnFilterComponent(
+            ColumnFilterComponent.TITLE, java.sql.Types.VARCHAR, this),
+            new ColumnFilterComponent(
+            ColumnFilterComponent.FIRSTNAME, java.sql.Types.VARCHAR, this),
+            new ColumnFilterComponent(
+            ColumnFilterComponent.LASTNAME, java.sql.Types.VARCHAR, this),
+            new ColumnFilterComponent(
+            ColumnFilterComponent.SUFFIX, java.sql.Types.VARCHAR, this),
+            new ColumnFilterComponent(
+            ColumnFilterComponent.JOB, java.sql.Types.VARCHAR, this),
+            new ColumnFilterComponent(
+            ColumnFilterComponent.MAINEMAIL, java.sql.Types.VARCHAR, this)
         });
         hdr1.setForeground(Color.BLUE);
         hdr2.setForeground(Color.BLUE);
-
+        
         changedComplexQueryLbl.setForeground(Color.BLUE);
         changedSimpleQueryLbl.setForeground(Color.BLUE);
         complexEditorPanel.add(getComplexToolbarPanel(), BorderLayout.EAST);
         simpleEditorPanel.add(getSimpleToolbarPanel(), BorderLayout.EAST);
-        filterNameTF.addKeyListener(new KeyAdapter() {
+        complexFilterNameTF.addKeyListener(new KeyAdapter() {
             @Override
             public void keyTyped(KeyEvent ke) {
                 setChanged(true);
@@ -252,7 +274,7 @@ public class CompanyFilterPanel extends JPanel implements IFilterPanel {
         });
         return complexOrSimpleTab;
     }
-
+    
     private void loadFilter(Filter filter) {
         if (complexOrSimpleTab.getSelectedIndex() == 1) {
             Component[] comps = edComplexComponentPanel.getComponents();
@@ -260,7 +282,7 @@ public class CompanyFilterPanel extends JPanel implements IFilterPanel {
                 edComplexComponentPanel.remove(comps[i]);
             }
             edComplexComponentPanel.revalidate();
-            filterNameTF.setText(filter == null ? "" : filter.getName());
+            complexFilterNameTF.setText(filter == null ? "" : filter.getName());
             if (filter != null) {
                 RecordEditPanel.selectComboItem(ownerCB, filter.getOwnerId());
                 int r = 0;
@@ -289,39 +311,53 @@ public class CompanyFilterPanel extends JPanel implements IFilterPanel {
                 }
             }
             FilterExprComponent.checkOrder(exprBtnAct, andBtnAct, orBtnAct, notBtnAct, lftBraketBtnAct, rghtBraketBtnAct);
-            setChanged(false);
+            setRowNumComplex(cfg.getTableView().getSelectedRow());
         } else {
             //TODO: load simple filter
+            simpleFilterNameTF.setText(filter == null ? "" : filter.getName());
+            setRowNumSimple(cfg.getTableView().getSelectedRow());
+            Component[] comps = edSimpleComponentPanel.getComponents();
+            Filter flt = getSelectedFilter();
+            if (flt != null) {
+                String expression = flt.getQuery();
+                for (Component comp : comps) {
+                    if (comp instanceof ColumnFilterComponent) {
+                        ColumnFilterComponent fc = (ColumnFilterComponent) comp;
+                        fc.load(expression);
+                    }
+                }
+            }
         }
+        setChanged(false);
     }
-
+    
     private void fillComplexEditorPanel(JPanel papa, JComponent[] labels, JComponent[] comps) {
         JPanel upperPanel = new JPanel(new BorderLayout());
         edComplexLabelPanel = new JPanel();
         edComplexLabelPanel.setLayout(new BoxLayout(edComplexLabelPanel, BoxLayout.Y_AXIS));
         edComplexComponentPanel = new JPanel();
         edComplexComponentPanel.setLayout(new BoxLayout(edComplexComponentPanel, BoxLayout.Y_AXIS));
-
+        
         for (JComponent lbl : labels) {
             edComplexLabelPanel.add(lbl);
         }
         for (JComponent comp : comps) {
             edComplexComponentPanel.add(comp);
         }
-
+        
         upperPanel.add(edComplexLabelPanel, BorderLayout.WEST);
         upperPanel.add(edComplexComponentPanel, BorderLayout.CENTER);
         upPerCenterPanel = new JPanel(new BorderLayout());
         upPerCenterPanel.add(upperPanel, BorderLayout.NORTH);
         papa.add(new JScrollPane(upPerCenterPanel), BorderLayout.CENTER);
     }
-
+    
     private void fillSimpleEditorPanel(JPanel papa, JComponent[] labels, JComponent[] comps) {
         JPanel upperPanel = new JPanel(new BorderLayout());
         edSimpleLabelPanel = new JPanel(new GridLayout(labels.length, 1, 5, 5));
-
+        
         edSimpleComponentPanel = new JPanel(new GridLayout(comps.length, 1, 5, 5));
-
+        
         for (JComponent lbl : labels) {
             edSimpleLabelPanel.add(lbl);
         }
@@ -334,17 +370,18 @@ public class CompanyFilterPanel extends JPanel implements IFilterPanel {
         uprPanel.add(upperPanel, BorderLayout.NORTH);
         papa.add(new JScrollPane(uprPanel), BorderLayout.CENTER);
     }
-
+    
     private JPanel getSimpleToolbarPanel() {
         JPanel tb = new JPanel(new BorderLayout());
         JPanel panel = new JPanel(new GridLayout(3, 1, 2, 2));
         panel.add(new JButton(saveSimpleBtnAct = saveSimpleAction("Save")));
-        panel.add(new JButton(reloadSimleBtnAct = reloadSimpleAction("Reload")));
+        panel.add(new JButton(reloadSimleBtnAct = reloadAction("Reload")));
         panel.add(new JButton(applySimpleBtnAct = applySimpleAction("Apply")));
         tb.add(panel, BorderLayout.NORTH);
+        saveSimpleBtnAct.setEnabled(false);
         return tb;
     }
-
+    
     private JPanel getComplexToolbarPanel() {
         JPanel tb = new JPanel(new BorderLayout());
         JPanel panel = new JPanel(new GridLayout(11, 1, 2, 2));
@@ -359,7 +396,7 @@ public class CompanyFilterPanel extends JPanel implements IFilterPanel {
         panel.add(new JButton(backBtnAct = backSpaceAction("Back")));
         panel.add(new JSeparator());
         panel.add(new JButton(saveComplexBtnAct = saveComplexAction("Save")));
-        panel.add(new JButton(reloadComplexBtnAct = reloadComplexAction("Reload")));
+        panel.add(new JButton(reloadComplexBtnAct = reloadAction("Reload")));
         panel.add(new JButton(applyComplexBtnAct = applyComplexAction("Apply")));
         tb.add(panel, BorderLayout.NORTH);
         backBtnAct.setEnabled(false);
@@ -368,7 +405,7 @@ public class CompanyFilterPanel extends JPanel implements IFilterPanel {
                 notBtnAct, lftBraketBtnAct, rghtBraketBtnAct);
         return tb;
     }
-
+    
     private AbstractAction addExpressionLineAction(String lbl) {
         return new AbstractAction(lbl) {
             @Override
@@ -380,7 +417,7 @@ public class CompanyFilterPanel extends JPanel implements IFilterPanel {
             }
         };
     }
-
+    
     private AbstractAction addLeftBracketAction(String lbl) {
         return new AbstractAction(lbl) {
             @Override
@@ -389,7 +426,7 @@ public class CompanyFilterPanel extends JPanel implements IFilterPanel {
             }
         };
     }
-
+    
     private AbstractAction addRightBracketAction(String lbl) {
         return new AbstractAction(lbl) {
             @Override
@@ -398,7 +435,7 @@ public class CompanyFilterPanel extends JPanel implements IFilterPanel {
             }
         };
     }
-
+    
     private AbstractAction addAndAction(String lbl) {
         return new AbstractAction(lbl) {
             @Override
@@ -407,7 +444,7 @@ public class CompanyFilterPanel extends JPanel implements IFilterPanel {
             }
         };
     }
-
+    
     private AbstractAction addOrAction(String lbl) {
         return new AbstractAction(lbl) {
             @Override
@@ -416,16 +453,16 @@ public class CompanyFilterPanel extends JPanel implements IFilterPanel {
             }
         };
     }
-
+    
     private AbstractAction addNotAction(String lbl) {
         return new AbstractAction(lbl) {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                addOperator(FilterExprComponent.Type.NOT)                                                  ;
+                addOperator(FilterExprComponent.Type.NOT);
             }
         };
     }
-
+    
     private AbstractAction backSpaceAction(String lbl) {
         return new AbstractAction(lbl) {
             @Override
@@ -443,12 +480,11 @@ public class CompanyFilterPanel extends JPanel implements IFilterPanel {
             }
         };
     }
-
+    
     private void addOperator(FilterExprComponent.Type type) {
         addLine(new FilterExprComponent(type));
-//        FilterExprComponent.checkOrder(exprBtnAct, andBtnAct, orBtnAct, notBtnAct, lftBraketBtnAct, rghtBraketBtnAct);
     }
-
+    
     private void addLine(FilterExprComponent line) {
         edComplexComponentPanel.add(line);
         edComplexComponentPanel.revalidate();
@@ -459,8 +495,8 @@ public class CompanyFilterPanel extends JPanel implements IFilterPanel {
         FilterExprComponent.checkOrder(exprBtnAct, andBtnAct, orBtnAct, notBtnAct, lftBraketBtnAct, rghtBraketBtnAct);
         setChanged(true);
     }
-
-    private AbstractAction reloadComplexAction(String lbl) {
+    
+    private AbstractAction reloadAction(String lbl) {
         return new AbstractAction(lbl) {
             @Override
             public void actionPerformed(ActionEvent ae) {
@@ -468,72 +504,91 @@ public class CompanyFilterPanel extends JPanel implements IFilterPanel {
             }
         };
     }
-
+    
     private AbstractAction applySimpleAction(String lbl) {
         return new AbstractAction(lbl) {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                GeneralFrame.notImplementedYet();
-                //TODO: save simple query
+                parentFrame.applyFilter(saveSimpleFilter());
             }
         };
-    } 
+    }
     
     private AbstractAction applyComplexAction(String lbl) {
         return new AbstractAction(lbl) {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                GeneralFrame.notImplementedYet();
-                //TODO: save simple query
+                parentFrame.applyFilter(saveComplexFilter());
             }
         };
     }
     
-    private AbstractAction reloadSimpleAction(String lbl) {
-        return new AbstractAction(lbl) {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                GeneralFrame.notImplementedYet();
-                //TODO: save simple query
-            }
-        };
-    }
-
     private AbstractAction saveSimpleAction(String lbl) {
         return new AbstractAction(lbl) {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                GeneralFrame.notImplementedYet();
-                //TODO: save simple query
+                saveSimpleFilter();
             }
         };
     }
-
+    
+    private Filter saveSimpleFilter() {
+        Component[] comps = edSimpleComponentPanel.getComponents();
+        Filter flt = getSelectedFilter();
+        if (flt != null) {
+            try {
+                flt.setName(simpleFilterNameTF.getText());
+                flt.setOwnerId(AIBclient.getCurrentUser().getUserId());
+                StringBuilder sb = new StringBuilder();
+                for (Component comp : comps) {
+                    String str = comp.toString();
+                    if (comp instanceof ColumnFilterComponent && str.length() > 0) {
+                        sb.append(sb.length() > 0 ? " AND " : "").append(str);
+                    }
+                }
+                flt.setQuery(sb.toString());
+                AIBclient.getExchanger().saveDbObject(flt);
+                cfg.refresh();
+                setChanged(false);
+                return flt;
+            } catch (Exception ex) {
+                AIBclient.log(ex);
+            }
+        }
+        return null;
+    }
+    
+    private Filter saveComplexFilter() {
+        Component[] comps = edComplexComponentPanel.getComponents();
+        Filter flt = getSelectedFilter();
+        if (flt != null) {
+            try {
+                flt.setName(complexFilterNameTF.getText());
+                flt.setOwnerId(AIBclient.getCurrentUser().getUserId());
+                StringBuilder sb = new StringBuilder();
+                for (Component comp : comps) {
+                    if (comp instanceof FilterExprComponent) {
+                        FilterExprComponent fcomp = (FilterExprComponent) comp;
+                        sb.append(fcomp.toString());
+                    }
+                }
+                flt.setQuery(sb.toString());
+                AIBclient.getExchanger().saveDbObject(flt);
+                cfg.refresh();
+                setChanged(false);
+                return flt;
+            } catch (Exception ex) {
+                AIBclient.log(ex);
+            }
+        }
+        return null;
+    }
+    
     private AbstractAction saveComplexAction(String lbl) {
         return new AbstractAction(lbl) {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                Component[] comps = edComplexComponentPanel.getComponents();
-                Filter flt = getSelectedFilter();
-                if (flt != null) {
-                    try {
-                        flt.setName(filterNameTF.getText());
-                        flt.setOwnerId(AIBclient.getCurrentUser().getUserId());
-                        StringBuilder sb = new StringBuilder();
-                        for (Component comp : comps) {
-                            if (comp instanceof FilterExprComponent) {
-                                FilterExprComponent fcomp = (FilterExprComponent) comp;
-                                sb.append(fcomp.toString());
-                            }
-                        }
-                        flt.setQuery(sb.toString());
-                        AIBclient.getExchanger().saveDbObject(flt);
-                        cfg.refresh();
-                        setChanged(false);
-                    } catch (Exception ex) {
-                        AIBclient.log(ex);
-                    }
-                }
+                saveComplexFilter();
             }
         };
     }
@@ -558,12 +613,12 @@ public class CompanyFilterPanel extends JPanel implements IFilterPanel {
             changedLbl.setText(changed ? (!isFilterComplete() ? " incomplete" : " changed") : " saved");
             saveComplexBtnAct.setEnabled(changed && isComplete);
         } else {
-            //TODO!
             changedLbl.setText(changed ? " changed" : " saved");
+            saveSimpleBtnAct.setEnabled(changed);
         }
         changedLbl.setForeground(changedLbl.getText().equals(" saved") ? Color.BLUE : Color.RED);
     }
-
+    
     private boolean isFilterComplete() {
         boolean complete = true;
         Component[] comps = edComplexComponentPanel.getComponents();
@@ -575,5 +630,33 @@ public class CompanyFilterPanel extends JPanel implements IFilterPanel {
                     && FilterExprComponent.getLevel() == 0;
         }
         return complete;
+    }
+
+    /**
+     * @return the rowNumSimple
+     */
+    public int getRowNumSimple() {
+        return rowNumSimple;
+    }
+
+    /**
+     * @param rowNumSimple the rowNumSimple to set
+     */
+    public void setRowNumSimple(int rowNumSimple) {
+        this.rowNumSimple = rowNumSimple < 0 ? 0 : rowNumSimple;
+    }
+
+    /**
+     * @return the rowNumComplex
+     */
+    public int getRowNumComplex() {
+        return rowNumComplex;
+    }
+
+    /**
+     * @param rowNumComplex the rowNumComplex to set
+     */
+    public void setRowNumComplex(int rowNumComplex) {
+        this.rowNumComplex = rowNumComplex < 0 ? 0 : rowNumComplex;
     }
 }

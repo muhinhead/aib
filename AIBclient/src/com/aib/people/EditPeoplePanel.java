@@ -72,7 +72,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
     private JTextField specAddressTF;
     private JScrollPane sp1;
     private JTextArea mailingAddressTA;
-    private JTextField mailingPostCodeTF;
+//    private JTextField mailingPostCodeTF;
     private JTextField deskPhoneTF;
     private JTextField deskFaxTF;
     private JTextField mobilePhoneTF;
@@ -190,10 +190,11 @@ class EditPeoplePanel extends EditPanelWithPhoto {
                     JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER),
                     new JButton(new EditAreaAction("...", mailingAddressTA))
                 }),
-                getGridPanel(new JComponent[]{
-                    new JLabel("Post Code:", SwingConstants.RIGHT),
-                    mailingPostCodeTF = new JTextField()
-                })
+                new JPanel()
+//                getGridPanel(new JComponent[]{
+//                    new JLabel("Post Code:", SwingConstants.RIGHT),
+//                    mailingPostCodeTF = new JTextField()
+//                })
             }),
             getGridPanel(new JComponent[]{
                 getGridPanel(new JComponent[]{
@@ -362,7 +363,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             companiesListTF.setText(AIBclient.getCompaniesOnPeopleID(person.getPeopleId()));
             specAddressTF.setText(person.getSpecAddress());
             mailingAddressTA.setText(person.getMailaddress());
-            mailingPostCodeTF.setText(person.getMailpostcode());
+//            mailingPostCodeTF.setText(person.getMailpostcode());
             deskPhoneTF.setText(person.getDeskPhone());
             deskFaxTF.setText(person.getDeskFax());
             mobilePhoneTF.setText(person.getMobilePhone());

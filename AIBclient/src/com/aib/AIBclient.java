@@ -43,6 +43,7 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 import java.util.prefs.Preferences;
 import javax.imageio.ImageIO;
+import javax.swing.ComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
@@ -56,7 +57,7 @@ import javax.swing.SpinnerNumberModel;
  */
 public class AIBclient {
 
-    private static final String version = "0.4";
+    private static final String version = "0.5";
 //    private static Userprofile currentUser;
     private static Logger logger = null;
     private static FileHandler fh;
@@ -308,14 +309,18 @@ public class AIBclient {
         return new ComboItem[]{new ComboItem(0, "")};
     }
 
-    private static List loadStringsOnSelect(IMessageSender exchanger, String select) {
+    private static List loadStringsOnSelect(IMessageSender exchanger, String select, String begin) {
         int pos = select.indexOf("select distinct ");
         String slct = pos == 0 ? select.replaceAll("select distinct ", "select distinct 0,")
                 : select.replaceAll("select ", "select 0,");
         ComboItem[] itms = loadOnSelect(exchanger, slct);
         List answerArray = new ArrayList();
+        if (begin != null) {
+            answerArray.add(begin);
+        }
         for (int i = 0; i < itms.length; i++) {
-            answerArray.add(i, itms[i].getValue());
+            answerArray.add(//i, 
+                    itms[i].getValue());
         }
         return answerArray;
     }
@@ -960,47 +965,51 @@ public class AIBclient {
     }
 
     public static List loadDistinctJobDisciplines() {
-        List ans = loadStringsOnSelect(getExchanger(), "select distinct job_discip from people order by job_discip");
-        ans.add("");
+        List ans = loadStringsOnSelect(getExchanger(),
+                "select distinct job_discip from people order by job_discip", "");
+//        ans.add("");
         return ans;
     }
 
     public static List loadDistinctDepartaments() {
         List ans = loadStringsOnSelect(getExchanger(),
-                "select distinct department from departmenthistory union select distinct department from people order by department");
-        ans.add("");
+                "select distinct department from departmenthistory "
+                + "union select distinct department from people order by department", "");
+//        ans.add("");
         return ans;
     }
 
     public static List loadDistinctTitles() {
         List ans = loadStringsOnSelect(getExchanger(),
-                "select distinct title from people order by title");
+                "select distinct title from people order by title", "");
+//        ans.add("");
         return ans;
     }
-    
+
     public static List loadDistinctAbbreviations() {
         List ans = loadStringsOnSelect(getExchanger(),
-                "select distinct abbreviation from company order by abbreviation");
+                "select distinct abbreviation from company order by abbreviation", "");
         return ans;
     }
 
     public static List loadDistinctSuffixes() {
         List ans = loadStringsOnSelect(getExchanger(),
-                "select distinct suffix from people order by suffix");
-        ans.add("");
+                "select distinct suffix from people order by suffix", "");
+//        ans.add("");
         return ans;
     }
 
     public static List loadDistinctGreetings() {
         List ans = loadStringsOnSelect(getExchanger(),
-                "select distinct greeting from people order by greeting");
-        ans.add("");
+                "select distinct greeting from people order by greeting", "");
+//        ans.add("");
         return ans;
     }
 
     public static List loadAllCompaniesShortNames() {
         List ans = loadStringsOnSelect(getExchanger(),
-                "select '' abbreviation union select concat(abbreviation,' - ',full_name) from company order by abbreviation");
+                "select '' abbreviation union "
+                + "select concat(abbreviation,' - ',full_name) from company order by abbreviation", null);
         return ans;
     }
 
@@ -1076,13 +1085,12 @@ public class AIBclient {
     public static DbObject[] allFilters(String tabname) {
         DbObject[] ans = new DbObject[0];
         try {
-            ans = getExchanger().getDbObjects(Filter.class, "tablename='"+tabname+"'", "name");
+            ans = getExchanger().getDbObjects(Filter.class, "tablename='" + tabname + "'", "name");
         } catch (RemoteException ex) {
             log(ex);
         }
         return ans;
     }
-    
 //    public static ListModel loadFilterList(String tabname) throws RemoteException {
 //        final DbObject[] recs = getExchanger().getDbObjects(Filter.class, "tablename='"+tabname+"'", "name");
 //        
@@ -1110,4 +1118,15 @@ public class AIBclient {
 //            }
 //        };
 //    }
+
+    public static ComboItem[] loadAllFilters(String tableName) {
+        ComboItem[] fltrs = loadOnSelect(getExchanger(),
+                "select filter_id,name from filter where tablename='" + tableName + "'");
+        ComboItem[] fltrs1 = new ComboItem[fltrs.length+1];
+        fltrs1[0] = new ComboItem(-1, "300 last edited rows");
+        for (int i=1; i<=fltrs.length; i++) {
+            fltrs1[i] = fltrs[i-1];
+        }
+        return fltrs1;
+    }
 }

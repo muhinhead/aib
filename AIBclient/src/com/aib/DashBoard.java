@@ -6,6 +6,7 @@ package com.aib;
 
 import com.aib.remote.IMessageSender;
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.HeadlessException;
@@ -46,6 +47,7 @@ public class DashBoard extends AbstractDashBoard {
         SceneApplet sa = new DashBoardApplet();
         JPanel headerPanel = new JPanel();
         headerPanel.setBackground(AIBclient.HDR_COLOR);
+        headerPanel.setForeground(Color.WHITE);
         JLabel lbl = new JLabel(getTitle(), SwingConstants.CENTER);
         lbl.setFont(lbl.getFont().deriveFont(Font.BOLD, 18));
         headerPanel.add(lbl);

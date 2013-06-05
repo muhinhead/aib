@@ -38,6 +38,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextArea;
@@ -57,14 +58,14 @@ class EditCompanyPanel extends EditPanelWithPhoto {
     private JCheckBox isDummyCB;
     private SelectedNumberSpinner turnoverSP;
     private JTextArea physicAddressTA;
-    private JTextField postCodeTF;
+//    private JTextField postCodeTF;
     private JTextArea mailingAddressTA;
     private JComboBox regionWorldCb;
     private JComboBox countryCB;
     private JTextField abbreviationTF;
     private JTextField linksListTF;
     private JTextField industriesListTF;
-    private JTextField mailingPostCodeTF;
+//    private JTextField mailingPostCodeTF;
     private JTextField mainPhoneTF;
     private JTextField mainFaxTF;
     private JComboBox membershipLevelCB;
@@ -137,10 +138,11 @@ class EditCompanyPanel extends EditPanelWithPhoto {
                     JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER),
                     new JButton(new EditAreaAction("...", physicAddressTA))
                 }),
-                getGridPanel(new JComponent[]{
-                    new JLabel("Post Code:", SwingConstants.RIGHT),
-                    postCodeTF = new JTextField()
-                })
+                new JPanel()
+//                getGridPanel(new JComponent[]{
+//                    new JLabel("Post Code:", SwingConstants.RIGHT),
+//                    postCodeTF = new JTextField()
+//                })
             }),
             getGridPanel(new JComponent[]{
                 getBorderPanel(new JComponent[]{
@@ -149,10 +151,11 @@ class EditCompanyPanel extends EditPanelWithPhoto {
                     JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER),
                     new JButton(new EditAreaAction("...", mailingAddressTA))
                 }),
-                getGridPanel(new JComponent[]{
-                    new JLabel("Mailing Post Code:", SwingConstants.RIGHT),
-                    mailingPostCodeTF = new JTextField()
-                })
+                new JPanel()
+//                getGridPanel(new JComponent[]{
+//                    new JLabel("Mailing Post Code:", SwingConstants.RIGHT),
+//                    mailingPostCodeTF = new JTextField()
+//                })
             }),
             getGridPanel(new JComponent[]{
                 comboPanelWithLookupBtn(regionWorldCb = new JComboBox(regionWorldCbModel), new RegionsLookupAction(regionWorldCb)),
@@ -234,10 +237,10 @@ class EditCompanyPanel extends EditPanelWithPhoto {
             turnoverSP.setValue(comp.getTurnover());
             physicAddressTA.setText(comp.getAddress());
             physicAddressTA.setCaretPosition(0);
-            postCodeTF.setText(comp.getPostcode());
+//            postCodeTF.setText(comp.getPostcode());
             mailingAddressTA.setText(comp.getMailaddress());
             mailingAddressTA.setCaretPosition(0);
-            mailingPostCodeTF.setText(comp.getMailpostcode());
+//            mailingPostCodeTF.setText(comp.getMailpostcode());
             selectComboItem(regionWorldCb, AIBclient.getRegionOnCountry(comp.getCountryId()));
             selectComboItem(countryCB, comp.getCountryId());
             mainPhoneTF.setText(comp.getMainPhone());
@@ -277,9 +280,9 @@ class EditCompanyPanel extends EditPanelWithPhoto {
         comp.setIsDummy(isDummyCB.isSelected() ? 1 : 0);
         comp.setTurnover((Double) turnoverSP.getValue());
         comp.setAddress(physicAddressTA.getText());
-        comp.setPostcode(postCodeTF.getText());
+//        comp.setPostcode(postCodeTF.getText());
         comp.setMailaddress(mailingAddressTA.getText());
-        comp.setMailpostcode(mailingPostCodeTF.getText());
+//        comp.setMailpostcode(mailingPostCodeTF.getText());
         comp.setCountryId(getSelectedCbItem(countryCB));
         comp.setMainPhone(mainPhoneTF.getText());
         comp.setMainFax(mainFaxTF.getText());
