@@ -21,16 +21,17 @@ import javax.swing.JOptionPane;
  */
 public class CompaniesGrid extends GeneralGridPanel {
 
-    private static final String SELECT = "select company_id \"ID\","
-            + "abbreviation \"Abbreviation\",full_name \"Name\", "
+    public static final String SELECT = "select distinct company.company_id \"ID\","
+            + "company.abbreviation \"Abbreviation\",company.full_name \"Name\", "
             + "(select country from country where country_id=company.country_id) \"Country\","
-            + "main_phone \"Main phone\",main_fax \"Main fax\", "
-            + "renewal_date \"Renewal Date\", verify_date \"Verify Date\", lastedit_date \"Last Edited\" "
-            + "from company";
+            + "company.main_phone \"Main phone\",company.main_fax \"Main fax\", "
+            + "company.renewal_date \"Renewal Date\", company.verify_date \"Verify Date\", company.lastedit_date \"Last Edited\" "
+            + "from company order by lastedit_date desc LIMIT 0,300";
     private static HashMap<Integer, Integer> maxWidths = new HashMap<Integer, Integer>();
 
     static {
         maxWidths.put(0, 40);
+        maxWidths.put(1, 200);
     }
 
     public CompaniesGrid(IMessageSender exchanger) throws RemoteException {
@@ -47,14 +48,14 @@ public class CompaniesGrid extends GeneralGridPanel {
             @Override
             public void actionPerformed(ActionEvent ae) {
 //                try {
-                    EditCompanyDialog ed = new EditCompanyDialog("Add Company", null);
-                    if (EditCompanyDialog.okPressed) {
-                        Company comp = (Company) ed.getEditPanel().getDbObject();
-                        refresh(comp.getCompanyId());
+                EditCompanyDialog ed = new EditCompanyDialog("Add Company", null);
+                if (EditCompanyDialog.okPressed) {
+                    Company comp = (Company) ed.getEditPanel().getDbObject();
+                    refresh(comp.getCompanyId());
 //                        GeneralFrame.updateGrid(exchanger,
 //                                getTableView(), getTableDoc(), getSelect(), comp.getCompanyId(),
 //                                getPageSelector().getSelectedIndex());
-                    }
+                }
 //                } catch (RemoteException ex) {
 //                    AIBclient.logAndShowMessage(ex);
 //                }

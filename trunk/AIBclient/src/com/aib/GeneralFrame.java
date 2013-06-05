@@ -41,7 +41,7 @@ public abstract class GeneralFrame extends JFrame implements WindowListener {
     private ToolBarButton printButton;
     private JToggleButton searchButton;
 //    private JToggleButton filterButton;
-    private HashMap<DbTableGridPanel, String> grids = new HashMap<DbTableGridPanel, String>();
+    private HashMap<GeneralGridPanel, String> grids = new HashMap<GeneralGridPanel, String>();
 //    private HashMap<GeneralReportPanel, String> reports = new HashMap<GeneralReportPanel, String>();
 //    private HashMap<HTMLpanel, String> browsers = new HashMap<HTMLpanel, String>();
     private JLabel srcLabel;
@@ -83,7 +83,7 @@ public abstract class GeneralFrame extends JFrame implements WindowListener {
         AIBclient.getProperties().setProperty("LookAndFeel", lf);
     }
 
-    private void fillContentPane() {
+    protected void fillContentPane() {
         AIBclient.setWindowIcon(this, "aib.png");
         getContentPane().setLayout(new BorderLayout());
         statusPanel.setBorder(BorderFactory.createEtchedBorder());
@@ -124,18 +124,19 @@ public abstract class GeneralFrame extends JFrame implements WindowListener {
         });
 
         toolBar = new JToolBar();
-        toolBar.add(getSearchButton());
-        toolBar.add(srcLabel = new JLabel("  Search:"));
-        toolBar.add(srcField = new JTextField(20));
+        getToolBar().add(getSearchButton());
+        getToolBar().add(srcLabel = new JLabel("  Search:"));
+        getToolBar().add(srcField = new JTextField(20));
+        addAfterSearch();
         srcLabel.setVisible(false);
         srcField.setVisible(false);
         srcField.addKeyListener(getSrcFieldKeyListener());
         srcField.setMaximumSize(srcField.getPreferredSize());
 
-        toolBar.add(printButton);
-        toolBar.add(refreshButton);
-        toolBar.add(aboutButton);
-        toolBar.add(exitButton);
+        getToolBar().add(printButton);
+        getToolBar().add(refreshButton);
+        getToolBar().add(aboutButton);
+        getToolBar().add(exitButton);
         aboutButton.setToolTipText("About program...");
         aboutButton.addActionListener(new AbstractAction() {
             @Override
@@ -147,11 +148,11 @@ public abstract class GeneralFrame extends JFrame implements WindowListener {
 
         exitButton.setToolTipText("Close this window");
 
-        getContentPane().add(toolBar, BorderLayout.NORTH);
+        getContentPane().add(getToolBar(), BorderLayout.NORTH);
 
-        mainPanel = getMainPanel();
-        getContentPane().add(mainPanel, BorderLayout.CENTER);
-        mainPanel.addChangeListener(new ChangeListener() {
+        mainPanel = buildMainPanel();
+        getContentPane().add(getMainPanel(), BorderLayout.CENTER);
+        getMainPanel().addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent e) {
                 getSearchButton().setSelected(false);
@@ -181,7 +182,7 @@ public abstract class GeneralFrame extends JFrame implements WindowListener {
     }
 
     private void highlightFound() {
-        Component selectedPanel = mainPanel.getSelectedComponent();
+        Component selectedPanel = getMainPanel().getSelectedComponent();
         if (selectedPanel instanceof GeneralGridPanel) {
             GeneralGridPanel selectedGridPanel = (GeneralGridPanel) selectedPanel;
             try {
@@ -215,36 +216,10 @@ public abstract class GeneralFrame extends JFrame implements WindowListener {
         };
     }
 
-//    private ActionListener getFilterAction() {
-//        return new ActionListener() {
-//
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                boolean pressed = filterButton.isSelected();
-//                fltrLabel.setVisible(pressed);
-//                fltrField.setVisible(pressed);
-//            }
-//        };
-//    }
     private void refreshGrids() {
-        for (DbTableGridPanel grid : grids.keySet()) {
-            try {
-                updateGrid(getExchanger(), grid.getTableView(), grid.getTableDoc(), grids.get(grid), null,
-                        grid.getPageSelector().getSelectedIndex());
-            } catch (RemoteException ex) {
-                AIBclient.logAndShowMessage(ex);
-            }
+        for (GeneralGridPanel grid : grids.keySet()) {
+            grid.refresh();
         }
-//        for (GeneralReportPanel report : reports.keySet()) {
-//            report.updateReport();
-//        }
-//        for (HTMLpanel html : browsers.keySet()) {
-//            try {
-//                html.refresh();
-//            } catch (IOException ex) {
-//                XlendWorks.logAndShowMessage(ex);
-//            }
-//        }
     }
 
     public static void errMessageBox(String title, String msg) {
@@ -284,23 +259,10 @@ public abstract class GeneralFrame extends JFrame implements WindowListener {
         });
         m.add(mi);
         bar.add(m);
-
-//        filterMenu = createMenu("Filter", "Filters editor operations");
-//        mi = createMenuItem("Create", "Create new filter");
-//        mi.addActionListener(addNewFilterAction());
-//        filterMenu.add(mi);
-//        mi = createMenuItem("Edit", "Edit saved filter");
-//        mi.addActionListener(editFilterAction());
-//        filterMenu.add(mi);
-//        mi = createMenuItem("Delete", "Delete saved filter");
-//        mi.addActionListener(editFilterAction());
-//        filterMenu.add(mi);
-//        bar.add(filterMenu);
-//        filterMenu.setEnabled(false);
         setJMenuBar(bar);
     }
 
-    protected abstract JTabbedPane getMainPanel();
+    protected abstract JTabbedPane buildMainPanel();
 
     protected JMenuItem createMenuItem(String label, String microHelp) {
         JMenuItem m = new JMenuItem(label);
@@ -466,4 +428,21 @@ public abstract class GeneralFrame extends JFrame implements WindowListener {
     protected abstract ActionListener editFilterAction();
 
     protected abstract ActionListener delFilterAction();
+
+    /**
+     * @return the toolBar
+     */
+    public JToolBar getToolBar() {
+        return toolBar;
+    }
+
+    protected void addAfterSearch() {
+    }
+
+    /**
+     * @return the mainPanel
+     */
+    public JTabbedPane getMainPanel() {
+        return mainPanel;
+    }
 }

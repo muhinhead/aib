@@ -9,7 +9,6 @@ import com.xlend.util.SelectedDateSpinner;
 import com.xlend.util.Util;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
-import java.awt.LayoutManager;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.sql.Types;
@@ -36,7 +35,15 @@ public abstract class FilterComponent extends JPanel {
     static final String DECIMAL_FLD = "decomalFieldPanel";
     static final String IN = "IN";
     static final String INT_FLD = "intFieldPanel";
+    static final String EQUALS = "=";
+    static final String NOT_EQUALS = "!=";
+    static final String GREATER = ">";
+    static final String LESS = "<";
+    static final String GREATER_EQ = ">=";
+    static final String LESS_EQ = "<=";
+    static final String LIKE = "LIKE";
     static final String IS_NULL = "IS NULL";
+    static final String IS_NOT_NULL = "IS NOT NULL";
     static final String TEXT_FLD = "textFieldPanel";
     static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
@@ -70,18 +77,34 @@ public abstract class FilterComponent extends JPanel {
     public FilterComponent(IFilterPanel parentPanel) {
         super(new BorderLayout());
         this.parentPanel = parentPanel;
-        operatorCB = new JComboBox(new String[]{
-            "==",//Operator.EQUALS.toString(),
-            "!=",//Operator.NOT_EQUALS.toString(),
-            ">",//Operator.GREATER.toString(),
-            "<",//Operator.LESS.toString(),
-            ">=",//Operator.GREATER_EQ.toString(),
-            "<=",//Operator.LESS_EQ.toString(),
-            "LIKE",//Operator.LIKE.toString(),
-            IN,//Operator.IN.toString(),
-            BETWEEN_STR,//Operator.BETWEEN.toString()
-            IS_NULL
-        });
+        if (this instanceof ColumnFilterComponent) {
+            operatorCB = new JComboBox(new String[]{
+                EQUALS,
+                NOT_EQUALS,
+                GREATER,
+                LESS,
+                GREATER_EQ,
+                LESS_EQ,
+                LIKE,
+                IN,
+                BETWEEN_STR,
+                IS_NOT_NULL,
+                IS_NULL
+            });
+        } else {
+            operatorCB = new JComboBox(new String[]{
+                EQUALS,
+                NOT_EQUALS,
+                GREATER,
+                LESS,
+                GREATER_EQ,
+                LESS_EQ,
+                LIKE,
+                IN,
+                BETWEEN_STR,
+                IS_NULL
+            });
+        }
     }
 
     protected JPanel getValuePanel() {
@@ -132,7 +155,7 @@ public abstract class FilterComponent extends JPanel {
             } else {
                 cl.show(valuePanel, BETWEEN_FLD);
             }
-        } else if (operatorCB.getSelectedItem().equals(IS_NULL)) {
+        } else if (operatorCB.getSelectedItem().equals(IS_NULL) || operatorCB.getSelectedItem().equals(IS_NOT_NULL)) {
             cl.show(valuePanel, IS_NULL);
         } else {
             if (tp.intValue() == Types.DATE) {

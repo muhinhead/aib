@@ -4,6 +4,7 @@
  */
 package com.aib;
 
+import com.aib.orm.Filter;
 import com.aib.remote.IMessageSender;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -28,7 +29,7 @@ public abstract class FilteredListFrame extends GeneralFrame {
     }
 
     @Override
-    protected JTabbedPane getMainPanel() {
+    protected JTabbedPane buildMainPanel() {
 
         MyJideTabbedPane workTab = new MyJideTabbedPane();
         workTab.add(getListPanel(), sheetList[0]);
@@ -46,4 +47,6 @@ public abstract class FilteredListFrame extends GeneralFrame {
     protected abstract JPanel getListPanel();
 
     protected abstract JPanel getFilterPanel();
+    
+    public abstract void applyFilter(Filter flt);
 }

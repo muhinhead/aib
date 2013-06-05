@@ -1,6 +1,7 @@
 package com.aib;
 
 import com.aib.location.LocationsGrid;
+import com.aib.orm.Filter;
 import com.aib.remote.IMessageSender;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -72,5 +73,10 @@ public class LocationsFrame extends FilteredListFrame {
                 throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
             }
         };
+    }
+
+    @Override
+    public void applyFilter(Filter flt) {
+        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 }

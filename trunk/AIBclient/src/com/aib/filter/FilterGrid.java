@@ -36,7 +36,7 @@ public class FilterGrid extends GeneralGridPanel {
             DbTableView tv) throws RemoteException {
         super(exchanger,
                 SELECT.replace("@", tabName)
-                .replace("where ", "where " + (complex ? "is_complex and " : "not is_complex and ")),
+                .replace("where ", "where " + (complex ? "is_complex and " : "(is_complex is null or not is_complex) and ")),
                 maxWidths, false, tv);
     }
 
@@ -54,7 +54,7 @@ public class FilterGrid extends GeneralGridPanel {
                     filter.setName("[New Filter]");
                     filter.setTablename(getSelect().substring(p + mark.length()).replaceAll("'", ""));
                     filter.setOwnerId(AIBclient.getCurrentUser().getUserId());
-                    filter.setIsComplex(getSelect().indexOf("not is complex") < 0 ? 1 : 0);
+                    filter.setIsComplex(getSelect().indexOf("not is_complex") < 0 ? 1 : 0);
                     filter = (Filter) AIBclient.getExchanger().saveDbObject(filter);
                     refresh(filter.getFilterId());
                 } catch (Exception ex) {
@@ -77,10 +77,12 @@ public class FilterGrid extends GeneralGridPanel {
                 int id = getSelectedID();
                 try {
                     Filter filter = (Filter) exchanger.loadDbObjectOnID(Filter.class, id);
+                    int row = getTableView().getSelectedRow();
                     if (filter != null && GeneralFrame.yesNo(
                             "Attention!", "Do you want to delete this filter?") == JOptionPane.YES_OPTION) {
                         exchanger.deleteObject(filter);
                         refresh();
+                        getTableView().gotoRow(row < 0 ? 0 : row < getTableView().getRowCount() ? row : 0);
                     }
                 } catch (RemoteException ex) {
                     AIBclient.logAndShowMessage(ex);
