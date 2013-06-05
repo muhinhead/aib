@@ -242,7 +242,7 @@ public class RmiMessageSender extends java.rmi.server.UnicastRemoteObject implem
         ResultSet rs = null;
         try {
             String pagedSelect;
-            if (startrow == 0 && endrow == 0) {
+            if (select.toUpperCase().indexOf(" LIMIT ") > 0 || (startrow == 0 && endrow == 0)) {
                 pagedSelect = select;
             } else {
                 //pagedSelect = "Select * from (select subq.*,rownum rn from (" + select + ") subq) where rn between " + startrow + " and " + endrow;
