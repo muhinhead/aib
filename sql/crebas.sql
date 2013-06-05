@@ -128,7 +128,7 @@ create table location
 (
     location_id   int not null auto_increment,
     name          varchar(256) not null,
-    abbreviation  varchar(6),
+    abbreviation  varchar(32),
     address       varchar(512),
     postcode      varchar(128),
     mailaddress   varchar(512),
@@ -320,7 +320,7 @@ create table filter
     descr      text,
     owner_id   int not null,
     query      text,
-    is_complex bit default 1,
+    is_complex bit default 1 not null,
     constraint filter_pk primary key (filter_id),
     constraint filter_user_fk foreign key (owner_id) references user (user_id)
 );
