@@ -11,22 +11,15 @@ import com.aib.filter.CompanyFilterPanel;
 import com.aib.orm.Filter;
 import com.aib.orm.dbobject.ComboItem;
 import com.aib.remote.IMessageSender;
-import com.xlend.util.Util;
 import java.awt.BorderLayout;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.ComboBoxModel;
-import javax.swing.ImageIcon;
-import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
-import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
 
 /**
@@ -39,28 +32,11 @@ public class CompanyFrame extends FilteredListFrame {
         "List", "Filter"
     };
     private CompaniesGrid companiesPanel;
-    private JPanel filterPanel;
-    private JToggleButton filterButton;
-    private JComboBox filtersCB;
-    private JLabel filterLbl;
+    
     private boolean dontFilter = false;
 
     public CompanyFrame(IMessageSender exch) {
         super("Companies", exch);
-    }
-
-    @Override
-    protected void addAfterSearch() {
-        getToolBar().add(filterButton = new JToggleButton(new ImageIcon(Util.loadImage("filter.png"))));
-        getToolBar().add(filterLbl = new JLabel("Filter:"));
-        getToolBar().add(filtersCB = new JComboBox(AIBclient.loadAllFilters("company")));
-        filterButton.setMinimumSize(getSearchButton().getPreferredSize());
-        filtersCB.setMaximumSize(new Dimension(200, filtersCB.getPreferredSize().height));
-        filtersCB.setVisible(false);
-        filterLbl.setVisible(false);
-        filterButton.addActionListener(getShowFilterCBaction());
-        filtersCB.addActionListener(getChooseFilterAction());
-        filterButton.setToolTipText("Select a filter to apply");
     }
 
     @Override
@@ -117,19 +93,7 @@ public class CompanyFrame extends FilteredListFrame {
         };
     }
 
-    private ActionListener getShowFilterCBaction() {
-        return new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                boolean pressed = filterButton.isSelected();
-                filterLbl.setVisible(pressed);
-                filtersCB.setVisible(pressed);
-                if (pressed) {
-                    filtersCB.requestFocus();
-                }
-            }
-        };
-    }
+   
 
     @Override
     public void applyFilter(Filter flt) {
@@ -140,32 +104,36 @@ public class CompanyFrame extends FilteredListFrame {
             if (flt.getIsComplex() != null && flt.getIsComplex().intValue() == 1) {
                 newSelect = CompaniesGrid.SELECT.substring(0, p + FROM_COMP.length())
                         + "where " + flt.getQuery().replaceAll("==", "=");
-                companiesPanel.setSelect(newSelect);
             } else {
                 newSelect = CompaniesGrid.SELECT.substring(0, p + FROM_COMP.length())
                         + ",people,peoplecompany pc "
                         + "where pc.company_id=company.company_id "
                         + "and pc.people_id=people.people_id "
                         + "and (" + flt.getQuery().replaceAll("==", "=") + ")";
+            }
+            if (flt.getQuery() == null || flt.getQuery().trim().length()==0) {
+                GeneralFrame.errMessageBox("Attention!", "The empty filter couldn't be applied");
+            } else {
                 companiesPanel.setSelect(newSelect);
-            }
-            companiesPanel.refresh();
-            dontFilter = true;
-            ComboBoxModel fmd = filtersCB.getModel();
-            Object ob;
-            for (int i = 0; (ob = fmd.getElementAt(i)) != null; i++) {
-                ComboItem ci = (ComboItem) ob;
-                if (ci.getId() == flt.getFilterId().intValue()) {
-                    filtersCB.setSelectedIndex(i);
-                    break;
+                companiesPanel.refresh();
+                dontFilter = true;
+                ComboBoxModel fmd = filtersCB.getModel();
+                Object ob;
+                for (int i = 0; (ob = fmd.getElementAt(i)) != null; i++) {
+                    ComboItem ci = (ComboItem) ob;
+                    if (ci.getId() == flt.getFilterId().intValue()) {
+                        filtersCB.setSelectedIndex(i);
+                        break;
+                    }
                 }
+                dontFilter = false;
+                getMainPanel().setSelectedIndex(0);
             }
-            dontFilter = false;
-            getMainPanel().setSelectedIndex(0);
         }
     }
 
-    private ActionListener getChooseFilterAction() {
+    @Override
+    protected ActionListener getChooseFilterAction() {
         return new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae) {
@@ -188,5 +156,10 @@ public class CompanyFrame extends FilteredListFrame {
                 companiesPanel.refresh();
             }
         };
+    }
+
+    @Override
+    protected String getMainTableName() {
+        return "company";
     }
 }

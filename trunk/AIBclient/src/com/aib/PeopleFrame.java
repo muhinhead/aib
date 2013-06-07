@@ -2,13 +2,18 @@ package com.aib;
 
 import com.aib.people.PeopleGrid;
 import com.aib.FilteredListFrame;
+import com.aib.filter.PeopleFilterPanel;
 import com.aib.orm.Filter;
 import com.aib.remote.IMessageSender;
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
 import javax.swing.AbstractAction;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JSplitPane;
+import javax.swing.SwingConstants;
 
 /*
  * To change this template, choose Tools | Templates
@@ -43,7 +48,14 @@ public class PeopleFrame extends FilteredListFrame {
 
     @Override
     protected JPanel getFilterPanel() {
-        return new JPanel(); //TODO!
+        if (filterPanel == null) {
+            filterPanel = new JPanel(new BorderLayout());
+            JSplitPane sp = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
+            sp.setTopComponent(new PeopleFilterPanel(this));
+            sp.setBottomComponent(new JLabel("Here should be a query expression", SwingConstants.CENTER));
+            filterPanel.add(sp, BorderLayout.CENTER);
+        }
+        return filterPanel;
     }
 
     @Override
@@ -77,6 +89,23 @@ public class PeopleFrame extends FilteredListFrame {
 
     @Override
     public void applyFilter(Filter flt) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        //TODO !
+    }
+
+    @Override
+    protected String getMainTableName() {
+        return "people";
+    }
+    
+    @Override
+    protected ActionListener getChooseFilterAction() {
+        return new AbstractAction() {
+
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                //TODO !
+            }
+            
+        };
     }
 }
