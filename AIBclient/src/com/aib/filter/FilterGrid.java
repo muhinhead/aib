@@ -31,6 +31,7 @@ public class FilterGrid extends GeneralGridPanel {
         maxWidths.put(0, 40);
         maxWidths.put(2, 60);
     }
+//    private final JComponent filterEditor;
 
     public FilterGrid(IMessageSender exchanger, String tabName, boolean complex,
             DbTableView tv) throws RemoteException {
@@ -38,7 +39,15 @@ public class FilterGrid extends GeneralGridPanel {
                 SELECT.replace("@", tabName)
                 .replace("where ", "where " + (complex ? "is_complex and " : "(is_complex is null or not is_complex) and ")),
                 maxWidths, false, tv);
+//        this.filterEditor = filterEditor;
+//        filterEditor.setEnabled(getTableView().getRowCount() > 0);
     }
+
+//    @Override
+//    public void refresh(int id) {
+//        super.refresh(id);
+//        filterEditor.setEnabled(getTableView().getRowCount() > 0);
+//    }
 
     @Override
     protected AbstractAction addAction() {
@@ -75,17 +84,19 @@ public class FilterGrid extends GeneralGridPanel {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 int id = getSelectedID();
-                try {
-                    Filter filter = (Filter) exchanger.loadDbObjectOnID(Filter.class, id);
-                    int row = getTableView().getSelectedRow();
-                    if (filter != null && GeneralFrame.yesNo(
-                            "Attention!", "Do you want to delete this filter?") == JOptionPane.YES_OPTION) {
-                        exchanger.deleteObject(filter);
-                        refresh();
-                        getTableView().gotoRow(row < 0 ? 0 : row < getTableView().getRowCount() ? row : 0);
+                if (id > 0) {
+                    try {
+                        Filter filter = (Filter) exchanger.loadDbObjectOnID(Filter.class, id);
+                        int row = getTableView().getSelectedRow();
+                        if (filter != null && GeneralFrame.yesNo(
+                                "Attention!", "Do you want to delete this filter?") == JOptionPane.YES_OPTION) {
+                            exchanger.deleteObject(filter);
+                            refresh();
+                            getTableView().gotoRow(row < 0 ? 0 : row < getTableView().getRowCount() ? row : 0);
+                        }
+                    } catch (RemoteException ex) {
+                        AIBclient.logAndShowMessage(ex);
                     }
-                } catch (RemoteException ex) {
-                    AIBclient.logAndShowMessage(ex);
                 }
             }
         };

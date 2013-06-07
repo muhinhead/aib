@@ -57,7 +57,7 @@ import javax.swing.SpinnerNumberModel;
  */
 public class AIBclient {
 
-    private static final String version = "0.5";
+    private static final String version = "0.06";
 //    private static Userprofile currentUser;
     private static Logger logger = null;
     private static FileHandler fh;
@@ -336,12 +336,16 @@ public class AIBclient {
                 + "from company order by abbreviation");
     }
 
+    public static void reloadLocations() {
+        locationsDictionary = loadOnSelect(exchanger,
+                "select location_id, concat(l.name,' (',c.abbreviation,')') "
+                + "from location l, company c where c.company_id=l.company_id "
+                + "order by c.abbreviation,l.name");
+    }
+
     public static ComboItem[] loadAllLocations() {
         if (locationsDictionary == null) {
-            locationsDictionary = loadOnSelect(exchanger,
-                    "select location_id, concat(l.name,' (',c.abbreviation,')') "
-                    + "from location l, company c where c.company_id=l.company_id "
-                    + "order by c.abbreviation,l.name");
+            reloadLocations();
         }
         return locationsDictionary;
     }
@@ -1122,10 +1126,10 @@ public class AIBclient {
     public static ComboItem[] loadAllFilters(String tableName) {
         ComboItem[] fltrs = loadOnSelect(getExchanger(),
                 "select filter_id,name from filter where tablename='" + tableName + "'");
-        ComboItem[] fltrs1 = new ComboItem[fltrs.length+1];
+        ComboItem[] fltrs1 = new ComboItem[fltrs.length + 1];
         fltrs1[0] = new ComboItem(-1, "300 last edited rows");
-        for (int i=1; i<=fltrs.length; i++) {
-            fltrs1[i] = fltrs[i-1];
+        for (int i = 1; i <= fltrs.length; i++) {
+            fltrs1[i] = fltrs[i - 1];
         }
         return fltrs1;
     }

@@ -77,6 +77,22 @@ public class LocationsFrame extends FilteredListFrame {
 
     @Override
     public void applyFilter(Filter flt) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+        //TODO !
+    }
+
+    @Override
+    protected String getMainTableName() {
+        return "location";
+    }
+
+    @Override
+    protected ActionListener getChooseFilterAction() {
+        return new AbstractAction() {
+
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                //TODO!
+            }  
+        };
     }
 }

@@ -57,6 +57,12 @@ public class LocationsGrid extends GeneralGridPanel {
                 if (EditLocationDialog.okPressed) {
                     Location loc = (Location) ed.getEditPanel().getDbObject();
                     refresh(loc.getLocationId());
+                    java.awt.EventQueue.invokeLater(new Runnable() {
+                        @Override
+                        public void run() {
+                            AIBclient.reloadLocations();
+                        }
+                    });
                 }
             }
         };
