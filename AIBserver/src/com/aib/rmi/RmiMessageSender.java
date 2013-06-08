@@ -196,9 +196,11 @@ public class RmiMessageSender extends java.rmi.server.UnicastRemoteObject implem
     }
 
     @Override
-    public HashMap<String, Integer> getColNamesTypes(String select) throws RemoteException {
+    public Object[] //HashMap<String, Integer> 
+            getColNamesTypes(String select) throws RemoteException {
         Connection connection = DbConnection.getConnection();
         HashMap<String, Integer> types = new HashMap<String, Integer>();
+        ArrayList<String> names = new ArrayList<String>();
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
@@ -206,9 +208,10 @@ public class RmiMessageSender extends java.rmi.server.UnicastRemoteObject implem
             rs = ps.executeQuery();
             ResultSetMetaData md = rs.getMetaData();
             for (int i = 0; i < md.getColumnCount(); i++) {
+                names.add(md.getColumnLabel(i + 1));
                 types.put(md.getColumnLabel(i + 1), new Integer(md.getColumnType(i + 1)));
             }
-            return types;
+            return new Object[]{names,types};
         } catch (SQLException ex) {
             AIBserver.log(ex);
             throw new java.rmi.RemoteException(ex.getMessage());
