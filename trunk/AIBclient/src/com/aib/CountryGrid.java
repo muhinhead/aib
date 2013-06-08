@@ -32,6 +32,11 @@ public class CountryGrid extends GeneralGridPanel {
         super(exchanger, SELECT.replace("where worldregion_id=#", ""), maxWidths, false);
         regionID = null;
     }
+    
+    public CountryGrid(IMessageSender exchanger, boolean readOnly) throws RemoteException {
+        super(exchanger, SELECT.replace("where worldregion_id=#", ""), maxWidths, readOnly);
+        regionID = null;
+    }
 
     public CountryGrid(IMessageSender exchanger, int reg_id) throws RemoteException {
         super(exchanger, SELECT.replace("#", "" + reg_id), maxWidths, false);

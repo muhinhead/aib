@@ -5,6 +5,7 @@
 package com.aib.filter;
 
 import com.aib.AIBclient;
+import com.aib.FilteredListFrame;
 import com.aib.GeneralFrame;
 import com.aib.GeneralGridPanel;
 import com.aib.orm.Filter;
@@ -31,24 +32,17 @@ public class FilterGrid extends GeneralGridPanel {
         maxWidths.put(0, 40);
         maxWidths.put(2, 60);
     }
-//    private final JComponent filterEditor;
+    private final FilteredListFrame parentFrame;
 
     public FilterGrid(IMessageSender exchanger, String tabName, boolean complex,
-            DbTableView tv) throws RemoteException {
+            DbTableView tv,FilteredListFrame parentFrame) throws RemoteException {
         super(exchanger,
                 SELECT.replace("@", tabName)
                 .replace("where ", "where " + (complex ? "is_complex and " : "(is_complex is null or not is_complex) and ")),
                 maxWidths, false, tv);
-//        this.filterEditor = filterEditor;
-//        filterEditor.setEnabled(getTableView().getRowCount() > 0);
+        this.parentFrame = parentFrame;
     }
-
-//    @Override
-//    public void refresh(int id) {
-//        super.refresh(id);
-//        filterEditor.setEnabled(getTableView().getRowCount() > 0);
-//    }
-
+    
     @Override
     protected AbstractAction addAction() {
         return new AbstractAction("Add") {
@@ -91,6 +85,7 @@ public class FilterGrid extends GeneralGridPanel {
                         if (filter != null && GeneralFrame.yesNo(
                                 "Attention!", "Do you want to delete this filter?") == JOptionPane.YES_OPTION) {
                             exchanger.deleteObject(filter);
+                            parentFrame.reloadFilterComboBox();
                             refresh();
                             getTableView().gotoRow(row < 0 ? 0 : row < getTableView().getRowCount() ? row : 0);
                         }

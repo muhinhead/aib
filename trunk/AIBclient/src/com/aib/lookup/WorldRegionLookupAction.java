@@ -6,7 +6,6 @@ package com.aib.lookup;
 
 import com.aib.AIBclient;
 import com.aib.GeneralFrame;
-import com.aib.WorldRegionsGrid;
 import com.aib.orm.dbobject.ComboItem;
 import java.awt.event.ActionEvent;
 import java.rmi.RemoteException;

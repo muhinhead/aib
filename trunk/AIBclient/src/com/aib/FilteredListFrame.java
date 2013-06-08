@@ -5,11 +5,14 @@
 package com.aib;
 
 import com.aib.orm.Filter;
+import com.aib.orm.dbobject.ComboItem;
 import com.aib.remote.IMessageSender;
 import com.xlend.util.Util;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.ComboBoxModel;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
@@ -27,6 +30,7 @@ public abstract class FilteredListFrame extends GeneralFrame {
     protected JComboBox filtersCB;
     private JLabel filterLbl;
     private JToggleButton filterButton;
+    protected boolean dontFilter = false;
     private static String[] sheetList = new String[]{
         "List", "Filter"
     };
@@ -49,6 +53,10 @@ public abstract class FilteredListFrame extends GeneralFrame {
         filterButton.setToolTipText("Select a filter to apply");
     }
 
+    public void reloadFilterComboBox() {
+        filtersCB.setModel(new DefaultComboBoxModel(AIBclient.loadAllFilters(getMainTableName())));
+    }
+    
     private ActionListener getShowFilterCBaction() {
         return new ActionListener() {
             @Override
@@ -68,8 +76,23 @@ public abstract class FilteredListFrame extends GeneralFrame {
         return sheetList;
     }
 
+    protected void gotoFilterApplied(int filter_id) {
+        dontFilter = true;
+        ComboBoxModel fmd = filtersCB.getModel();
+        Object ob;
+        for (int i = 0; (ob = fmd.getElementAt(i)) != null; i++) {
+            ComboItem ci = (ComboItem) ob;
+            if (ci.getId() == filter_id) {
+                filtersCB.setSelectedIndex(i);
+                break;
+            }
+        }
+        dontFilter = false;
+        getMainPanel().setSelectedIndex(0);
+    }
+
     protected abstract String getMainTableName();
-    
+
     protected abstract ActionListener getChooseFilterAction();
 
     @Override

@@ -1,19 +1,16 @@
 package com.aib;
 
 import com.aib.people.PeopleGrid;
-import com.aib.FilteredListFrame;
 import com.aib.filter.PeopleFilterPanel;
 import com.aib.orm.Filter;
+import com.aib.orm.dbobject.ComboItem;
 import com.aib.remote.IMessageSender;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
 import javax.swing.AbstractAction;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSplitPane;
-import javax.swing.SwingConstants;
 
 /*
  * To change this template, choose Tools | Templates
@@ -50,46 +47,29 @@ public class PeopleFrame extends FilteredListFrame {
     protected JPanel getFilterPanel() {
         if (filterPanel == null) {
             filterPanel = new JPanel(new BorderLayout());
-            JSplitPane sp = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-            sp.setTopComponent(new PeopleFilterPanel(this));
-            sp.setBottomComponent(new JLabel("Here should be a query expression", SwingConstants.CENTER));
-            filterPanel.add(sp, BorderLayout.CENTER);
+            filterPanel.add(new PeopleFilterPanel(this));
         }
         return filterPanel;
     }
 
     @Override
-    protected ActionListener addNewFilterAction() {
-        return new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-        };
-    }
-
-    @Override
-    protected ActionListener editFilterAction() {
-        return new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-        };
-    }
-    @Override
-    protected ActionListener delFilterAction() {
-        return new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            }
-        };
-    }
-
-    @Override
     public void applyFilter(Filter flt) {
-        //TODO !
+        if (flt!=null) {
+            final String FROM_PEOPLE = "from people";
+            String newSelect = null;
+            int p = PeopleGrid.SELECT.indexOf(FROM_PEOPLE);
+            if (flt.getIsComplex() != null && flt.getIsComplex().intValue() == 1) {
+                newSelect = PeopleGrid.SELECT.substring(0, p + FROM_PEOPLE.length())
+                        + " where " + flt.getQuery().replaceAll("==", "=");
+            }
+            if (flt.getQuery() == null || flt.getQuery().trim().length()==0) {
+                GeneralFrame.errMessageBox("Attention!", "The empty filter couldn't be applied");
+            } else {
+                peoplePanel.setSelect(newSelect);
+                peoplePanel.refresh();
+                gotoFilterApplied(flt.getFilterId().intValue());
+            }
+        }
     }
 
     @Override
@@ -103,9 +83,24 @@ public class PeopleFrame extends FilteredListFrame {
 
             @Override
             public void actionPerformed(ActionEvent ae) {
-                //TODO !
+                if (!dontFilter) {
+                    if (filtersCB.getSelectedIndex() == 0) {
+                        peoplePanel.setSelect(PeopleGrid.SELECT);
+                    } else {
+                        ComboItem ci = (ComboItem) filtersCB.getSelectedItem();
+                        try {
+                            Filter flt = (Filter) AIBclient.getExchanger().loadDbObjectOnID(Filter.class, ci.getId());
+                            if (flt != null) {
+                                applyFilter(flt);
+                            }
+                        } catch (RemoteException ex) {
+                            AIBclient.logAndShowMessage(ex);
+                            filtersCB.setSelectedIndex(0);
+                        }
+                    }
+                }
+                peoplePanel.refresh();
             }
-            
         };
     }
 }
