@@ -1,6 +1,7 @@
 package com.aib;
 
 //import com.xlend.gui.reports.GeneralReportPanel;
+import com.aib.orm.dbobject.ComboItem;
 import com.xlend.mvc.dbtable.DbTableDocument;
 import com.xlend.mvc.dbtable.DbTableGridPanel;
 import com.xlend.mvc.dbtable.DbTableView.MyTableModel;
@@ -423,11 +424,11 @@ public abstract class GeneralFrame extends JFrame implements WindowListener {
         return searchButton;
     }
 
-    protected abstract ActionListener addNewFilterAction();
-
-    protected abstract ActionListener editFilterAction();
-
-    protected abstract ActionListener delFilterAction();
+//    protected abstract ActionListener addNewFilterAction();
+//
+//    protected abstract ActionListener editFilterAction();
+//
+//    protected abstract ActionListener delFilterAction();
 
     /**
      * @return the toolBar
@@ -438,6 +439,8 @@ public abstract class GeneralFrame extends JFrame implements WindowListener {
 
     protected void addAfterSearch() {
     }
+
+    
 
     /**
      * @return the mainPanel

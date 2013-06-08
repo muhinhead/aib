@@ -19,7 +19,10 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.StringTokenizer;
 import javax.swing.AbstractAction;
@@ -36,6 +39,8 @@ import javax.swing.JSeparator;
 import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 import javax.swing.event.ListSelectionEvent;
 
 /**
@@ -67,6 +72,7 @@ public abstract class AbstractFilterPanel extends JPanel implements IFilterPanel
     protected JLabel changedComplexQueryLbl;
     protected JLabel changedLbl;
     protected HashMap<String, Integer> colNamesTypes;
+    protected ArrayList<String> colNames;
     protected JPanel complexEditorPanel;
     protected JTextField complexFilterNameTF;
     protected MyJideTabbedPane complexOrSimpleTab;
@@ -104,6 +110,10 @@ public abstract class AbstractFilterPanel extends JPanel implements IFilterPanel
         }
     }
 
+    protected boolean isDefaultComplex() {
+        return false;
+    }
+
     public AbstractFilterPanel(FilteredListFrame parentFrame, String tabName) {
         super(new BorderLayout());
         this.parentFrame = parentFrame;
@@ -121,8 +131,8 @@ public abstract class AbstractFilterPanel extends JPanel implements IFilterPanel
         JComponent filterEditor = getFilterEditor();
         try {
             split.setTopComponent((Component) (cfg = new FilterGrid(
-                    AIBclient.getExchanger(), tabName, false,
-                    filterTable = new FilterTable())));
+                    AIBclient.getExchanger(), tabName, isDefaultComplex(),
+                    filterTable = new FilterTable(), parentFrame)));
         } catch (RemoteException ex) {
             AIBclient.logAndShowMessage(ex);
         }
@@ -134,14 +144,14 @@ public abstract class AbstractFilterPanel extends JPanel implements IFilterPanel
         add(split);
     }
 
-    protected void fillComplexFilterList() {
+    protected void fillSimpleFilterList() {
         cfg.setSelect(FilterGrid.SELECT.replace("@", tabName)
                 .replace("where ", "where " + "(is_complex is null or not is_complex) and "));
         cfg.refresh();
         cfg.getTableView().gotoRow(getRowNumSimple());
     }
 
-    protected void fillSimpleFilterList() {
+    protected void fillComplexFilterList() {
         cfg.setSelect(FilterGrid.SELECT.replace("@", tabName)
                 .replace("where ", "where " + "is_complex and "));
         cfg.refresh();
@@ -165,10 +175,44 @@ public abstract class AbstractFilterPanel extends JPanel implements IFilterPanel
         complexFilterNameTF.setEnabled(false);
         ownerCB.setEnabled(false);
     }
-
-    protected abstract JComponent getFilterEditor();
-
-    protected abstract void loadColNamesTypes() throws RemoteException;
+    
+    protected JComponent getFilterEditor() {
+        String complexEditor = "Queries editor";
+        complexOrSimpleTab = new MyJideTabbedPane();
+        complexOrSimpleTab.add(complexEditorPanel = new JPanel(new BorderLayout(5, 5)), complexEditor);
+        complexEditorPanel.add(getHeaderPanel(complexEditor), BorderLayout.NORTH);
+        changedLbl = changedComplexQueryLbl = new JLabel(" ", SwingConstants.LEFT);
+        changedComplexQueryLbl = new JLabel(" ", SwingConstants.LEFT);
+        complexOrSimpleTab.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent ce) {
+                switch (complexOrSimpleTab.getSelectedIndex()) {
+                    case 0:
+                        changedLbl = changedComplexQueryLbl;
+                        fillComplexFilterList();
+                        break;
+                    //ADD if needed
+                }
+            }
+        });
+        fillComplexHeaderPanel();
+        changedComplexQueryLbl.setForeground(Color.BLUE);
+        complexEditorPanel.add(getComplexToolbarPanel(), BorderLayout.EAST);
+        complexFilterNameTF.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyTyped(KeyEvent ke) {
+                setChanged(true);
+            }
+        });
+        return complexOrSimpleTab;
+    }
+    
+    protected void loadColNamesTypes() throws RemoteException {
+        Object[] obs = AIBclient.getExchanger().getColNamesTypes(
+                "select * from " + tabName + " where " + tabName + "_id<0");
+        colNames = (ArrayList<String>) obs[0];
+        colNamesTypes = (HashMap<String, Integer>) obs[1];
+    }
 
     protected AbstractAction addAndAction(String lbl) {
         return new AbstractAction(lbl) {
@@ -185,7 +229,8 @@ public abstract class AbstractFilterPanel extends JPanel implements IFilterPanel
             public void actionPerformed(ActionEvent ae) {
                 FilterExprComponent fcomp;
                 fcomp = new FilterExprComponent(FilterExprComponent.Type.EXPRESSION,
-                        colNamesTypes, AbstractFilterPanel.this, null);
+                        colNamesTypes, colNames,
+                        AbstractFilterPanel.this, null);
                 addLine(fcomp);
             }
         };
@@ -392,7 +437,8 @@ public abstract class AbstractFilterPanel extends JPanel implements IFilterPanel
                         addOperator(FilterExprComponent.Type.RIGHT_BRACKET);
                     } else {
                         FilterExprComponent fcomp;
-                        fcomp = new FilterExprComponent(FilterExprComponent.Type.EXPRESSION, colNamesTypes, this, line);
+                        fcomp = new FilterExprComponent(FilterExprComponent.Type.EXPRESSION,
+                                colNamesTypes, colNames, this, line);
                         addLine(fcomp);
                     }
                 }
@@ -440,6 +486,7 @@ public abstract class AbstractFilterPanel extends JPanel implements IFilterPanel
                 AIBclient.getExchanger().saveDbObject(flt);
                 cfg.refresh();
                 setChanged(false);
+                parentFrame.reloadFilterComboBox();
                 return flt;
             } catch (Exception ex) {
                 AIBclient.log(ex);

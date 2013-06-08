@@ -66,7 +66,7 @@ public abstract class RecordEditPanel extends JPanel {
         }
     }
 
-    protected JPanel comboPanelWithLookupBtn(JComboBox cb, AbstractAction lookupButtonAction) {
+    public static JPanel comboPanelWithLookupBtn(JComboBox cb, AbstractAction lookupButtonAction) {
         JPanel comboBoxPanel = new JPanel(new BorderLayout());
         comboBoxPanel.add(cb);
         if (lookupButtonAction != null) {

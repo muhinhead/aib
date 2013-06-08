@@ -2,8 +2,12 @@
  * To change this template, choose Tools | Templates
  * and open the template in the editor.
  */
-package com.aib;
+package com.aib.lookup;
 
+import com.aib.AIBclient;
+import com.aib.EditRegionDialog;
+import com.aib.GeneralFrame;
+import com.aib.GeneralGridPanel;
 import com.aib.orm.Company;
 import com.aib.orm.Worldregion;
 import com.aib.remote.IMessageSender;
@@ -22,17 +26,16 @@ public class WorldRegionsGrid extends GeneralGridPanel {
     public static final String SELECT =
             "select worldregion_id \"Id\", "
             + "descr \"Region\" from worldregion order by descr";
-
     private static HashMap<Integer, Integer> maxWidths = new HashMap<Integer, Integer>();
 
     static {
         maxWidths.put(0, 40);
     }
-    
+
     public WorldRegionsGrid(IMessageSender exchanger) throws RemoteException {
         super(exchanger, SELECT, maxWidths, false);
     }
-    
+
     public WorldRegionsGrid(IMessageSender exchanger, String select, boolean readonly) throws RemoteException {
         super(exchanger, select, maxWidths, readonly);
     }
@@ -40,22 +43,14 @@ public class WorldRegionsGrid extends GeneralGridPanel {
     @Override
     protected AbstractAction addAction() {
         return new AbstractAction("Add") {
-
             @Override
             public void actionPerformed(ActionEvent ae) {
-//                try {
-                    EditRegionDialog ed = new EditRegionDialog("Add Region", null);
-                    if (EditRegionDialog.okPressed) {
-                        AIBclient.clearRegionsAndCountries();
-                        Worldregion region = (Worldregion)ed.getEditPanel().getDbObject();
-                        refresh(region.getWorldregionId());
-//                        GeneralFrame.updateGrid(exchanger,
-//                                getTableView(), getTableDoc(), getSelect(), region.getWorldregionId(), 
-//                                getPageSelector().getSelectedIndex());
-                    }
-//                } catch (RemoteException ex) {
-//                    AIBclient.logAndShowMessage(ex);
-//                }
+                EditRegionDialog ed = new EditRegionDialog("Add Region", null);
+                if (EditRegionDialog.okPressed) {
+                    AIBclient.clearRegionsAndCountries();
+                    Worldregion region = (Worldregion) ed.getEditPanel().getDbObject();
+                    refresh(region.getWorldregionId());
+                }
             }
         };
     }
@@ -72,8 +67,6 @@ public class WorldRegionsGrid extends GeneralGridPanel {
                     if (EditRegionDialog.okPressed) {
                         AIBclient.clearRegionsAndCountries();
                         refresh();
-//                        GeneralFrame.updateGrid(exchanger, getTableView(),
-//                                getTableDoc(), getSelect(), id, getPageSelector().getSelectedIndex());
                     }
                 } catch (RemoteException ex) {
                     AIBclient.logAndShowMessage(ex);
@@ -84,7 +77,7 @@ public class WorldRegionsGrid extends GeneralGridPanel {
 
     @Override
     protected AbstractAction delAction() {
-         return new AbstractAction("Delete") {
+        return new AbstractAction("Delete") {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int id = getSelectedID();
@@ -94,8 +87,6 @@ public class WorldRegionsGrid extends GeneralGridPanel {
                         AIBclient.clearRegionsAndCountries();
                         exchanger.deleteObject(region);
                         refresh();
-//                        GeneralFrame.updateGrid(exchanger, getTableView(), getTableDoc(),
-//                                getSelect(), null, getPageSelector().getSelectedIndex());
                     }
                 } catch (RemoteException ex) {
                     AIBclient.logAndShowMessage(ex);

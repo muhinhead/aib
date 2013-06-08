@@ -10,7 +10,7 @@ import com.aib.orm.dbobject.DbObject;
  *
  * @author nick
  */
-class EditRegionDialog extends EditRecordDialog {
+public class EditRegionDialog extends EditRecordDialog {
 
     public static boolean okPressed;
     public EditRegionDialog(String title, Object obj) {

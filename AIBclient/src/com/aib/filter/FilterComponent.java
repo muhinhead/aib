@@ -4,15 +4,22 @@
  */
 package com.aib.filter;
 
+import com.aib.AIBclient;
 import com.aib.RecordEditPanel;
+import com.aib.lookup.CountryLookupAction;
+import com.aib.orm.Country;
+import com.aib.orm.dbobject.ComboItem;
 import com.xlend.util.SelectedDateSpinner;
 import com.xlend.util.Util;
 import java.awt.BorderLayout;
 import java.awt.CardLayout;
+import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.sql.Types;
 import java.text.SimpleDateFormat;
+import javax.swing.AbstractAction;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -23,7 +30,7 @@ import javax.swing.SwingConstants;
 
 /**
  *
- * @author nick
+ * @author Nick Mukhin
  */
 public abstract class FilterComponent extends JPanel {
 
@@ -45,25 +52,9 @@ public abstract class FilterComponent extends JPanel {
     static final String IS_NULL = "IS NULL";
     static final String IS_NOT_NULL = "IS NOT NULL";
     static final String TEXT_FLD = "textFieldPanel";
+    static final String COUNTRY_ID = "countryIDpanel";
+    static final String LASTEDITED_BY = "editedBYpanel";
     static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
-
-    protected static String removeQuotes(String s) {
-        if (s.trim().startsWith("'")) {
-            s = s.trim().substring(1);
-        }
-        if (s.trim().endsWith("'")) {
-            s = s.trim().substring(0, s.trim().length() - 1);
-        }
-        return s;
-    }
-
-    protected static String replicate(char ch, int level) {
-        StringBuilder sb = new StringBuilder();
-        for (int i = 0; i < level; i++) {
-            sb.append(ch);
-        }
-        return sb.toString();
-    }
     protected CardLayout cl;
     protected SelectedDateSpinner fromDateSP;
     protected JTextField fromValueTF;
@@ -73,6 +64,24 @@ public abstract class FilterComponent extends JPanel {
     protected JTextField valueTF;
     protected IFilterPanel parentPanel;
     protected JComboBox operatorCB;
+    protected JComboBox countryCB;
+    protected JComboBox userCB;
+    private JLabel betwAndLabel;
+    private boolean wasCountryIDselected = false;
+    private boolean wasUserSelected = false;
+    private static ComboItem[] countries;
+    private static ComboItem[] users;
+
+    static {
+        Country[] countryList = AIBclient.loadAllCountries();
+        countries = new ComboItem[countryList.length];
+        int i = 0;
+        for (Country c : countryList) {
+            countries[i++] = new ComboItem(c.getCountryId(),
+                    c.getCountry() + " (" + c.getShortname() + ")");
+        }
+        users = AIBclient.loadAllUsersInitials();
+    }
 
     public FilterComponent(IFilterPanel parentPanel) {
         super(new BorderLayout());
@@ -92,30 +101,64 @@ public abstract class FilterComponent extends JPanel {
                 IS_NULL
             });
         } else {
-            operatorCB = new JComboBox(new String[]{
-                EQUALS,
-                NOT_EQUALS,
-                GREATER,
-                LESS,
-                GREATER_EQ,
-                LESS_EQ,
-                LIKE,
-                IN,
-                BETWEEN_STR,
-                IS_NULL
-            });
+//            operatorCB = new JComboBox(new String[]{
+//                EQUALS,
+//                NOT_EQUALS,
+//                GREATER,
+//                LESS,
+//                GREATER_EQ,
+//                LESS_EQ,
+//                LIKE,
+//                IN,
+//                BETWEEN_STR,
+//                IS_NULL
+//            });
+            operatorCB = new JComboBox();
+            setDefaultOperatorSet();
         }
+    }
+
+    private void setDefaultOperatorSet() {
+        operatorCB.setModel(new DefaultComboBoxModel(new String[]{
+            EQUALS,
+            NOT_EQUALS,
+            GREATER,
+            LESS,
+            GREATER_EQ,
+            LESS_EQ,
+            LIKE,
+            IN,
+            BETWEEN_STR,
+            IS_NULL
+        }));
     }
 
     protected JPanel getValuePanel() {
         if (valuePanel == null) {
             valuePanel = new JPanel(cl = new CardLayout());
             valuePanel.add(valueTF = new JTextField(), TEXT_FLD);
-            valuePanel.add(RecordEditPanel.getBorderPanel(new JComponent[]{fromValueTF = new JTextField(10), new JLabel("and", SwingConstants.CENTER), toValueTF = new JTextField(10)}), BETWEEN_FLD);
-            valuePanel.add(RecordEditPanel.getBorderPanel(new JComponent[]{fromDateSP = new SelectedDateSpinner(), new JLabel("and", SwingConstants.CENTER), toDateSP = new SelectedDateSpinner()}), BETWEENDATES_FLD);
+            valuePanel.add(RecordEditPanel.getBorderPanel(new JComponent[]{
+                fromValueTF = new JTextField(10),
+                new JLabel("and", SwingConstants.CENTER),
+                toValueTF = new JTextField(10)
+            }), BETWEEN_FLD);
+            valuePanel.add(RecordEditPanel.getBorderPanel(new JComponent[]{
+                fromDateSP = new SelectedDateSpinner(),
+                betwAndLabel = new JLabel("and", SwingConstants.CENTER),
+                toDateSP = new SelectedDateSpinner()
+            }), BETWEENDATES_FLD);
+            valuePanel.add(RecordEditPanel.comboPanelWithLookupBtn(
+                    countryCB = new JComboBox(new DefaultComboBoxModel(countries)),
+                    new CountryLookupAction(countryCB, true)),
+                    COUNTRY_ID);
+            valuePanel.add(userCB = new JComboBox(
+                    new DefaultComboBoxModel(users)),
+                    LASTEDITED_BY);
             valueTF.addKeyListener(getKeyAdapter());
             fromValueTF.addKeyListener(getKeyAdapter());
             toValueTF.addKeyListener(getKeyAdapter());
+            countryCB.addActionListener(getCbListener());
+            userCB.addActionListener(getCbListener());
             fromDateSP.setEditor(new JSpinner.DateEditor(fromDateSP, RecordEditPanel.DD_MM_YYYY));
             Util.addFocusSelectAllAction(fromDateSP);
             toDateSP.setEditor(new JSpinner.DateEditor(toDateSP, RecordEditPanel.DD_MM_YYYY));
@@ -133,6 +176,16 @@ public abstract class FilterComponent extends JPanel {
             }
         };
     }
+    
+    protected AbstractAction getCbListener() {
+        return new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                touchParent();
+            }
+            
+        };
+    }
 
     protected void touchParent() {
         if (parentPanel != null) {
@@ -141,29 +194,75 @@ public abstract class FilterComponent extends JPanel {
     }
 
     protected void selectControls2show(String fld, Integer tp) {
-        if (operatorCB.getSelectedItem().equals(BETWEEN_STR)) {
-            if (tp != null) {
-                switch (tp.intValue()) {
-                    case Types.DATE:
-                        cl.show(valuePanel, BETWEENDATES_FLD);
-                        toDateSP.setVisible(true);
-                        break;
-                    default:
-                        cl.show(valuePanel, BETWEEN_FLD);
-                        break;
-                }
-            } else {
-                cl.show(valuePanel, BETWEEN_FLD);
+        if (fld.equals("country_id")) {
+            if (!wasCountryIDselected) {
+                operatorCB.setModel(new DefaultComboBoxModel(new String[]{
+                    EQUALS,
+                    NOT_EQUALS
+                }));
+                wasCountryIDselected = true;
             }
-        } else if (operatorCB.getSelectedItem().equals(IS_NULL) || operatorCB.getSelectedItem().equals(IS_NOT_NULL)) {
-            cl.show(valuePanel, IS_NULL);
+            cl.show(valuePanel, COUNTRY_ID);
+        } else if (fld.equals("lastedited_by")) {
+            if (!wasUserSelected) {
+                operatorCB.setModel(new DefaultComboBoxModel(new String[]{
+                    EQUALS,
+                    NOT_EQUALS
+                }));
+                wasUserSelected = true;
+            }
+            cl.show(valuePanel, LASTEDITED_BY);
         } else {
-            if (tp.intValue() == Types.DATE) {
-                cl.show(valuePanel, BETWEENDATES_FLD);
-                toDateSP.setVisible(false);
+            if (wasCountryIDselected || wasUserSelected) {
+                setDefaultOperatorSet();
+            }
+            wasCountryIDselected = false;
+            wasUserSelected = false;
+            if (operatorCB.getSelectedItem().equals(BETWEEN_STR)) {
+                if (tp != null) {
+                    switch (tp.intValue()) {
+                        case Types.DATE:
+                        case Types.TIMESTAMP:
+                            cl.show(valuePanel, BETWEENDATES_FLD);
+                            betwAndLabel.setVisible(true);
+                            toDateSP.setVisible(true);
+                            break;
+                        default:
+                            cl.show(valuePanel, BETWEEN_FLD);
+                            break;
+                    }
+                } else {
+                    cl.show(valuePanel, BETWEEN_FLD);
+                }
+            } else if (operatorCB.getSelectedItem().equals(IS_NULL) || operatorCB.getSelectedItem().equals(IS_NOT_NULL)) {
+                cl.show(valuePanel, IS_NULL);
             } else {
-                cl.show(valuePanel, TEXT_FLD);
+                if (tp.intValue() == Types.DATE || tp.intValue() == Types.TIMESTAMP) {
+                    cl.show(valuePanel, BETWEENDATES_FLD);
+                    betwAndLabel.setVisible(false);
+                    toDateSP.setVisible(false);
+                } else {
+                    cl.show(valuePanel, TEXT_FLD);
+                }
             }
         }
+    }
+
+    protected static String removeQuotes(String s) {
+        if (s.trim().startsWith("'")) {
+            s = s.trim().substring(1);
+        }
+        if (s.trim().endsWith("'")) {
+            s = s.trim().substring(0, s.trim().length() - 1);
+        }
+        return s;
+    }
+
+    protected static String replicate(char ch, int level) {
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < level; i++) {
+            sb.append(ch);
+        }
+        return sb.toString();
     }
 }

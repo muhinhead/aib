@@ -62,16 +62,15 @@ class EditCountryPanel extends RecordEditPanel {
             idField.setText(country.getCountryId().toString());
             countryNameTF.setText(country.getCountry());
             shortNameTF.setText(country.getShortname());
-//            selectComboItem(regionWorldCb, country.getWorldregionId());
+            selectComboItem(regionWorldCb, country.getWorldregionId());
         }
-        selectComboItem(regionWorldCb, EditCountryDialog.regionID);
+        if (EditCountryDialog.regionID != null && EditCountryDialog.regionID.intValue() > 0) {
+            selectComboItem(regionWorldCb, EditCountryDialog.regionID);
+        }
     }
 
     @Override
     public boolean save() throws Exception {
-        if (EditCountryDialog.regionID == null || EditCountryDialog.regionID.intValue() == 0) {
-            return false;
-        }
         Country country = (Country) getDbObject();
         boolean isNew = false;
         if (country == null) {

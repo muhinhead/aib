@@ -7,35 +7,28 @@ package com.aib.filter;
 import com.aib.AIBclient;
 import com.aib.FilteredListFrame;
 import com.aib.MyJideTabbedPane;
-import com.aib.RecordEditPanel;
 import static com.aib.filter.AbstractFilterPanel.enableIfFilterSelected;
 import com.aib.orm.Filter;
-import com.aib.orm.dbobject.ComboItem;
-import com.xlend.mvc.dbtable.DbTableView;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
-import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import javax.swing.AbstractAction;
-import javax.swing.BorderFactory;
-import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
-import javax.swing.event.ListSelectionEvent;
 
 /**
  *
@@ -49,8 +42,10 @@ public class CompanyFilterPanel extends AbstractFilterPanel {
 
     @Override
     protected void loadColNamesTypes() throws RemoteException {
-        colNamesTypes = AIBclient.getExchanger().getColNamesTypes(
-                "select * from company where company_id<0");
+        Object[] obs = AIBclient.getExchanger().getColNamesTypes(
+                         "select * from company where company_id<0");
+        colNames = (ArrayList<String>) obs[0];
+        colNamesTypes = (HashMap<String, Integer>) obs[1];
     }
 
     @Override
@@ -72,11 +67,11 @@ public class CompanyFilterPanel extends AbstractFilterPanel {
                 switch (complexOrSimpleTab.getSelectedIndex()) {
                     case 0:
                         changedLbl = changedSimpleQueryLbl;
-                        fillComplexFilterList();
+                        fillSimpleFilterList();
                         break;
                     case 1:
                         changedLbl = changedComplexQueryLbl;
-                        fillSimpleFilterList();
+                        fillComplexFilterList();
                         break;
                 }
             }
@@ -261,6 +256,7 @@ public class CompanyFilterPanel extends AbstractFilterPanel {
                 AIBclient.getExchanger().saveDbObject(flt);
                 cfg.refresh();
                 setChanged(false);
+                parentFrame.reloadFilterComboBox();
                 return flt;
             } catch (Exception ex) {
                 AIBclient.log(ex);

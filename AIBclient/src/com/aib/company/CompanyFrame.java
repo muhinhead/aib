@@ -16,7 +16,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
 import javax.swing.AbstractAction;
-import javax.swing.ComboBoxModel;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
@@ -33,7 +32,7 @@ public class CompanyFrame extends FilteredListFrame {
     };
     private CompaniesGrid companiesPanel;
     
-    private boolean dontFilter = false;
+    
 
     public CompanyFrame(IMessageSender exch) {
         super("Companies", exch);
@@ -55,45 +54,10 @@ public class CompanyFrame extends FilteredListFrame {
     protected JPanel getFilterPanel() {
         if (filterPanel == null) {
             filterPanel = new JPanel(new BorderLayout());
-            JSplitPane sp = new JSplitPane(JSplitPane.VERTICAL_SPLIT);
-            sp.setTopComponent(new CompanyFilterPanel(this));
-            sp.setBottomComponent(new JLabel("Here should be a query expression", SwingConstants.CENTER));
-            filterPanel.add(sp, BorderLayout.CENTER);
+            filterPanel.add(new CompanyFilterPanel(this));
         }
         return filterPanel;
     }
-
-    @Override
-    protected ActionListener addNewFilterAction() {
-        return new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                throw new UnsupportedOperationException("Not supported yet.");
-            }
-        };
-    }
-
-    @Override
-    protected ActionListener editFilterAction() {
-        return new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                throw new UnsupportedOperationException("Not supported yet.");
-            }
-        };
-    }
-
-    @Override
-    protected ActionListener delFilterAction() {
-        return new AbstractAction() {
-            @Override
-            public void actionPerformed(ActionEvent ae) {
-                throw new UnsupportedOperationException("Not supported yet.");
-            }
-        };
-    }
-
-   
 
     @Override
     public void applyFilter(Filter flt) {
@@ -116,18 +80,7 @@ public class CompanyFrame extends FilteredListFrame {
             } else {
                 companiesPanel.setSelect(newSelect);
                 companiesPanel.refresh();
-                dontFilter = true;
-                ComboBoxModel fmd = filtersCB.getModel();
-                Object ob;
-                for (int i = 0; (ob = fmd.getElementAt(i)) != null; i++) {
-                    ComboItem ci = (ComboItem) ob;
-                    if (ci.getId() == flt.getFilterId().intValue()) {
-                        filtersCB.setSelectedIndex(i);
-                        break;
-                    }
-                }
-                dontFilter = false;
-                getMainPanel().setSelectedIndex(0);
+                gotoFilterApplied(flt.getFilterId().intValue());
             }
         }
     }

@@ -108,15 +108,15 @@ class EditLocationPanel extends EditPanelWithPhoto {
             "Main Phone:", //"Main Fax;"
             "Last editor:" //"Last edited:
         };
-        companyCbModel = new DefaultComboBoxModel();
-        regionWorldCbModel = new DefaultComboBoxModel();
+        companyCbModel = new DefaultComboBoxModel(AIBclient.loadAllCompanies());
+        regionWorldCbModel = new DefaultComboBoxModel(AIBclient.loadAllRegions());
         countryCbModel = new DefaultComboBoxModel();
-        for (ComboItem ci : AIBclient.loadAllCompanies()) {
-            companyCbModel.addElement(ci);
-        }
-        for (ComboItem ci : AIBclient.loadAllRegions()) {
-            regionWorldCbModel.addElement(ci);
-        }
+//        for (ComboItem ci : AIBclient.loadAllCompanies()) {
+//            companyCbModel.addElement(ci);
+//        }
+//        for (ComboItem ci : AIBclient.loadAllRegions()) {
+//            regionWorldCbModel.addElement(ci);
+//        }
         JComponent[] edits = new JComponent[]{
             getGridPanel(idField = new JTextField(), 6),
             comboPanelWithLookupBtn(companyCB = new JComboBox(companyCbModel), compLookupAction = new CompanyLookupAction(companyCB)),

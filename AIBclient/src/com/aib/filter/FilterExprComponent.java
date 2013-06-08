@@ -9,6 +9,7 @@ import com.aib.RecordEditPanel;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.text.ParseException;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Stack;
@@ -22,6 +23,7 @@ import javax.swing.JLabel;
  * @author nick
  */
 public class FilterExprComponent extends FilterComponent {
+
     private static int level = 0;
     private static Stack<Type> lastType = new Stack<Type>();
     private JComboBox fldCB;
@@ -35,10 +37,12 @@ public class FilterExprComponent extends FilterComponent {
     }
 
     public static enum Type {
+
         EXPRESSION, AND, OR, NOT, LEFT_BRACKET, RIGHT_BRACKET
     };
 
     public static enum Operator {
+
         EQUALS,
         NOT_EQUALS,
         GREATER, LESS,
@@ -49,7 +53,7 @@ public class FilterExprComponent extends FilterComponent {
         BETWEEN;
     };
     private Type type;
-    
+
     /**
      * @return the level
      */
@@ -63,10 +67,12 @@ public class FilterExprComponent extends FilterComponent {
     }
 
     public FilterExprComponent(Type type) {
-        this(type, null, null, null);
+        this(type, null, null, null, null);
     }
 
-    public FilterExprComponent(Type type, final HashMap<String, Integer> fldNamesTypes, IFilterPanel parentPanel, String expr) {
+    public FilterExprComponent(Type type, final HashMap<String, Integer> fldNamesTypes,
+            final ArrayList<String> colNames,
+            IFilterPanel parentPanel, String expr) {
         super(parentPanel);
         this.type = type;
         this.fldNamesTypes = fldNamesTypes;
@@ -76,7 +82,7 @@ public class FilterExprComponent extends FilterComponent {
         }
         add(new JLabel(replicate(' ', getLevel() * 2)), BorderLayout.WEST);
         if (type == Type.EXPRESSION) {
-            Object[] fldlist = fldNamesTypes.keySet().toArray();
+            Object[] fldlist = colNames.toArray();//fldNamesTypes.keySet().toArray();
             add(RecordEditPanel.getGridPanel(new JComponent[]{
                 RecordEditPanel.getBorderPanel(new JComponent[]{
                     null,
@@ -89,7 +95,7 @@ public class FilterExprComponent extends FilterComponent {
                 @Override
                 public void actionPerformed(ActionEvent ae) {
                     touchParent();
-                    selectControls2show((String) fldCB.getSelectedItem(), 
+                    selectControls2show((String) fldCB.getSelectedItem(),
                             fldNamesTypes.get((String) fldCB.getSelectedItem()));
                 }
             });
@@ -97,15 +103,24 @@ public class FilterExprComponent extends FilterComponent {
                 @Override
                 public void actionPerformed(ActionEvent ae) {
                     touchParent();
-                    selectControls2show((String) fldCB.getSelectedItem(), 
+                    selectControls2show((String) fldCB.getSelectedItem(),
                             fldNamesTypes.get((String) fldCB.getSelectedItem()));
                 }
             });
             if (expr != null) {
                 int p = expr.indexOf(" ");
                 int pp = expr.indexOf(" ", p + 1);
-                fldCB.setSelectedItem(expr.substring(0, p));
-                if (expr.substring(p + 1).startsWith(IS_NULL)) {
+                String fieldName = expr.substring(0, p);
+                fldCB.setSelectedItem(fieldName);
+                if (fieldName.equals("country_id")) {
+                    operatorCB.setSelectedItem(expr.substring(p + 1, pp));
+                    Integer countryID = new Integer(expr.substring(pp + 1));
+                    RecordEditPanel.selectComboItem(countryCB, countryID);
+                } else if (fieldName.equals("lastedited_by")) {
+                    operatorCB.setSelectedItem(expr.substring(p + 1, pp));
+                    Integer userID = new Integer(expr.substring(pp + 1));
+                    RecordEditPanel.selectComboItem(userCB, userID);
+                } else if (expr.substring(p + 1).startsWith(IS_NULL)) {
                     operatorCB.setSelectedItem(IS_NULL);
                 } else {
                     operatorCB.setSelectedItem(expr.substring(p + 1, pp));
@@ -113,7 +128,7 @@ public class FilterExprComponent extends FilterComponent {
                     Integer tp = fldNamesTypes.get(fld);
                     if (expr.substring(p + 1, pp).equals(BETWEEN_STR)) {
                         p = expr.indexOf(BETWEEN_STR) + BETWEEN_STR.length();
-                        if (tp != null && tp.intValue() == java.sql.Types.DATE) {
+                        if (tp != null && (tp.intValue() == java.sql.Types.DATE || tp.intValue() == java.sql.Types.TIMESTAMP)) {
                             pp = expr.indexOf(" and ", p + 1);
                             try {
                                 Date date = dateFormat.parse(expr.substring(p + 1, pp));
@@ -220,8 +235,12 @@ public class FilterExprComponent extends FilterComponent {
                 String fld = (String) fldCB.getSelectedItem();
                 Integer tp = fldNamesTypes.get(fld);
                 sb.append(fld).append(" ").append(operatorCB.getSelectedItem()).append(" ");
-                if (operatorCB.getSelectedItem().equals("BETWEEN")) {
-                    if (tp != null && tp.intValue() == java.sql.Types.DATE) {
+                if (fld.equals("lastedited_by")) {
+                    sb.append(RecordEditPanel.getSelectedCbItem(userCB).toString());
+                } else if (fld.equals("country_id")) {
+                    sb.append(RecordEditPanel.getSelectedCbItem(countryCB).toString());
+                } else if (operatorCB.getSelectedItem().equals("BETWEEN")) {
+                    if (tp != null && (tp.intValue() == java.sql.Types.DATE || tp.intValue() == java.sql.Types.TIMESTAMP)) {
                         Date dt1 = (Date) fromDateSP.getValue();
                         Date dt2 = (Date) toDateSP.getValue();
                         sb.append(dateFormat.format(dt1)).append(" and ").append(dateFormat.format(dt2));
@@ -231,7 +250,7 @@ public class FilterExprComponent extends FilterComponent {
                 } else if (operatorCB.getSelectedItem().equals(IS_NULL)) {
                 } else if (operatorCB.getSelectedItem().equals(IN)) {
                     sb.append("'").append(valueTF.getText().replaceAll(",", "','")).append("'");
-                } else if(tp.intValue() == java.sql.Types.DATE) {
+                } else if (tp.intValue() == java.sql.Types.DATE || tp.intValue() == java.sql.Types.TIMESTAMP) {
                     Date dt1 = (Date) fromDateSP.getValue();
                     sb.append(dateFormat.format(dt1));
                 } else {

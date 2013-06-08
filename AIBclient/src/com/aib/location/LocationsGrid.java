@@ -21,14 +21,14 @@ import javax.swing.JOptionPane;
  */
 public class LocationsGrid extends GeneralGridPanel {
 
-    protected static final String SELECT = "select l.location_id \"ID\", "
-            + "c.full_name \"Company\","
-            + "l.name \"Location\", l.abbreviation \"Abbreviation\","
-            + "(select country from country where country_id=l.country_id) \"Country\","
-            + "l.main_phone \"Main phone\", l.main_fax \"Main fax\", "
-            + "l.lastedit_date \"Last Edited\" "
-            + "from location l, company c where l.company_id=c.company_id "
-            + "order by c.full_name,l.name";
+    public static final String SELECT = "select location.location_id \"ID\", "
+            + "company.full_name \"Company\","
+            + "location.name \"Location\", location.abbreviation \"Abbreviation\","
+            + "(select country from country where country_id=location.country_id) \"Country\","
+            + "location.main_phone \"Main phone\", location.main_fax \"Main fax\", "
+            + "location.lastedit_date \"Last Edited\" "
+            + "from location, company where location.company_id=company.company_id "
+            + "order by company.full_name,location.name";
     private static HashMap<Integer, Integer> maxWidths = new HashMap<Integer, Integer>();
 
     static {
