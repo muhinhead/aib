@@ -196,8 +196,7 @@ public class RmiMessageSender extends java.rmi.server.UnicastRemoteObject implem
     }
 
     @Override
-    public Object[] //HashMap<String, Integer> 
-            getColNamesTypes(String select) throws RemoteException {
+    public Object[] getColNamesTypes(String select) throws RemoteException {
         Connection connection = DbConnection.getConnection();
         HashMap<String, Integer> types = new HashMap<String, Integer>();
         ArrayList<String> names = new ArrayList<String>();
