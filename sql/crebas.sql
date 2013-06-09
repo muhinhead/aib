@@ -47,12 +47,12 @@ create table country
 create table company 
 (
     company_id    int not null auto_increment,
-    full_name     varchar(512) not null,
-    is_dummy      bit default 0,
-    abbreviation  varchar(64) not null,
-    logo          mediumblob,
-    turnover      decimal(10.2),
-    address       varchar(512),
+    full_name     varchar(512) not null	comment 'Full company name',
+    is_dummy      bit default 0                comment 'Is dummy company?',
+    abbreviation  varchar(64) not null         comment 'Abbreviation',
+    logo          mediumblob                   comment 'Logotype',
+    turnover      decimal(10.2)                comment 'Turnover/Year',
+    address       varchar(512)                 comment 'Address',
     postcode      varchar(128),
     mailaddress   varchar(512),
     mailpostcode  varchar(128),
@@ -206,7 +206,7 @@ create table people
     lastedited_by    int,
     lastedit_date    datetime,
     constraint people_pk primary key (people_id),
-    constraint people_location_id foreign key (location_id) references location (location_id),
+    constraint people_location_fk foreign key (location_id) references location (location_id),
     constraint people_user_fk foreign key (lastedited_by) references user (user_id),
     constraint people_user_fk2 foreign key (sales_contact_id) references user (user_id)
 );
