@@ -1,11 +1,11 @@
-package com.aib;
+package com.aib.location;
 
+import com.aib.AIBclient;
+import com.aib.FilteredListFrame;
+import com.aib.GeneralFrame;
 import com.aib.filter.LocationFilterPanel;
-import com.aib.filter.PeopleFilterPanel;
-import com.aib.location.LocationsGrid;
 import com.aib.orm.Filter;
 import com.aib.orm.dbobject.ComboItem;
-import com.aib.people.PeopleGrid;
 import com.aib.remote.IMessageSender;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
@@ -14,10 +14,6 @@ import java.rmi.RemoteException;
 import javax.swing.AbstractAction;
 import javax.swing.JPanel;
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 /**
  *
  * @author Nick Mukhin
@@ -57,14 +53,9 @@ public class LocationsFrame extends FilteredListFrame {
     @Override
     public void applyFilter(Filter flt) {
         if (flt != null) {
-            final String FROM_LOCATION = "from location l, company c where l.company_id=c.company_id ";
-            String newSelect = null;
-            int p = LocationsGrid.SELECT.indexOf(FROM_LOCATION);
-            String orderBy = LocationsGrid.SELECT.substring(p + FROM_LOCATION.length());
-            if (flt.getIsComplex() != null && flt.getIsComplex().intValue() == 1) {
-                newSelect = LocationsGrid.SELECT.substring(0, p + FROM_LOCATION.length())
-                        + " and (" + flt.getQuery().replaceAll("==", "=") + ") " + orderBy;
-            }
+            String newSelect = adjustSelect(flt, "from location ", LocationsGrid.SELECT, "Links", 
+                    "exists (select url from link,loclink where link.link_id=loclink.link_id "
+                    + "and loclink.location_id=location.location_id and url");
             if (flt.getQuery() == null || flt.getQuery().trim().length() == 0) {
                 GeneralFrame.errMessageBox("Attention!", "The empty filter couldn't be applied");
             } else {

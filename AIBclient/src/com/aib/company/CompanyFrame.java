@@ -16,10 +16,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
 import javax.swing.AbstractAction;
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JSplitPane;
-import javax.swing.SwingConstants;
 
 /**
  *
@@ -31,8 +28,6 @@ public class CompanyFrame extends FilteredListFrame {
         "List", "Filter"
     };
     private CompaniesGrid companiesPanel;
-    
-    
 
     public CompanyFrame(IMessageSender exch) {
         super("Companies", exch);
@@ -66,8 +61,9 @@ public class CompanyFrame extends FilteredListFrame {
             String newSelect;
             int p = CompaniesGrid.SELECT.indexOf(FROM_COMP);
             if (flt.getIsComplex() != null && flt.getIsComplex().intValue() == 1) {
-                newSelect = CompaniesGrid.SELECT.substring(0, p + FROM_COMP.length())
-                        + "where " + flt.getQuery().replaceAll("==", "=");
+                newSelect = adjustSelect(flt, FROM_COMP, CompaniesGrid.SELECT, "Links",
+                        "exists (select url from link,complink where link.link_id=complink.link_id "
+                        + "and complink.company_id=company.company_id and url");
             } else {
                 newSelect = CompaniesGrid.SELECT.substring(0, p + FROM_COMP.length())
                         + ",people,peoplecompany pc "
@@ -75,7 +71,7 @@ public class CompanyFrame extends FilteredListFrame {
                         + "and pc.people_id=people.people_id "
                         + "and (" + flt.getQuery().replaceAll("==", "=") + ")";
             }
-            if (flt.getQuery() == null || flt.getQuery().trim().length()==0) {
+            if (flt.getQuery() == null || flt.getQuery().trim().length() == 0) {
                 GeneralFrame.errMessageBox("Attention!", "The empty filter couldn't be applied");
             } else {
                 companiesPanel.setSelect(newSelect);

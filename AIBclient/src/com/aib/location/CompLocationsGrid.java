@@ -16,8 +16,8 @@ public class CompLocationsGrid extends LocationsGrid {
     private static Integer companyID = null;
 
     public CompLocationsGrid(IMessageSender exchanger, Integer compID) throws RemoteException {
-        super(exchanger, SELECT.replace("c.full_name \"Company\",","")
-                .replace("where ", "where c.company_id=" + (companyID = compID) + " and "));
+        super(exchanger, SELECT.replace("(select full_name from company where company_id=location.company_id) \"Company\",","")
+                .replace("from location", "from location where location.company_id=" + (companyID = compID)));
     }
 
     @Override

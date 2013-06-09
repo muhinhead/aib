@@ -1,6 +1,7 @@
 package com.aib;
 
 //import com.xlend.gui.reports.GeneralReportPanel;
+import com.aib.orm.Filter;
 import com.aib.orm.dbobject.ComboItem;
 import com.xlend.mvc.dbtable.DbTableDocument;
 import com.xlend.mvc.dbtable.DbTableGridPanel;
@@ -447,5 +448,31 @@ public abstract class GeneralFrame extends JFrame implements WindowListener {
      */
     public JTabbedPane getMainPanel() {
         return mainPanel;
+    }
+
+    protected String adjustSelect(Filter flt, final String FROM, String SELECT, String what, String replacement) {
+        String newSelect = null;
+        int p = SELECT.indexOf(FROM);
+        String orderBy = SELECT.substring(p + FROM.length());
+        if (flt.getIsComplex() != null && flt.getIsComplex().intValue() == 1) {
+            newSelect = SELECT.substring(0, p + FROM.length()) + " where " + flt.getQuery().replaceAll("==", "=");
+            int l = newSelect.indexOf(what);
+            int ll;
+            while (l >= 0) {
+                ll = newSelect.indexOf(" AND ", l);
+                if (ll < 0) {
+                    ll = newSelect.indexOf(" OR ", l);
+                }
+                String linkRest = ll > 0 ? newSelect.substring(ll) : "";
+                String linkCondition = ll < 0 ? newSelect.substring(l) : newSelect.substring(l, ll);
+                linkCondition = linkCondition.replace(what, replacement) + ")";
+                newSelect = newSelect.substring(0, l) + linkCondition;
+                newSelect += linkRest;
+                l = newSelect.indexOf(what);
+            }
+            newSelect += orderBy;
+            newSelect.replace("LIMIT 0,300", "");
+        }
+        return newSelect;
     }
 }

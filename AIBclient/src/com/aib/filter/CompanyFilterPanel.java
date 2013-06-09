@@ -42,10 +42,9 @@ public class CompanyFilterPanel extends AbstractFilterPanel {
 
     @Override
     protected void loadColNamesTypes() throws RemoteException {
-        Object[] obs = AIBclient.getExchanger().getColNamesTypes(
-                         "select * from company where company_id<0");
-        colNames = (ArrayList<String>) obs[0];
-        colNamesTypes = (HashMap<String, Integer>) obs[1];
+        super.loadColNamesTypes();
+        colNames.add("Links");
+        colNamesTypes.put("Links",java.sql.Types.VARCHAR);
     }
 
     @Override

@@ -176,14 +176,13 @@ public abstract class FilterComponent extends JPanel {
             }
         };
     }
-    
+
     protected AbstractAction getCbListener() {
         return new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 touchParent();
             }
-            
         };
     }
 
@@ -246,6 +245,13 @@ public abstract class FilterComponent extends JPanel {
                 }
             }
         }
+    }
+
+    protected static String removeBraces(String s) {
+        if (s.startsWith("(") && s.endsWith(")")) {
+            return s.substring(1, s.length() - 1);
+        }
+        return s;
     }
 
     protected static String removeQuotes(String s) {

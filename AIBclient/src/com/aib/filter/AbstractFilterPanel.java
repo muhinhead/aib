@@ -211,6 +211,7 @@ public abstract class AbstractFilterPanel extends JPanel implements IFilterPanel
         Object[] obs = AIBclient.getExchanger().getColNamesTypes(
                 "select * from " + tabName + " where " + tabName + "_id<0");
         colNames = (ArrayList<String>) obs[0];
+        colNames.remove(tabName + "_id");
         colNamesTypes = (HashMap<String, Integer>) obs[1];
     }
 
