@@ -28,7 +28,7 @@ public class PeopleGrid extends GeneralGridPanel {
             + "desk_phone \"Desk Phone\", mobile_phone \"Mobile Phone\", "
             + "lastedit_date \"Last Edited\", "
             + "(select initials from user where user_id=people.lastedited_by) \"Editor\" "
-            + "from people";
+            + "from people ";
     private static HashMap<Integer, Integer> maxWidths = new HashMap<Integer, Integer>();
 
     static {
