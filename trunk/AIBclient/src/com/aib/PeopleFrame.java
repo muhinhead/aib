@@ -12,10 +12,6 @@ import java.rmi.RemoteException;
 import javax.swing.AbstractAction;
 import javax.swing.JPanel;
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 /**
  *
  * @author Nick Mukhin
@@ -54,15 +50,11 @@ public class PeopleFrame extends FilteredListFrame {
 
     @Override
     public void applyFilter(Filter flt) {
-        if (flt!=null) {
-            final String FROM_PEOPLE = "from people";
-            String newSelect = null;
-            int p = PeopleGrid.SELECT.indexOf(FROM_PEOPLE);
-            if (flt.getIsComplex() != null && flt.getIsComplex().intValue() == 1) {
-                newSelect = PeopleGrid.SELECT.substring(0, p + FROM_PEOPLE.length())
-                        + " where " + flt.getQuery().replaceAll("==", "=");
-            }
-            if (flt.getQuery() == null || flt.getQuery().trim().length()==0) {
+        if (flt != null) {
+            String newSelect = adjustSelect(flt, "from people ", PeopleGrid.SELECT, "Links", 
+                    "exists (select url from link,peoplelink where link.link_id=peoplelink.link_id "
+                    + "and peoplelink.people_id=people.people_id and url");
+            if (flt.getQuery() == null || flt.getQuery().trim().length() == 0) {
                 GeneralFrame.errMessageBox("Attention!", "The empty filter couldn't be applied");
             } else {
                 peoplePanel.setSelect(newSelect);
@@ -76,11 +68,10 @@ public class PeopleFrame extends FilteredListFrame {
     protected String getMainTableName() {
         return "people";
     }
-    
+
     @Override
     protected ActionListener getChooseFilterAction() {
         return new AbstractAction() {
-
             @Override
             public void actionPerformed(ActionEvent ae) {
                 if (!dontFilter) {

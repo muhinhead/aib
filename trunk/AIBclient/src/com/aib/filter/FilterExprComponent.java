@@ -6,6 +6,7 @@ package com.aib.filter;
 
 import com.aib.AIBclient;
 import com.aib.RecordEditPanel;
+import static com.aib.filter.FilterComponent.removeQuotes;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.text.ParseException;
@@ -145,7 +146,7 @@ public class FilterExprComponent extends FilterComponent {
                         }
                     } else {
                         if (operatorCB.getSelectedItem().equals(IN)) {
-                            valueTF.setText(removeQuotes(expr.substring(pp + 1).replaceAll("','", ",")));
+                            valueTF.setText(removeQuotes(removeBraces(expr.substring(pp + 1).replaceAll("','", ","))));
                         } else {
                             valueTF.setText(removeQuotes(expr.substring(pp + 1)));
                         }
@@ -249,7 +250,7 @@ public class FilterExprComponent extends FilterComponent {
                     }
                 } else if (operatorCB.getSelectedItem().equals(IS_NULL)) {
                 } else if (operatorCB.getSelectedItem().equals(IN)) {
-                    sb.append("'").append(valueTF.getText().replaceAll(",", "','")).append("'");
+                    sb.append("('").append(valueTF.getText().replaceAll(",", "','")).append("')");
                 } else if (tp.intValue() == java.sql.Types.DATE || tp.intValue() == java.sql.Types.TIMESTAMP) {
                     Date dt1 = (Date) fromDateSP.getValue();
                     sb.append(dateFormat.format(dt1));

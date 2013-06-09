@@ -22,13 +22,13 @@ import javax.swing.JOptionPane;
 public class LocationsGrid extends GeneralGridPanel {
 
     public static final String SELECT = "select location.location_id \"ID\", "
-            + "company.full_name \"Company\","
+            + "(select full_name from company where company_id=location.company_id) \"Company\","
             + "location.name \"Location\", location.abbreviation \"Abbreviation\","
             + "(select country from country where country_id=location.country_id) \"Country\","
             + "location.main_phone \"Main phone\", location.main_fax \"Main fax\", "
             + "location.lastedit_date \"Last Edited\" "
-            + "from location, company where location.company_id=company.company_id "
-            + "order by company.full_name,location.name";
+            + "from location "
+            + "order by location.lastedit_date desc,location.name";
     private static HashMap<Integer, Integer> maxWidths = new HashMap<Integer, Integer>();
 
     static {

@@ -10,15 +10,10 @@ import com.aib.FilteredListFrame;
  *
  * @author nick
  */
-public class PeopleFilterPanel extends AbstractFilterPanel {
+public class PeopleFilterPanel extends AncestorFilterPanel {
 
     public PeopleFilterPanel(FilteredListFrame parentFrame) {
         super(parentFrame, "people");
         fillComplexFilterList();
-    }
-
-    @Override
-    protected boolean isDefaultComplex() {
-        return true;
     }
 }
