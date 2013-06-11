@@ -20,6 +20,7 @@ public abstract class GeneralGridPanel extends DbTableGridPanel {
     private String select;
     protected IMessageSender exchanger;
     public boolean isExternalView = false;
+    public static final String SELECTLIMIT = "LIMIT 0,300";
 
     public GeneralGridPanel(IMessageSender exchanger, String select,
             HashMap<Integer, Integer> maxWidths, boolean readOnly, DbTableView tabView) throws RemoteException {

@@ -17,7 +17,7 @@ import javax.swing.JOptionPane;
 
 /**
  *
- * @author nick
+ * @author Nick Mukhin
  */
 public class CompaniesGrid extends GeneralGridPanel {
 
@@ -26,7 +26,7 @@ public class CompaniesGrid extends GeneralGridPanel {
             + "(select country from country where country_id=company.country_id) \"Country\","
             + "company.main_phone \"Main phone\",company.main_fax \"Main fax\", "
             + "company.renewal_date \"Renewal Date\", company.verify_date \"Verify Date\", company.lastedit_date \"Last Edited\" "
-            + "from company order by lastedit_date desc LIMIT 0,300";
+            + "from company order by lastedit_date desc "+GeneralGridPanel.SELECTLIMIT;
     private static HashMap<Integer, Integer> maxWidths = new HashMap<Integer, Integer>();
 
     static {

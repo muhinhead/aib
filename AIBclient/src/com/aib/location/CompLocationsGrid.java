@@ -9,7 +9,7 @@ import java.rmi.RemoteException;
 
 /**
  *
- * @author nick
+ * @author Nick Mukhin
  */
 public class CompLocationsGrid extends LocationsGrid {
 

@@ -17,7 +17,7 @@ import javax.swing.JOptionPane;
 
 /**
  *
- * @author nick
+ * @author Nick Mukhin
  */
 public class LocationsGrid extends GeneralGridPanel {
 
@@ -28,7 +28,7 @@ public class LocationsGrid extends GeneralGridPanel {
             + "location.main_phone \"Main phone\", location.main_fax \"Main fax\", "
             + "location.lastedit_date \"Last Edited\" "
             + "from location "
-            + "order by location.lastedit_date desc,location.name";
+            + "order by location.lastedit_date desc,location.name "+GeneralGridPanel.SELECTLIMIT;
     private static HashMap<Integer, Integer> maxWidths = new HashMap<Integer, Integer>();
 
     static {
