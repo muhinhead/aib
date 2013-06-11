@@ -488,39 +488,6 @@ public abstract class GeneralFrame extends JFrame implements WindowListener {
         String restOfStatement = select.substring(p + from.length());
         newSelect = select.substring(0, p + from.length()) + (includeWhere ? " and " : " where ")
                 + flt.getQuery() + restOfStatement;
-        return newSelect.replace("LIMIT 0,300", "");
+        return newSelect.replace(GeneralGridPanel.SELECTLIMIT, "");
     }
-//    protected static String adjustSelect(Filter flt, String from, String select, String what, String replacement) {
-//        String newSelect = null;
-//        int p = select.indexOf(from);
-//        boolean includeWhere = (select.lastIndexOf(from + " where ") > 0);
-//        if (includeWhere) {
-//            from = from + "where ";
-//        }
-//        String restOfStatement = select.substring(p + from.length());
-//        if (flt.getIsComplex() != null && flt.getIsComplex().intValue() == 1) {
-//            newSelect = select.substring(0, p + from.length()) 
-//                    + (includeWhere ? " and " : " where ")
-//                    + adjustFilterQuery(flt, what, replacement);
-////            newSelect = select.substring(0, p + from.length()) + (includeWhere ? " and " : " where ")
-////                    + flt.getQuery().replaceAll("==", "=");
-////            int l = newSelect.indexOf(what);
-////            int ll;
-////            while (l >= 0) {
-////                ll = newSelect.indexOf(" AND ", l);
-////                if (ll < 0) {
-////                    ll = newSelect.indexOf(" OR ", l);
-////                }
-////                String linkRest = ll > 0 ? newSelect.substring(ll) : "";
-////                String linkCondition = ll < 0 ? newSelect.substring(l) : newSelect.substring(l, ll);
-////                linkCondition = linkCondition.replace(what, replacement) + ")";
-////                newSelect = newSelect.substring(0, l) + linkCondition;
-////                newSelect += linkRest;
-////                l = newSelect.indexOf(what);
-////            }
-//            newSelect += restOfStatement;
-//            newSelect.replace("LIMIT 0,300", "");
-//        }
-//        return newSelect;
-//    }
 }

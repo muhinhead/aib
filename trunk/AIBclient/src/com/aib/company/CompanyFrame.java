@@ -21,7 +21,7 @@ import javax.swing.JPanel;
 
 /**
  *
- * @author nick
+ * @author Nick Mukhin
  */
 public class CompanyFrame extends FilteredListFrame {
 

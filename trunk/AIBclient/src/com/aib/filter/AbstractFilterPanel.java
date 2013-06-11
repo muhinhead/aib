@@ -45,7 +45,7 @@ import javax.swing.event.ListSelectionEvent;
 
 /**
  *
- * @author nick
+ * @author Nick Mukhin
  */
 public abstract class AbstractFilterPanel extends JPanel implements IFilterPanel {
 

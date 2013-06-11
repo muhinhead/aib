@@ -8,6 +8,7 @@ import com.aib.AIBclient;
 import com.aib.EditAreaAction;
 //import com.aib.EditAreaAction;
 import com.aib.EditPanelWithPhoto;
+import com.aib.GeneralGridPanel;
 import com.aib.MyJideTabbedPane;
 import com.aib.lookup.ListInTextFieldDialog;
 //import static com.aib.RecordEditPanel.getBorderPanel;
@@ -212,7 +213,7 @@ class EditCompanyPanel extends EditPanelWithPhoto {
             Company comp = (Company) getDbObject();
             Integer compID = comp == null ? new Integer(0) : comp.getCompanyId();
             downTabs.add(new CompLocationsGrid(AIBclient.getExchanger(), compID), "Company Locations");
-            downTabs.add(new PeopleGrid(AIBclient.getExchanger(),PeopleGrid.SELECT
+            downTabs.add(new PeopleGrid(AIBclient.getExchanger(),PeopleGrid.SELECT.replace(GeneralGridPanel.SELECTLIMIT, "")
                     +" where people_id in (select people_id from peoplecompany where company_id="+compID+")"), "People");
         } catch (RemoteException ex) {
             AIBclient.logAndShowMessage(ex);
