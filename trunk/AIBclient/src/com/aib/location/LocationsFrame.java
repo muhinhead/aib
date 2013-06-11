@@ -3,6 +3,7 @@ package com.aib.location;
 import com.aib.AIBclient;
 import com.aib.FilteredListFrame;
 import com.aib.GeneralFrame;
+import static com.aib.GeneralFrame.adjustFilterQuery;
 import com.aib.filter.LocationFilterPanel;
 import com.aib.orm.Filter;
 import com.aib.orm.dbobject.ComboItem;
@@ -53,9 +54,13 @@ public class LocationsFrame extends FilteredListFrame {
     @Override
     public void applyFilter(Filter flt) {
         if (flt != null) {
-            String newSelect = adjustSelect(flt, "from location ", LocationsGrid.SELECT, "Links", 
+            adjustFilterQuery(flt,"Links",        
                     "exists (select url from link,loclink where link.link_id=loclink.link_id "
                     + "and loclink.location_id=location.location_id and url");
+            adjustFilterQuery(flt,"Industries",
+                    "exists (select descr from industry,locindustry where industry.industry_id=locindustry.industry_id "
+                    + "and locindustry.location_id=location.location_id and descr");    
+            String newSelect = adjustSelect(flt,"from location ", LocationsGrid.SELECT);
             if (flt.getQuery() == null || flt.getQuery().trim().length() == 0) {
                 GeneralFrame.errMessageBox("Attention!", "The empty filter couldn't be applied");
             } else {

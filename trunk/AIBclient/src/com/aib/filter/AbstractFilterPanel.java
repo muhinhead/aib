@@ -182,7 +182,7 @@ public abstract class AbstractFilterPanel extends JPanel implements IFilterPanel
         complexOrSimpleTab.add(complexEditorPanel = new JPanel(new BorderLayout(5, 5)), complexEditor);
         complexEditorPanel.add(getHeaderPanel(complexEditor), BorderLayout.NORTH);
         changedLbl = changedComplexQueryLbl = new JLabel(" ", SwingConstants.LEFT);
-        changedComplexQueryLbl = new JLabel(" ", SwingConstants.LEFT);
+//        changedComplexQueryLbl = new JLabel(" ", SwingConstants.LEFT);
         complexOrSimpleTab.addChangeListener(new ChangeListener() {
             @Override
             public void stateChanged(ChangeEvent ce) {

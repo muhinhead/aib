@@ -3,6 +3,7 @@ package com.aib;
 //import com.xlend.gui.reports.GeneralReportPanel;
 import com.aib.orm.Filter;
 import com.aib.orm.dbobject.ComboItem;
+import com.aib.orm.dbobject.ForeignKeyViolationException;
 import com.xlend.mvc.dbtable.DbTableDocument;
 import com.xlend.mvc.dbtable.DbTableGridPanel;
 import com.xlend.mvc.dbtable.DbTableView.MyTableModel;
@@ -20,7 +21,10 @@ import java.awt.event.KeyEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.rmi.RemoteException;
+import java.sql.SQLException;
 import java.util.HashMap;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -430,7 +434,6 @@ public abstract class GeneralFrame extends JFrame implements WindowListener {
 //    protected abstract ActionListener editFilterAction();
 //
 //    protected abstract ActionListener delFilterAction();
-
     /**
      * @return the toolBar
      */
@@ -441,8 +444,6 @@ public abstract class GeneralFrame extends JFrame implements WindowListener {
     protected void addAfterSearch() {
     }
 
-    
-
     /**
      * @return the mainPanel
      */
@@ -450,29 +451,76 @@ public abstract class GeneralFrame extends JFrame implements WindowListener {
         return mainPanel;
     }
 
-    protected String adjustSelect(Filter flt, final String FROM, String SELECT, String what, String replacement) {
-        String newSelect = null;
-        int p = SELECT.indexOf(FROM);
-        String orderBy = SELECT.substring(p + FROM.length());
-        if (flt.getIsComplex() != null && flt.getIsComplex().intValue() == 1) {
-            newSelect = SELECT.substring(0, p + FROM.length()) + " where " + flt.getQuery().replaceAll("==", "=");
-            int l = newSelect.indexOf(what);
+    public static String adjustFilterQuery(Filter flt, String what, String replacement) {
+        if (flt != null) {
+            String query = flt.getQuery().replaceAll("==", "=").replaceAll("\n", " ");
+            int l = query.indexOf(what);
             int ll;
             while (l >= 0) {
-                ll = newSelect.indexOf(" AND ", l);
+                ll = query.indexOf(" AND ", l);
                 if (ll < 0) {
-                    ll = newSelect.indexOf(" OR ", l);
+                    ll = query.indexOf(" OR ", l);
                 }
-                String linkRest = ll > 0 ? newSelect.substring(ll) : "";
-                String linkCondition = ll < 0 ? newSelect.substring(l) : newSelect.substring(l, ll);
+                String linkRest = ll > 0 ? query.substring(ll) : "";
+                String linkCondition = ll < 0 ? query.substring(l) : query.substring(l, ll);
                 linkCondition = linkCondition.replace(what, replacement) + ")";
-                newSelect = newSelect.substring(0, l) + linkCondition;
-                newSelect += linkRest;
-                l = newSelect.indexOf(what);
+                query = query.substring(0, l) + linkCondition;
+                query += linkRest;
+                l = query.indexOf(what);
             }
-            newSelect += orderBy;
-            newSelect.replace("LIMIT 0,300", "");
+            try {
+                flt.setQuery(query);
+            } catch (Exception ex) {
+                AIBclient.log(ex);
+            }
+            return query;
         }
-        return newSelect;
+        return null;
     }
+
+    protected static String adjustSelect(Filter flt, String from, String select) {
+        String newSelect = null;
+        int p = select.indexOf(from);
+        boolean includeWhere = (select.lastIndexOf(from + " where ") > 0);
+        if (includeWhere) {
+            from = from + "where ";
+        }
+        String restOfStatement = select.substring(p + from.length());
+        newSelect = select.substring(0, p + from.length()) + (includeWhere ? " and " : " where ")
+                + flt.getQuery() + restOfStatement;
+        return newSelect.replace("LIMIT 0,300", "");
+    }
+//    protected static String adjustSelect(Filter flt, String from, String select, String what, String replacement) {
+//        String newSelect = null;
+//        int p = select.indexOf(from);
+//        boolean includeWhere = (select.lastIndexOf(from + " where ") > 0);
+//        if (includeWhere) {
+//            from = from + "where ";
+//        }
+//        String restOfStatement = select.substring(p + from.length());
+//        if (flt.getIsComplex() != null && flt.getIsComplex().intValue() == 1) {
+//            newSelect = select.substring(0, p + from.length()) 
+//                    + (includeWhere ? " and " : " where ")
+//                    + adjustFilterQuery(flt, what, replacement);
+////            newSelect = select.substring(0, p + from.length()) + (includeWhere ? " and " : " where ")
+////                    + flt.getQuery().replaceAll("==", "=");
+////            int l = newSelect.indexOf(what);
+////            int ll;
+////            while (l >= 0) {
+////                ll = newSelect.indexOf(" AND ", l);
+////                if (ll < 0) {
+////                    ll = newSelect.indexOf(" OR ", l);
+////                }
+////                String linkRest = ll > 0 ? newSelect.substring(ll) : "";
+////                String linkCondition = ll < 0 ? newSelect.substring(l) : newSelect.substring(l, ll);
+////                linkCondition = linkCondition.replace(what, replacement) + ")";
+////                newSelect = newSelect.substring(0, l) + linkCondition;
+////                newSelect += linkRest;
+////                l = newSelect.indexOf(what);
+////            }
+//            newSelect += restOfStatement;
+//            newSelect.replace("LIMIT 0,300", "");
+//        }
+//        return newSelect;
+//    }
 }

@@ -28,6 +28,8 @@ public abstract class AncestorFilterPanel extends AbstractFilterPanel {
         super.loadColNamesTypes();
         colNames.add("Links");
         colNamesTypes.put("Links", Types.VARCHAR);
+        colNames.add("Industries");
+        colNamesTypes.put("Industries", Types.VARCHAR);        
     }
     
 }

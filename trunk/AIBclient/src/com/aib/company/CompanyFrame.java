@@ -7,6 +7,7 @@ package com.aib.company;
 import com.aib.AIBclient;
 import com.aib.FilteredListFrame;
 import com.aib.GeneralFrame;
+import static com.aib.GeneralFrame.adjustFilterQuery;
 import com.aib.filter.CompanyFilterPanel;
 import com.aib.orm.Filter;
 import com.aib.orm.dbobject.ComboItem;
@@ -61,9 +62,13 @@ public class CompanyFrame extends FilteredListFrame {
             String newSelect;
             int p = CompaniesGrid.SELECT.indexOf(FROM_COMP);
             if (flt.getIsComplex() != null && flt.getIsComplex().intValue() == 1) {
-                newSelect = adjustSelect(flt, FROM_COMP, CompaniesGrid.SELECT, "Links",
+                adjustFilterQuery(flt,"Links",
                         "exists (select url from link,complink where link.link_id=complink.link_id "
                         + "and complink.company_id=company.company_id and url");
+                adjustFilterQuery(flt,"Industries",
+                    "exists (select descr from industry,compindustry where industry.industry_id=compindustry.industry_id "
+                    + "and compindustry.company_id=company.company_id and descr");         
+                newSelect = adjustSelect(flt,FROM_COMP, CompaniesGrid.SELECT);
             } else {
                 newSelect = CompaniesGrid.SELECT.substring(0, p + FROM_COMP.length())
                         + ",people,peoplecompany pc "

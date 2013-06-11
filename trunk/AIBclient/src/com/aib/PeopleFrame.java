@@ -1,5 +1,6 @@
 package com.aib;
 
+import static com.aib.GeneralFrame.adjustFilterQuery;
 import com.aib.people.PeopleGrid;
 import com.aib.filter.PeopleFilterPanel;
 import com.aib.orm.Filter;
@@ -51,9 +52,13 @@ public class PeopleFrame extends FilteredListFrame {
     @Override
     public void applyFilter(Filter flt) {
         if (flt != null) {
-            String newSelect = adjustSelect(flt, "from people ", PeopleGrid.SELECT, "Links", 
+            adjustFilterQuery(flt,"Links",
                     "exists (select url from link,peoplelink where link.link_id=peoplelink.link_id "
-                    + "and peoplelink.people_id=people.people_id and url");
+                    + "and peoplelink.people_id=people.people_id and url");     
+            String newSelect = adjustFilterQuery(flt,"Industries",
+                    "exists (select descr from industry,peopleindustry where industry.industry_id=peopleindustry.industry_id "
+                    + "and peopleindustry.people_id=people.people_id and descr");         
+            newSelect = adjustSelect(flt,"from people ", PeopleGrid.SELECT);         
             if (flt.getQuery() == null || flt.getQuery().trim().length() == 0) {
                 GeneralFrame.errMessageBox("Attention!", "The empty filter couldn't be applied");
             } else {

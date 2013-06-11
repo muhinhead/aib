@@ -17,8 +17,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.rmi.RemoteException;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.sql.Types;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JComponent;
@@ -45,6 +44,8 @@ public class CompanyFilterPanel extends AbstractFilterPanel {
         super.loadColNamesTypes();
         colNames.add("Links");
         colNamesTypes.put("Links",java.sql.Types.VARCHAR);
+        colNames.add("Industries");
+        colNamesTypes.put("Industries", Types.VARCHAR);   
     }
 
     @Override
