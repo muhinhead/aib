@@ -125,7 +125,7 @@ public class DbConnection {
         for (ConnectionWithFlag con : connections) {
             if (!con.isBusy) {
                 con.isBusy = true;
-                AIBserver.log("connection (" + new Date(con.lastUsage).toString() + ") used");
+//                AIBserver.log("connection (" + new Date(con.lastUsage).toString() + ") used");
                 con.lastUsage = Calendar.getInstance().getTimeInMillis();
                 return con.connection;
             }
