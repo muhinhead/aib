@@ -42,12 +42,41 @@ public abstract class EditPanelWithPhoto extends RecordEditPanel {
 
     private ImageIcon currentPicture;
     protected JPanel picPanel;
-    protected JPopupMenu picturePopMenu;
+    private JPopupMenu picturePopMenu;
     protected byte[] imageData;
     private JEditorPane imagePanel;
+    private JButton loadPictureButton;
+    private AbstractAction openImgAct;
+    private AbstractAction printImgAct;
+    private AbstractAction replaceImgAct;
+    private AbstractAction saveImgAct;
+    private AbstractAction delImgAct;
+    private boolean enablePictureControl = true;
 
     public EditPanelWithPhoto(DbObject dbObject) {
         super(dbObject);
+    }
+
+    protected void setEnabledPictureControl(boolean enable) {
+        enablePictureControl = enable;
+        if (loadPictureButton != null) {
+            loadPictureButton.setEnabled(enable);
+        }
+        if (openImgAct != null) {
+            openImgAct.setEnabled(enable);
+        }
+        if (printImgAct != null) {
+            printImgAct.setEnabled(enable);
+        }
+        if (replaceImgAct != null) {
+            replaceImgAct.setEnabled(enable);
+        }
+        if (saveImgAct != null) {
+            saveImgAct.setEnabled(enable);
+        }
+        if (delImgAct != null) {
+            delImgAct.setEnabled(enable);
+        }
     }
 
     private static void saveImage(String fname, byte[] imageData, boolean overwrite) {
@@ -76,29 +105,33 @@ public abstract class EditPanelWithPhoto extends RecordEditPanel {
     private JPopupMenu getPhotoPopupMenu() {
         if (null == picturePopMenu) {
             picturePopMenu = new JPopupMenu();
-            picturePopMenu.add(new AbstractAction("Open in window") {
+            picturePopMenu.add(openImgAct = new AbstractAction("Open in window") {
                 public void actionPerformed(ActionEvent e) {
                     viewDocumentImage(currentPicture);
                 }
             });
-            picturePopMenu.add(new AbstractAction("Print image") {
+
+            picturePopMenu.add(printImgAct = new AbstractAction("Print image") {
                 public void actionPerformed(ActionEvent e) {
                     if (imagePanel != null) {
                         new PrintUtilities(imagePanel).print();
                     }
                 }
             });
-            picturePopMenu.add(new AbstractAction("Replace image") {
+
+            picturePopMenu.add(replaceImgAct = new AbstractAction("Replace image") {
                 public void actionPerformed(ActionEvent e) {
                     loadDocImageFromFile();
                 }
             });
-            picturePopMenu.add(new AbstractAction("Save image to file") {
+
+            picturePopMenu.add(saveImgAct = new AbstractAction("Save image to file") {
                 public void actionPerformed(ActionEvent e) {
                     exportDocImage(imageData);
                 }
             });
-            picturePopMenu.add(new AbstractAction("Remove image from DB") {
+
+            picturePopMenu.add(delImgAct = new AbstractAction("Remove image from DB") {
                 public void actionPerformed(ActionEvent e) {
                     noImage();
                 }
@@ -156,23 +189,25 @@ public abstract class EditPanelWithPhoto extends RecordEditPanel {
         picPanel.setVisible(false);
         picPanel.removeAll();
         JPanel insPanel = new JPanel();
-        insPanel.add(getLoadPictureButton());
+        insPanel.add(loadPictureButton = getLoadPictureButton());
         picPanel.add(insPanel);
         picPanel.setVisible(true);
         currentPicture = null;
+        loadPictureButton.setEnabled(enablePictureControl);
     }
 
     protected void setImage(byte[] imageData) {
         this.imageData = imageData;
         if (imageData != null) {
             setPhoto();
+            setEnabledPictureControl(enablePictureControl);
         }
     }
 
     private void setPhoto() {
         picPanel.setVisible(false);
         picPanel.removeAll();
-        String tmpImgFile = System.getProperty("user.home")+File.separatorChar+"$$$.img";
+        String tmpImgFile = System.getProperty("user.home") + File.separatorChar + "$$$.img";
         currentPicture = new ImageIcon(imageData);
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         Dimension d = new Dimension(screenSize.width / 3, screenSize.height / 3);

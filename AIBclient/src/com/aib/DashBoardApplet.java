@@ -1,5 +1,6 @@
 package com.aib;
 
+import com.aib.admin.AdminsFrame;
 import com.aib.location.LocationsFrame;
 import com.aib.company.CompanyFrame;
 import javafx.application.Platform;
@@ -26,6 +27,7 @@ public class DashBoardApplet extends SceneApplet {
     private CompanyFrame companyFrame;
     private PeopleFrame peopleFrame;
     private LocationsFrame locationsFrame;
+    private AdminsFrame adminsFrame;
     private ProgressIndicator waitIndicator;
 
     public DashBoardApplet() {
@@ -99,7 +101,23 @@ public class DashBoardApplet extends SceneApplet {
         action[3] = new Runnable() {
             @Override
             public void run() {
-                System.out.println("ACTION 4");
+                showIndicator();
+                Thread r = new Thread() {
+                    public void run() {
+                        if (adminsFrame == null) {
+                            adminsFrame = new AdminsFrame(AIBclient.getExchanger());
+                        } else {
+                            try {
+                                adminsFrame.setLookAndFeel(AIBclient.readProperty("LookAndFeel",
+                                        UIManager.getSystemLookAndFeelClassName()));
+                            } catch (Exception ex) {
+                            }
+                            adminsFrame.setVisible(true);
+                        }
+                        hideIndicator();
+                    }
+                };
+                r.start();
             }
         };
     }

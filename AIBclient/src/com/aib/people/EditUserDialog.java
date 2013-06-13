@@ -5,15 +5,13 @@
 package com.aib.people;
 
 import com.aib.EditRecordDialog;
-import com.aib.orm.User;
 import com.aib.orm.dbobject.DbObject;
-import static com.aib.people.EditPeopleDialog.okPressed;
 
 /**
  *
- * @author nick
+ * @author Nick Mukhin
  */
-class EditUserDialog extends EditRecordDialog {
+public class EditUserDialog extends EditRecordDialog {
 
     public static boolean okPressed;
     
