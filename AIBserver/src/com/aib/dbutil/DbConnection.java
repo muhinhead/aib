@@ -196,7 +196,6 @@ public class DbConnection {
         PreparedStatement ps = null;
         for (int i = 0; i < sqls.length; i++) {
             try {
-//                System.out.println(""+i+") "+sqls[i]);
                 ps = connection.prepareStatement(sqls[i]);
                 ps.execute();
                 if (tolog) {
