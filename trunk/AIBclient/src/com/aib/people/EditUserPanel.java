@@ -54,7 +54,6 @@ public class EditUserPanel extends EditPanelWithPhoto {
             "Initials:",
             "Login:",
             "Password:",
-            //            "show password",
             "", "", ""
         };
         JComponent[] edits = new JComponent[]{
@@ -96,29 +95,12 @@ public class EditUserPanel extends EditPanelWithPhoto {
                 comp.setEnabled(false);
             }
         }
-
-    }
-
-    @Override
-    public void loadData() {
+        User curUser = AIBclient.getCurrentUser();
         User usr = (User) getDbObject();
-        setEnabledPictureControl(false);
         if (usr != null) {
-            User curUser = AIBclient.getCurrentUser();
             Integer isCurrentAdmin = curUser.getIsAdmin();
-            idField.setText(usr.getUserId().toString());
-            firstNameTF.setText(usr.getFirstName());
-            lastNameTF.setText(usr.getLastName());
-            initialsTF.setText(usr.getInitials());
-            loginTF.setText(usr.getLogin());
-            passwdTF.setText(usr.getPasswd());
-            passwdPwdF.setText(usr.getPasswd());
-            imageData = (byte[]) usr.getPhoto();
-            adminPermCB.setSelected(usr.getIsAdmin() != null && usr.getIsAdmin() == 1);
-            setImage(imageData);
-            if (curUser.getIsAdmin().intValue() == 1
+            if (isCurrentAdmin.intValue() == 1
                     || curUser.getUserId().intValue() == usr.getUserId().intValue()) {
-                setEnabledPictureControl(true);
                 firstNameTF.setEnabled(true);
                 lastNameTF.setEnabled(true);
                 initialsTF.setEnabled(true);
@@ -133,6 +115,24 @@ public class EditUserPanel extends EditPanelWithPhoto {
                     || usr.getUserId().intValue() == 1) {
                 adminPermCB.setEnabled(false);
             }
+        }
+    }
+
+    @Override
+    public void loadData() {
+        User usr = (User) getDbObject();
+        if (usr != null) {
+            User curUser = AIBclient.getCurrentUser();
+            idField.setText(usr.getUserId().toString());
+            firstNameTF.setText(usr.getFirstName());
+            lastNameTF.setText(usr.getLastName());
+            initialsTF.setText(usr.getInitials());
+            loginTF.setText(usr.getLogin());
+            passwdTF.setText(usr.getPasswd());
+            passwdPwdF.setText(usr.getPasswd());
+            imageData = (byte[]) usr.getPhoto();
+            adminPermCB.setSelected(usr.getIsAdmin() != null && usr.getIsAdmin() == 1);
+            setImage(imageData);
         }
     }
 

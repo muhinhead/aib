@@ -16,10 +16,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.print.PrinterException;
 import java.io.File;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
@@ -45,23 +42,21 @@ public abstract class EditPanelWithPhoto extends RecordEditPanel {
     private JPopupMenu picturePopMenu;
     protected byte[] imageData;
     private JEditorPane imagePanel;
-    private JButton loadPictureButton;
+//    private JButton loadPictureButton;
     private AbstractAction openImgAct;
     private AbstractAction printImgAct;
     private AbstractAction replaceImgAct;
     private AbstractAction saveImgAct;
     private AbstractAction delImgAct;
-    private boolean enablePictureControl = true;
+    protected boolean enablePictureControl;
 
     public EditPanelWithPhoto(DbObject dbObject) {
         super(dbObject);
+//        setEnabledPictureControl(true);
     }
 
     protected void setEnabledPictureControl(boolean enable) {
         enablePictureControl = enable;
-        if (loadPictureButton != null) {
-            loadPictureButton.setEnabled(enable);
-        }
         if (openImgAct != null) {
             openImgAct.setEnabled(enable);
         }
@@ -189,11 +184,12 @@ public abstract class EditPanelWithPhoto extends RecordEditPanel {
         picPanel.setVisible(false);
         picPanel.removeAll();
         JPanel insPanel = new JPanel();
+        JButton loadPictureButton;
         insPanel.add(loadPictureButton = getLoadPictureButton());
         picPanel.add(insPanel);
         picPanel.setVisible(true);
         currentPicture = null;
-        loadPictureButton.setEnabled(enablePictureControl);
+//        loadPictureButton.setEnabled(enablePictureControl);
     }
 
     protected void setImage(byte[] imageData) {
