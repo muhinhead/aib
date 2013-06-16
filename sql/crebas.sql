@@ -15,13 +15,14 @@ insert into dbversion (dbversion_id,version_id,version) values (1,1,'0.1');
 
 create table user
 (
-    user_id int not null auto_increment,
-    first_name varchar(32) not null,
-    last_name varchar(32) not null,
-    initials char(2) not null,
-    login varchar(32),
-    passwd varchar(32),
-    photo            mediumblob,
+    user_id 	int not null auto_increment,
+    first_name 	varchar(32) not null,
+    last_name 	varchar(32) not null,
+    initials 	char(2) not null,
+    login 	varchar(32),
+    passwd 	varchar(32),
+    is_admin 	bit default 0,
+    photo       mediumblob,
     constraint user_pk primary key (user_id)
 );
 
@@ -324,6 +325,29 @@ create table filter
     constraint filter_pk primary key (filter_id),
     constraint filter_user_fk foreign key (owner_id) references user (user_id)
 );
+
+create table reportform
+(
+    reportform_id  int not null auto_increment,
+    tablename      varchar(32) not null,
+    name           varchar(64) not null,
+    descr          text,
+    owner_id       int not null,
+    constraint reportform_pk primary key (reportform_id),
+    constraint reportform_user_fk foreign key (owner_id) references user (user_id)
+);
+
+create table reportformitem
+(   
+    reportformitem_id  int not null auto_increment,
+    reportform_id      int not null,
+    columnname         varchar(32) not null,
+    header             varchar(64) not null,
+    format             varchar(32),
+    constraint reportformitem_pk primary key (reportformitem_id),
+    constraint reportformitem_reportform_fk foreign key (reportform_id) references reportform (reportform_id) on delete cascade
+);
+
 
 delimiter |
 
