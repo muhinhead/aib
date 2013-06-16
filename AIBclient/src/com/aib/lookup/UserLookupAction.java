@@ -6,9 +6,8 @@ package com.aib.lookup;
 
 import com.aib.AIBclient;
 import com.aib.GeneralFrame;
-import com.aib.location.LocationsGrid;
 import com.aib.orm.dbobject.ComboItem;
-import com.aib.people.UserGrid;
+import com.aib.admin.UsersGrid;
 import java.awt.event.ActionEvent;
 import java.rmi.RemoteException;
 import javax.swing.AbstractAction;
@@ -32,7 +31,7 @@ public class UserLookupAction extends AbstractAction {
        try {
             ComboItem citm = (ComboItem) userCB.getSelectedItem();
             LookupDialog ld = new LookupDialog("User Lookup", userCB,
-                    new UserGrid(AIBclient.getExchanger()), new String[]{"first_name","last_name","initials", "login"});
+                    new UsersGrid(AIBclient.getExchanger()), new String[]{"first_name","last_name","initials", "login"});
         } catch (RemoteException ex) {
             GeneralFrame.errMessageBox("Error:", ex.getMessage());
         }

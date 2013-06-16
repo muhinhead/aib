@@ -49,7 +49,8 @@ public class PeopleGrid extends GeneralGridPanel {
     }
 
     public void filterOnLocationID(Integer locationID) {
-        setSelect(SELECT + " where location_id=" + (EditPeopleDialog.locationID = locationID));
+        setSelect(SELECT.replace("from people", "from people where location_id=" 
+                + (EditPeopleDialog.locationID = locationID)));
         refresh();
     }
 

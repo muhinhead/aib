@@ -7,7 +7,6 @@ package com.aib.admin;
 import com.aib.AIBclient;
 import com.aib.GeneralFrame;
 import com.aib.GeneralGridPanel;
-import com.aib.orm.People;
 import com.aib.orm.User;
 import com.aib.people.EditUserDialog;
 import com.aib.remote.IMessageSender;
@@ -20,7 +19,7 @@ import javax.swing.JOptionPane;
  *
  * @author Nick Mukhin
  */
-class UsersGrid extends GeneralGridPanel {
+public class UsersGrid extends GeneralGridPanel {
 
     public static final String SELECT = "select user_id \"Id\","
             + "first_name \"First name\", last_name \"Last name\", initials \"Initials\","

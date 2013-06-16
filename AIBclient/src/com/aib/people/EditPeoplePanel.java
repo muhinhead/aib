@@ -103,6 +103,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
     
     public EditPeoplePanel(DbObject dbObject) {
         super(dbObject);
+        setEnabledPictureControl(true);
     }
     
     @Override

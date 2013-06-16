@@ -91,6 +91,7 @@ class EditCompanyPanel extends EditPanelWithPhoto {
 
     public EditCompanyPanel(DbObject dbObject) {
         super(dbObject);
+        setEnabledPictureControl(true);
     }
 
     @Override
@@ -140,10 +141,6 @@ class EditCompanyPanel extends EditPanelWithPhoto {
                     new JButton(new EditAreaAction("...", physicAddressTA))
                 }),
                 new JPanel()
-//                getGridPanel(new JComponent[]{
-//                    new JLabel("Post Code:", SwingConstants.RIGHT),
-//                    postCodeTF = new JTextField()
-//                })
             }),
             getGridPanel(new JComponent[]{
                 getBorderPanel(new JComponent[]{

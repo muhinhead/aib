@@ -87,6 +87,7 @@ class EditLocationPanel extends EditPanelWithPhoto {
 
     public EditLocationPanel(DbObject dbObject) {
         super(dbObject);
+        setEnabledPictureControl(true);
     }
 
     @Override
@@ -206,7 +207,9 @@ class EditLocationPanel extends EditPanelWithPhoto {
         sp.setPreferredSize(new Dimension(400, 150));
         downTabs.add(sp, "Comments");
         try {
-            downTabs.add(peopleGrid = new PeopleGrid(AIBclient.getExchanger(),PeopleGrid.SELECT+" where location_id<0"), "People");
+            downTabs.add(peopleGrid = new PeopleGrid(
+                    AIBclient.getExchanger(),PeopleGrid.SELECT.replace(
+                    "from people ", "from people where location_id<0 ")), "People");
         } catch (RemoteException ex) {
             AIBclient.logAndShowMessage(ex);
         }
