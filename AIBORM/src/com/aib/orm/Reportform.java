@@ -8,38 +8,47 @@ import com.aib.orm.dbobject.Triggers;
 import java.sql.*;
 import java.util.ArrayList;
 
-public class Worldregion extends DbObject  {
+public class Reportform extends DbObject  {
     private static Triggers activeTriggers = null;
-    private Integer worldregionId = null;
+    private Integer reportformId = null;
+    private String tablename = null;
+    private String name = null;
     private String descr = null;
+    private Integer ownerId = null;
 
-    public Worldregion(Connection connection) {
-        super(connection, "worldregion", "worldregion_id");
-        setColumnNames(new String[]{"worldregion_id", "descr"});
+    public Reportform(Connection connection) {
+        super(connection, "reportform", "reportform_id");
+        setColumnNames(new String[]{"reportform_id", "tablename", "name", "descr", "owner_id"});
     }
 
-    public Worldregion(Connection connection, Integer worldregionId, String descr) {
-        super(connection, "worldregion", "worldregion_id");
-        setNew(worldregionId.intValue() <= 0);
-//        if (worldregionId.intValue() != 0) {
-            this.worldregionId = worldregionId;
+    public Reportform(Connection connection, Integer reportformId, String tablename, String name, String descr, Integer ownerId) {
+        super(connection, "reportform", "reportform_id");
+        setNew(reportformId.intValue() <= 0);
+//        if (reportformId.intValue() != 0) {
+            this.reportformId = reportformId;
 //        }
+        this.tablename = tablename;
+        this.name = name;
         this.descr = descr;
+        this.ownerId = ownerId;
     }
 
     public DbObject loadOnId(int id) throws SQLException, ForeignKeyViolationException {
-        Worldregion worldregion = null;
+        Reportform reportform = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        String stmt = "SELECT worldregion_id,descr FROM worldregion WHERE worldregion_id=" + id;
+        String stmt = "SELECT reportform_id,tablename,name,descr,owner_id FROM reportform WHERE reportform_id=" + id;
         try {
             ps = getConnection().prepareStatement(stmt);
             rs = ps.executeQuery();
             if (rs.next()) {
-                worldregion = new Worldregion(getConnection());
-                worldregion.setWorldregionId(new Integer(rs.getInt(1)));
-                worldregion.setDescr(rs.getString(2));
-                worldregion.setNew(false);
+                reportform = new Reportform(getConnection());
+                reportform.setReportformId(new Integer(rs.getInt(1)));
+                reportform.setTablename(rs.getString(2));
+                reportform.setName(rs.getString(3));
+                reportform.setDescr(rs.getString(4));
+                reportform.setOwnerId(new Integer(rs.getInt(5)));
+                reportform.setNew(false);
             }
         } finally {
             try {
@@ -48,7 +57,7 @@ public class Worldregion extends DbObject  {
                 if (ps != null) ps.close();
             }
         }
-        return worldregion;
+        return reportform;
     }
 
     protected void insert() throws SQLException, ForeignKeyViolationException {
@@ -57,26 +66,29 @@ public class Worldregion extends DbObject  {
          }
          PreparedStatement ps = null;
          String stmt =
-                "INSERT INTO worldregion ("+(getWorldregionId().intValue()!=0?"worldregion_id,":"")+"descr) values("+(getWorldregionId().intValue()!=0?"?,":"")+"?)";
+                "INSERT INTO reportform ("+(getReportformId().intValue()!=0?"reportform_id,":"")+"tablename,name,descr,owner_id) values("+(getReportformId().intValue()!=0?"?,":"")+"?,?,?,?)";
          try {
              ps = getConnection().prepareStatement(stmt);
              int n = 0;
-             if (getWorldregionId().intValue()!=0) {
-                 ps.setObject(++n, getWorldregionId());
+             if (getReportformId().intValue()!=0) {
+                 ps.setObject(++n, getReportformId());
              }
+             ps.setObject(++n, getTablename());
+             ps.setObject(++n, getName());
              ps.setObject(++n, getDescr());
+             ps.setObject(++n, getOwnerId());
              ps.execute();
          } finally {
              if (ps != null) ps.close();
          }
          ResultSet rs = null;
-         if (getWorldregionId().intValue()==0) {
-             stmt = "SELECT max(worldregion_id) FROM worldregion";
+         if (getReportformId().intValue()==0) {
+             stmt = "SELECT max(reportform_id) FROM reportform";
              try {
                  ps = getConnection().prepareStatement(stmt);
                  rs = ps.executeQuery();
                  if (rs.next()) {
-                     setWorldregionId(new Integer(rs.getInt(1)));
+                     setReportformId(new Integer(rs.getInt(1)));
                  }
              } finally {
                  try {
@@ -102,12 +114,15 @@ public class Worldregion extends DbObject  {
             }
             PreparedStatement ps = null;
             String stmt =
-                    "UPDATE worldregion " +
-                    "SET descr = ?" + 
-                    " WHERE worldregion_id = " + getWorldregionId();
+                    "UPDATE reportform " +
+                    "SET tablename = ?, name = ?, descr = ?, owner_id = ?" + 
+                    " WHERE reportform_id = " + getReportformId();
             try {
                 ps = getConnection().prepareStatement(stmt);
-                ps.setObject(1, getDescr());
+                ps.setObject(1, getTablename());
+                ps.setObject(2, getName());
+                ps.setObject(3, getDescr());
+                ps.setObject(4, getOwnerId());
                 ps.execute();
             } finally {
                 if (ps != null) ps.close();
@@ -120,37 +135,41 @@ public class Worldregion extends DbObject  {
     }
 
     public void delete() throws SQLException, ForeignKeyViolationException {
-        if (Country.exists(getConnection(),"worldregion_id = " + getWorldregionId())) {
-            throw new ForeignKeyViolationException("Can't delete, foreign key violation: country_worldregion_fk");
-        }
         if (getTriggers() != null) {
             getTriggers().beforeDelete(this);
         }
+        {// delete cascade from reportformitem
+            Reportformitem[] records = (Reportformitem[])Reportformitem.load(getConnection(),"reportform_id = " + getReportformId(),null);
+            for (int i = 0; i<records.length; i++) {
+                Reportformitem reportformitem = records[i];
+                reportformitem.delete();
+            }
+        }
         PreparedStatement ps = null;
         String stmt =
-                "DELETE FROM worldregion " +
-                "WHERE worldregion_id = " + getWorldregionId();
+                "DELETE FROM reportform " +
+                "WHERE reportform_id = " + getReportformId();
         try {
             ps = getConnection().prepareStatement(stmt);
             ps.execute();
         } finally {
             if (ps != null) ps.close();
         }
-        setWorldregionId(new Integer(-getWorldregionId().intValue()));
+        setReportformId(new Integer(-getReportformId().intValue()));
         if (getTriggers() != null) {
             getTriggers().afterDelete(this);
         }
     }
 
     public boolean isDeleted() {
-        return (getWorldregionId().intValue() < 0);
+        return (getReportformId().intValue() < 0);
     }
 
     public static DbObject[] load(Connection con,String whereCondition,String orderCondition) throws SQLException {
         ArrayList lst = new ArrayList();
         PreparedStatement ps = null;
         ResultSet rs = null;
-        String stmt = "SELECT worldregion_id,descr FROM worldregion " +
+        String stmt = "SELECT reportform_id,tablename,name,descr,owner_id FROM reportform " +
                 ((whereCondition != null && whereCondition.length() > 0) ?
                 " WHERE " + whereCondition : "") +
                 ((orderCondition != null && orderCondition.length() > 0) ?
@@ -160,7 +179,7 @@ public class Worldregion extends DbObject  {
             rs = ps.executeQuery();
             while (rs.next()) {
                 DbObject dbObj;
-                lst.add(dbObj=new Worldregion(con,new Integer(rs.getInt(1)),rs.getString(2)));
+                lst.add(dbObj=new Reportform(con,new Integer(rs.getInt(1)),rs.getString(2),rs.getString(3),rs.getString(4),new Integer(rs.getInt(5))));
                 dbObj.setNew(false);
             }
         } finally {
@@ -170,10 +189,10 @@ public class Worldregion extends DbObject  {
                 if (ps != null) ps.close();
             }
         }
-        Worldregion[] objects = new Worldregion[lst.size()];
+        Reportform[] objects = new Reportform[lst.size()];
         for (int i = 0; i < lst.size(); i++) {
-            Worldregion worldregion = (Worldregion) lst.get(i);
-            objects[i] = worldregion;
+            Reportform reportform = (Reportform) lst.get(i);
+            objects[i] = reportform;
         }
         return objects;
     }
@@ -185,7 +204,7 @@ public class Worldregion extends DbObject  {
         boolean ok = false;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        String stmt = "SELECT worldregion_id FROM worldregion " +
+        String stmt = "SELECT reportform_id FROM reportform " +
                 ((whereCondition != null && whereCondition.length() > 0) ?
                 "WHERE " + whereCondition : "");
         try {
@@ -203,27 +222,45 @@ public class Worldregion extends DbObject  {
     }
 
     //public String toString() {
-    //    return getWorldregionId() + getDelimiter();
+    //    return getReportformId() + getDelimiter();
     //}
 
     public Integer getPK_ID() {
-        return worldregionId;
+        return reportformId;
     }
 
     public void setPK_ID(Integer id) throws ForeignKeyViolationException {
         boolean prevIsNew = isNew();
-        setWorldregionId(id);
+        setReportformId(id);
         setNew(prevIsNew);
     }
 
-    public Integer getWorldregionId() {
-        return worldregionId;
+    public Integer getReportformId() {
+        return reportformId;
     }
 
-    public void setWorldregionId(Integer worldregionId) throws ForeignKeyViolationException {
-        setWasChanged(this.worldregionId != null && this.worldregionId != worldregionId);
-        this.worldregionId = worldregionId;
-        setNew(worldregionId.intValue() == 0);
+    public void setReportformId(Integer reportformId) throws ForeignKeyViolationException {
+        setWasChanged(this.reportformId != null && this.reportformId != reportformId);
+        this.reportformId = reportformId;
+        setNew(reportformId.intValue() == 0);
+    }
+
+    public String getTablename() {
+        return tablename;
+    }
+
+    public void setTablename(String tablename) throws SQLException, ForeignKeyViolationException {
+        setWasChanged(this.tablename != null && !this.tablename.equals(tablename));
+        this.tablename = tablename;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) throws SQLException, ForeignKeyViolationException {
+        setWasChanged(this.name != null && !this.name.equals(name));
+        this.name = name;
     }
 
     public String getDescr() {
@@ -234,10 +271,25 @@ public class Worldregion extends DbObject  {
         setWasChanged(this.descr != null && !this.descr.equals(descr));
         this.descr = descr;
     }
+
+    public Integer getOwnerId() {
+        return ownerId;
+    }
+
+    public void setOwnerId(Integer ownerId) throws SQLException, ForeignKeyViolationException {
+        if (ownerId!=null && !User.exists(getConnection(),"user_id = " + ownerId)) {
+            throw new ForeignKeyViolationException("Can't set owner_id, foreign key violation: reportform_user_fk");
+        }
+        setWasChanged(this.ownerId != null && !this.ownerId.equals(ownerId));
+        this.ownerId = ownerId;
+    }
     public Object[] getAsRow() {
-        Object[] columnValues = new Object[2];
-        columnValues[0] = getWorldregionId();
-        columnValues[1] = getDescr();
+        Object[] columnValues = new Object[5];
+        columnValues[0] = getReportformId();
+        columnValues[1] = getTablename();
+        columnValues[2] = getName();
+        columnValues[3] = getDescr();
+        columnValues[4] = getOwnerId();
         return columnValues;
     }
 
@@ -254,10 +306,17 @@ public class Worldregion extends DbObject  {
     public void fillFromString(String row) throws ForeignKeyViolationException, SQLException {
         String[] flds = splitStr(row, delimiter);
         try {
-            setWorldregionId(Integer.parseInt(flds[0]));
+            setReportformId(Integer.parseInt(flds[0]));
         } catch(NumberFormatException ne) {
-            setWorldregionId(null);
+            setReportformId(null);
         }
-        setDescr(flds[1]);
+        setTablename(flds[1]);
+        setName(flds[2]);
+        setDescr(flds[3]);
+        try {
+            setOwnerId(Integer.parseInt(flds[4]));
+        } catch(NumberFormatException ne) {
+            setOwnerId(null);
+        }
     }
 }
