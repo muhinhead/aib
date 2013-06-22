@@ -47,7 +47,8 @@ public class ConfigEditor extends PopupDialog {
         super(null, title, obj);
     }
 
-    protected Color getHederBackground() {
+    @Override
+    protected Color getHeaderBackground() {
         return AIBclient.HDR_COLOR;
     }
 

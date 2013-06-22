@@ -52,15 +52,25 @@ public class LocationsFrame extends FilteredListFrame {
     }
 
     @Override
+    protected ActionListener getPrintAction() {
+        return new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showOutputDialog("Location", locationPanel.getSelect());
+            }
+        };
+    }
+
+    @Override
     public void applyFilter(Filter flt) {
         if (flt != null) {
-            adjustFilterQuery(flt,"Links",        
+            adjustFilterQuery(flt, "Links",
                     "exists (select url from link,loclink where link.link_id=loclink.link_id "
                     + "and loclink.location_id=location.location_id and url");
-            adjustFilterQuery(flt,"Industries",
+            adjustFilterQuery(flt, "Industries",
                     "exists (select descr from industry,locindustry where industry.industry_id=locindustry.industry_id "
-                    + "and locindustry.location_id=location.location_id and descr");    
-            String newSelect = adjustSelect(flt,"from location ", LocationsGrid.SELECT);
+                    + "and locindustry.location_id=location.location_id and descr");
+            String newSelect = adjustSelect(flt, "from location ", LocationsGrid.SELECT);
             if (flt.getQuery() == null || flt.getQuery().trim().length() == 0) {
                 GeneralFrame.errMessageBox("Attention!", "The empty filter couldn't be applied");
             } else {

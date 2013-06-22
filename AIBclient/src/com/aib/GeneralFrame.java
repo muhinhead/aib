@@ -44,7 +44,7 @@ public abstract class GeneralFrame extends JFrame implements WindowListener {
     private ToolBarButton exitButton;
     private JToolBar toolBar;
     private ToolBarButton refreshButton;
-    private ToolBarButton printButton;
+    protected ToolBarButton printButton;
     private JToggleButton searchButton;
 //    private JToggleButton filterButton;
     private HashMap<GeneralGridPanel, String> grids = new HashMap<GeneralGridPanel, String>();
@@ -101,7 +101,7 @@ public abstract class GeneralFrame extends JFrame implements WindowListener {
         statusPanel.add(statusLabel2, BorderLayout.CENTER);
 
         printButton = new ToolBarButton("print.png");
-        printButton.setToolTipText("Print current tab");
+        printButton.setToolTipText("Data export");
         printButton.addActionListener(getPrintAction());
 
         searchButton = new JToggleButton(new ImageIcon(Util.loadImage("search.png")));
@@ -140,6 +140,7 @@ public abstract class GeneralFrame extends JFrame implements WindowListener {
         srcField.setMaximumSize(srcField.getPreferredSize());
 
         getToolBar().add(printButton);
+        addAfterPrint();
         getToolBar().add(refreshButton);
         getToolBar().add(aboutButton);
         getToolBar().add(exitButton);
@@ -489,5 +490,8 @@ public abstract class GeneralFrame extends JFrame implements WindowListener {
         newSelect = select.substring(0, p + from.length()) + (includeWhere ? " and " : " where ")
                 + flt.getQuery() + restOfStatement;
         return newSelect.replace(GeneralGridPanel.SELECTLIMIT, "");
+    }
+
+    protected void addAfterPrint() {
     }
 }

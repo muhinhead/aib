@@ -7,6 +7,7 @@ package com.aib;
 import com.aib.orm.Filter;
 import com.aib.orm.dbobject.ComboItem;
 import com.aib.remote.IMessageSender;
+import com.xlend.util.PopupDialog;
 import com.xlend.util.Util;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
@@ -26,6 +27,18 @@ import javax.swing.JToggleButton;
  */
 public abstract class FilteredListFrame extends GeneralFrame {
 
+//    private class OutputDialog extends PopupDialog {
+//
+//        OutputDialog() {
+//            super(FilteredListFrame.this,"Export data",null);
+//        }
+//                
+//        @Override
+//        public void freeResources() {
+//            
+//        }
+//        
+//    }
     protected JPanel filterPanel;
     protected JComboBox filtersCB;
     private JLabel filterLbl;
@@ -56,7 +69,7 @@ public abstract class FilteredListFrame extends GeneralFrame {
     public void reloadFilterComboBox() {
         filtersCB.setModel(new DefaultComboBoxModel(AIBclient.loadAllFilters(getMainTableName())));
     }
-    
+
     private ActionListener getShowFilterCBaction() {
         return new ActionListener() {
             @Override
@@ -102,6 +115,10 @@ public abstract class FilteredListFrame extends GeneralFrame {
         workTab.add(getListPanel(), sheetList[0]);
         workTab.add(getFilterPanel(), sheetList[1]);
         return workTab;
+    }
+
+    protected void showOutputDialog(String tableName, String select) {
+        new OutputDialog(this, new String[]{tableName, select});
     }
 
     protected abstract JPanel getListPanel();

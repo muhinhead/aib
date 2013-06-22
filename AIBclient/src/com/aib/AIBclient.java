@@ -43,7 +43,6 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 import java.util.prefs.Preferences;
 import javax.imageio.ImageIO;
-import javax.swing.ComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
@@ -57,7 +56,7 @@ import javax.swing.SpinnerNumberModel;
  */
 public class AIBclient {
 
-    private static final String version = "0.07";
+    private static final String version = "0.08";
 //    private static Userprofile currentUser;
     private static Logger logger = null;
     private static FileHandler fh;

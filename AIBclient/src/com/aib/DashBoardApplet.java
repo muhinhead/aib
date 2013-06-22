@@ -1,5 +1,6 @@
 package com.aib;
 
+import com.aib.people.PeopleFrame;
 import com.aib.admin.AdminsFrame;
 import com.aib.location.LocationsFrame;
 import com.aib.company.CompanyFrame;
