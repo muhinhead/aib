@@ -54,9 +54,7 @@ create table company
     logo          mediumblob                   comment 'Logotype',
     turnover      decimal(10.2)                comment 'Turnover/Year',
     address       varchar(512)                 comment 'Address',
-    postcode      varchar(128),
     mailaddress   varchar(512),
-    mailpostcode  varchar(128),
     country_id    int,
     main_phone    varchar(32),
     main_fax      varchar(32),
@@ -131,9 +129,7 @@ create table location
     name          varchar(256) not null,
     abbreviation  varchar(32),
     address       varchar(512),
-    postcode      varchar(128),
     mailaddress   varchar(512),
-    mailpostcode  varchar(128),
     country_id    int,
     main_phone    varchar(32),
     main_fax      varchar(32),
@@ -183,7 +179,6 @@ create table people
     department       varchar(128),
     spec_address     varchar(128),
     mailaddress      varchar(512),
-    mailpostcode     varchar(128),
     desk_phone       varchar(32),
     desk_fax         varchar(32),
     mobile_phone     varchar(32),
@@ -361,18 +356,18 @@ BEGIN
 END;
 |
 
-create function to_char(dt datetime, fmt varchar(32))
-returns varchar(32) deterministic
-begin
-   declare fmt char(32) default fmt;
-   set fmt = replace(fmt,'DD','%e');
-   set fmt = replace(fmt,'MM','%m');
-   set fmt = replace(fmt,'YYYY','%Y');
-   set fmt = replace(fmt,'YY','%y');
-   set fmt = replace(fmt,'HH24','%H');
-   set fmt = replace(fmt,'MI','%i');
-   set fmt = replace(fmt,'SS','%S');
-   return DATE_FORMAT(dt, fmt);
-end;
-|
+#-- create function to_char(dt datetime, fmt varchar(32))
+#-- returns varchar(32) deterministic
+#-- begin
+#--    declare fmt char(32) default fmt;
+#--    set fmt = replace(fmt,'DD','%e');
+#--    set fmt = replace(fmt,'MM','%m');
+#--    set fmt = replace(fmt,'YYYY','%Y');
+#--    set fmt = replace(fmt,'YY','%y');
+#--    set fmt = replace(fmt,'HH24','%H');
+#--    set fmt = replace(fmt,'MI','%i');
+#--    set fmt = replace(fmt,'SS','%S');
+#--    return DATE_FORMAT(dt, fmt);
+#-- end;
+#-- |
 delimiter ;
