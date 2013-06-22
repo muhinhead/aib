@@ -37,7 +37,7 @@ import javax.swing.UIManager;
  */
 public class AIBserver {
 
-    private static final String version = "0.07";
+    private static final String version = "0.08";
     public static final String PROPERTYFILENAME = "AIBserver.config";
     private static final String ICONNAME = "aib.png";
     private static Logger logger = null;
@@ -387,6 +387,13 @@ public class AIBserver {
                     showLog();
                 }
             });
+            MenuItem miSetup = new MenuItem("DB connection setup");
+            miSetup.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent ae) {
+                    showDbSetup();
+                }
+            });
 //            MenuItem miFix = new MenuItem("Recreate Site Diary tables");
 //            miFix.addActionListener(new ActionListener() {
 //
@@ -401,6 +408,7 @@ public class AIBserver {
 
             popup.add(miLog);
             popup.add(miAbout);
+            popup.add(miSetup);
 
 //            if (props.getProperty("dbDriverName", "org.hsqldb.jdbcDriver").equals("org.hsqldb.jdbcDriver")) {
 //                MenuItem miMigrate = new MenuItem("Migrate");
@@ -433,6 +441,10 @@ public class AIBserver {
 
     private static void showLog() {
         new LogViewDialog(getVersion(), DbConnection.DB_VERSION);
+    }
+
+    private static void showDbSetup() {
+        new DBconnectionSetupDialog(props);
     }
 
     public static void setWindowIcon(Window w, String iconName) {

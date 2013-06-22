@@ -42,10 +42,12 @@ public class LogViewDialog extends PopupDialog {
         AIBserver.setWindowIcon(this, "aib.png");
     }
 
-    protected Color getHederBackground() {
+    @Override
+    protected Color getHeaderBackground() {
         return AIBserver.unformColor;
     }
 
+    @Override
     protected void fillContent() {
         super.fillContent();
 //        String[] versions = (String[]) getObject();
