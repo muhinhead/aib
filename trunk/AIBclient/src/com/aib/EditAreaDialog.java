@@ -39,7 +39,7 @@ public class EditAreaDialog extends PopupDialog {
     }
 
     @Override
-    protected Color getHederBackground() {
+    protected Color getHeaderBackground() {
         return null;//AIBclient.HDR_COLOR;
     }
 

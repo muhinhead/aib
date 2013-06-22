@@ -29,7 +29,7 @@ public class ModalGridDialog extends PopupDialog {
     }
 
     @Override
-    protected Color getHederBackground() {
+    protected Color getHeaderBackground() {
         return AIBclient.HDR_COLOR;
     }
 

@@ -12,8 +12,6 @@ import com.aib.remote.IMessageSender;
 import java.awt.event.ActionEvent;
 import java.rmi.RemoteException;
 import java.util.HashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.JOptionPane;
 
@@ -24,8 +22,8 @@ import javax.swing.JOptionPane;
 public class PeopleCommentsGrid extends GeneralGridPanel {
 
     private static final String SELECT = "select n.peoplenote_id \"ID\","
-            + "to_char(n.note_date,'YYYY-MM-DD') \"Date\",concat(substr(n.comments,1,60),'...') \"Note\", "
-            + "to_char(n.lastedit_date,'YYYY-MM-DD HH24:MI') \"Last edited\", u.initials \"Editor\" "
+            + "DATE_FORMAT(n.note_date,'%Y-%m-%e') \"Date\",concat(substr(n.comments,1,60),'...') \"Note\", "
+            + "DATE_FORMAT(n.lastedit_date,'%Y-%m-%e %H:%i') \"Last edited\", u.initials \"Editor\" "
             + "from peoplenote n, user u where u.user_id=n.lastedited_by and n.people_id=# order by n.note_date desc";
     private static HashMap<Integer, Integer> maxWidths = new HashMap<Integer, Integer>();
 

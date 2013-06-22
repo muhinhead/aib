@@ -36,7 +36,7 @@ public class LookupDialog extends PopupDialog {
     }
 
     @Override
-    protected Color getHederBackground() {
+    protected Color getHeaderBackground() {
         return new Color(102, 125, 158);
     }
 

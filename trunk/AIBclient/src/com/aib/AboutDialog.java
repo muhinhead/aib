@@ -30,7 +30,7 @@ public class AboutDialog extends PopupDialog {
     }
 
     @Override
-    protected Color getHederBackground() {
+    protected Color getHeaderBackground() {
         return null;//new Color(102, 125, 158);
     }
 

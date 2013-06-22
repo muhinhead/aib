@@ -88,16 +88,16 @@ public class EditUserPanel extends EditPanelWithPhoto {
             }
         });
         organizePanels(titles, edits, null);
-        for (JComponent comp : new JComponent[]{
-            firstNameTF, lastNameTF, initialsTF, loginTF,
-            passwdTF, passwdPwdF, showPwdCB, adminPermCB}) {
-            if (comp != null) {
-                comp.setEnabled(false);
-            }
-        }
         User curUser = AIBclient.getCurrentUser();
         User usr = (User) getDbObject();
         if (usr != null) {
+            for (JComponent comp : new JComponent[]{
+                firstNameTF, lastNameTF, initialsTF, loginTF,
+                passwdTF, passwdPwdF, showPwdCB, adminPermCB}) {
+                if (comp != null) {
+                    comp.setEnabled(false);
+                }
+            }
             Integer isCurrentAdmin = curUser.getIsAdmin();
             if (isCurrentAdmin.intValue() == 1
                     || curUser.getUserId().intValue() == usr.getUserId().intValue()) {

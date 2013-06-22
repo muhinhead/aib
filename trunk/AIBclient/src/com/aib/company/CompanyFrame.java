@@ -29,6 +29,8 @@ public class CompanyFrame extends FilteredListFrame {
         "List", "Filter"
     };
     private CompaniesGrid companiesPanel;
+//    private JLabel outLbl;
+//    private JComboBox outTemplatesCB;
 
     public CompanyFrame(IMessageSender exch) {
         super("Companies", exch);
@@ -56,25 +58,35 @@ public class CompanyFrame extends FilteredListFrame {
     }
 
     @Override
+    protected ActionListener getPrintAction() {
+        return new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                showOutputDialog("Company", companiesPanel.getSelect());
+            }
+        };
+    }
+
+    @Override
     public void applyFilter(Filter flt) {
         if (flt != null) {
             final String FROM_COMP = "from company ";
             String newSelect;
             int p = CompaniesGrid.SELECT.indexOf(FROM_COMP);
             if (flt.getIsComplex() != null && flt.getIsComplex().intValue() == 1) {
-                adjustFilterQuery(flt,"Links",
+                adjustFilterQuery(flt, "Links",
                         "exists (select url from link,complink where link.link_id=complink.link_id "
                         + "and complink.company_id=company.company_id and url");
-                adjustFilterQuery(flt,"Industries",
-                    "exists (select descr from industry,compindustry where industry.industry_id=compindustry.industry_id "
-                    + "and compindustry.company_id=company.company_id and descr");         
-                newSelect = adjustSelect(flt,FROM_COMP, CompaniesGrid.SELECT);
+                adjustFilterQuery(flt, "Industries",
+                        "exists (select descr from industry,compindustry where industry.industry_id=compindustry.industry_id "
+                        + "and compindustry.company_id=company.company_id and descr");
+                newSelect = adjustSelect(flt, FROM_COMP, CompaniesGrid.SELECT);
             } else {
                 newSelect = CompaniesGrid.SELECT.substring(0, p + FROM_COMP.length())
-                        + ",people,peoplecompany pc "
-                        + "where pc.company_id=company.company_id "
-                        + "and pc.people_id=people.people_id "
-                        + "and (" + flt.getQuery().replaceAll("==", "=") + ")";
+                        + "left join peoplecompany pc on "
+                        + "company.company_id=pc.company_id "
+                        + "left join people on people.people_id=pc.people_id "
+                        + "where (" + flt.getQuery().replaceAll("==", "=") + ")";
             }
             if (flt.getQuery() == null || flt.getQuery().trim().length() == 0) {
                 GeneralFrame.errMessageBox("Attention!", "The empty filter couldn't be applied");
