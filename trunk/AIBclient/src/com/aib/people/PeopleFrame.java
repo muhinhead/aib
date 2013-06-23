@@ -67,10 +67,13 @@ public class PeopleFrame extends FilteredListFrame {
             adjustFilterQuery(flt, "Links",
                     "exists (select url from link,peoplelink where link.link_id=peoplelink.link_id "
                     + "and peoplelink.people_id=people.people_id and url");
-            String newSelect = adjustFilterQuery(flt, "Industries",
+            adjustFilterQuery(flt, "Industries",
                     "exists (select descr from industry,peopleindustry where industry.industry_id=peopleindustry.industry_id "
                     + "and peopleindustry.people_id=people.people_id and descr");
-            newSelect = adjustSelect(flt, "from people ", PeopleGrid.SELECT);
+            adjustFilterQuery(flt, "Awards", 
+                    "exists (select award from aibaward,peopleaward where aibaward.aibaward_id=peopleaward.aibaward_id "
+                    + "and peopleaward.people_id=people.people_id and award");
+            String newSelect = adjustSelect(flt, "from people ", PeopleGrid.SELECT);
             if (flt.getQuery() == null || flt.getQuery().trim().length() == 0) {
                 GeneralFrame.errMessageBox("Attention!", "The empty filter couldn't be applied");
             } else {

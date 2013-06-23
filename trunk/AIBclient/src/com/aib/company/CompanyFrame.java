@@ -80,6 +80,9 @@ public class CompanyFrame extends FilteredListFrame {
                 adjustFilterQuery(flt, "Industries",
                         "exists (select descr from industry,compindustry where industry.industry_id=compindustry.industry_id "
                         + "and compindustry.company_id=company.company_id and descr");
+                adjustFilterQuery(flt, "Mentions",
+                        "exists (select publication from aibpublic,comppublic where aibpublic.aibpublic_id=comppublic.aibpublic_id "
+                        + "and comppublic.company_id=company.company_id and publication");
                 newSelect = adjustSelect(flt, FROM_COMP, CompaniesGrid.SELECT);
             } else {
                 newSelect = CompaniesGrid.SELECT.substring(0, p + FROM_COMP.length())
