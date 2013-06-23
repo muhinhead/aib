@@ -46,6 +46,8 @@ public class CompanyFilterPanel extends AbstractFilterPanel {
         colNamesTypes.put("Links",java.sql.Types.VARCHAR);
         colNames.add("Industries");
         colNamesTypes.put("Industries", Types.VARCHAR);   
+        colNames.add("Mentions");
+        colNamesTypes.put("Mentions", Types.VARCHAR);   
     }
 
     @Override
