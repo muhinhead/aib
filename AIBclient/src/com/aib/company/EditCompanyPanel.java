@@ -10,10 +10,13 @@ import com.aib.EditAreaAction;
 import com.aib.EditPanelWithPhoto;
 import com.aib.GeneralGridPanel;
 import com.aib.MyJideTabbedPane;
+import static com.aib.RecordEditPanel.comboPanelWithLookupBtn;
+import static com.aib.RecordEditPanel.getGridPanel;
 import com.aib.lookup.ListInTextFieldDialog;
 //import static com.aib.RecordEditPanel.getBorderPanel;
 //import static com.aib.RecordEditPanel.getGridPanel;
 import com.aib.location.CompLocationsGrid;
+import com.aib.lookup.CompanyLookupAction;
 import com.aib.lookup.PublicationsListInTextFieldDialog;
 import com.aib.lookup.WorldRegionLookupAction;
 import com.aib.orm.Company;
@@ -75,6 +78,8 @@ class EditCompanyPanel extends EditPanelWithPhoto {
     private JTextField lastEditorTF;
     private SelectedDateSpinner lastEditedSP;
     private JTextArea commentsTA;
+    private JComboBox parentCompanyCB;
+    private DefaultComboBoxModel parentCompanyCbModel;
 
     private class RegionsLookupAction extends WorldRegionLookupAction {
 
@@ -99,7 +104,7 @@ class EditCompanyPanel extends EditPanelWithPhoto {
         String titles[] = new String[]{
             "ID:",
             "Full Company Name:",//           "Abbreviation:", 
-            "Dummy Company:",
+            "Dummy Company:", // "Parent Company:"
             "Links:",
             "Industry:",
             "Turnover/Year:",
@@ -111,11 +116,10 @@ class EditCompanyPanel extends EditPanelWithPhoto {
             "AIB mentions:",
             "Last verified:" //"Last editor:" //"Last edited:
         };
-        regionWorldCbModel = new DefaultComboBoxModel();
+        regionWorldCbModel = new DefaultComboBoxModel(AIBclient.loadAllRegions());
         countryCbModel = new DefaultComboBoxModel();
-        for (ComboItem ci : AIBclient.loadAllRegions()) {
-            regionWorldCbModel.addElement(ci);
-        }
+        parentCompanyCbModel = new DefaultComboBoxModel(AIBclient.loadAllCompanies());
+
         JScrollPane sp1;
         JScrollPane sp2;
         JComponent[] edits = new JComponent[]{
@@ -124,10 +128,17 @@ class EditCompanyPanel extends EditPanelWithPhoto {
                 fullCompanyNameTF = new JTextField(),
                 getGridPanel(new JComponent[]{
                     new JLabel("Abbreviation:", SwingConstants.RIGHT),
-                    abbreviationTF = new JTextField()
+                    abbreviationTF = new JTextField(5)
                 })
             }),
-            getGridPanel(isDummyCB = new JCheckBox(), 6),
+            getBorderPanel(new JComponent[]{
+                getGridPanel(new JComponent[]{
+                    isDummyCB = new JCheckBox(),
+                    new JLabel("Parent Company:", SwingConstants.RIGHT)
+                }),
+                comboPanelWithLookupBtn(parentCompanyCB = new JComboBox(parentCompanyCbModel),
+                    new CompanyLookupAction(parentCompanyCB, true))
+            }),
             getBorderPanel(new JComponent[]{null, linksListTF = new JTextField(),
                 new JButton(getLinkListAction("..."))}),
             getBorderPanel(new JComponent[]{null, industriesListTF = new JTextField(),
@@ -210,13 +221,13 @@ class EditCompanyPanel extends EditPanelWithPhoto {
             Company comp = (Company) getDbObject();
             Integer compID = comp == null ? new Integer(0) : comp.getCompanyId();
             downTabs.add(new CompLocationsGrid(AIBclient.getExchanger(), compID), "Company Locations");
-            downTabs.add(new PeopleGrid(AIBclient.getExchanger(),PeopleGrid.SELECT.replace(GeneralGridPanel.SELECTLIMIT, "")
-                    +" where people_id in (select people_id from peoplecompany where company_id="+compID+")"), "People");
+            downTabs.add(new PeopleGrid(AIBclient.getExchanger(), PeopleGrid.SELECT.replace(GeneralGridPanel.SELECTLIMIT, "")
+                    + " where people_id in (select people_id from peoplecompany where company_id=" + compID + ")"), "People");
         } catch (RemoteException ex) {
             AIBclient.logAndShowMessage(ex);
         }
-        
-        
+
+
         downTabs.setPreferredSize(new Dimension(downTabs.getPreferredSize().width, 200));
         add(downTabs);
     }

@@ -56,7 +56,7 @@ import javax.swing.SpinnerNumberModel;
  */
 public class AIBclient {
 
-    private static final String version = "0.08";
+    private static final String version = "0.10";
 //    private static Userprofile currentUser;
     private static Logger logger = null;
     private static FileHandler fh;
@@ -331,7 +331,8 @@ public class AIBclient {
 
     public static ComboItem[] loadAllCompanies() {
         return loadOnSelect(exchanger,
-                "select company_id,concat(abbreviation,' (',full_name,')') "
+                "select company_id,substr(full_name,60) "
+//                + "substr(concat(abbreviation,' (',full_name,')'),1,60) "
                 + "from company order by abbreviation");
     }
 
@@ -500,13 +501,15 @@ public class AIBclient {
     }
 
     public static Integer getRegionOnCountry(Integer countryId) {
-        try {
-            Country country = (Country) getExchanger().loadDbObjectOnID(Country.class, countryId);
-            return country.getWorldregionId();
-        } catch (RemoteException ex) {
-            log(ex);
+        if (countryId != null) {
+            try {
+                Country country = (Country) getExchanger().loadDbObjectOnID(Country.class, countryId);
+                return country.getWorldregionId();
+            } catch (RemoteException ex) {
+                log(ex);
+            }
         }
-        return null;
+        return new Integer(0);
     }
 
     public static void savePeopleCompany(Integer peopleID, String abbreviation) {
@@ -985,7 +988,12 @@ public class AIBclient {
     public static List loadDistinctTitles() {
         List ans = loadStringsOnSelect(getExchanger(),
                 "select distinct title from people order by title", "");
-//        ans.add("");
+        return ans;
+    }
+
+    public static List loadDistinctSources() {
+        List ans = loadStringsOnSelect(getExchanger(),
+                "select distinct source from people order by source", "");
         return ans;
     }
 

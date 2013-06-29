@@ -251,6 +251,7 @@ public class CompanyFilterPanel extends AbstractFilterPanel {
                 for (Component comp : comps) {
                     String str = comp.toString();
                     if (comp instanceof ColumnFilterComponent && str.length() > 0) {
+                        str = comp.toString();
                         sb.append(sb.length() > 0 ? " AND " : "").append(str);
                     }
                 }

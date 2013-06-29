@@ -136,7 +136,7 @@ public abstract class AbstractFilterPanel extends JPanel implements IFilterPanel
         } catch (RemoteException ex) {
             AIBclient.logAndShowMessage(ex);
         }
-
+        split.setDividerLocation(400);
         cfg.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Saved filters"));
         cfg.setPreferredSize(new Dimension(300, 200));
         split.setMinimumSize(new Dimension(split.getPreferredSize().width, 200));

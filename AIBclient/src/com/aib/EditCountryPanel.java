@@ -49,9 +49,9 @@ class EditCountryPanel extends RecordEditPanel {
             getGridPanel(shortNameTF = new JTextField(2), 6)
         };
         idField.setEnabled(false);
-        if (EditCountryDialog.regionID != null && EditCountryDialog.regionID.intValue() > 0) {
-            regionWorldCb.setEnabled(false);
-        }
+//        if (EditCountryDialog.regionID != null && EditCountryDialog.regionID.intValue() > 0) {
+//            regionWorldCb.setEnabled(false);
+//        }
         organizePanels(titles, edits, null);
     }
 

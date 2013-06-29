@@ -20,10 +20,12 @@ import javax.swing.JComboBox;
 public class CompanyLookupAction extends AbstractAction {
 
     private final JComboBox companyCB;
+    private final boolean readOnly;
 
-    public CompanyLookupAction(JComboBox cb) {
+    public CompanyLookupAction(JComboBox cb, boolean readOnly) {
         super("...");
         this.companyCB = cb;
+        this.readOnly = readOnly;
     }
 
     @Override
@@ -35,7 +37,7 @@ public class CompanyLookupAction extends AbstractAction {
                     + "main_phone \"Main phone\",main_fax \"Main fax\" "
                     + "from company";
             LookupDialog ld = new LookupDialog("Company Lookup", companyCB,
-                    new CompaniesGrid(AIBclient.getExchanger(), select),
+                    new CompaniesGrid(AIBclient.getExchanger(), select, readOnly),
                     new String[]{"abbreviation", "full_name", "main_phone", "main_fax"});
         } catch (RemoteException ex) {
             GeneralFrame.errMessageBox("Error:", ex.getMessage());

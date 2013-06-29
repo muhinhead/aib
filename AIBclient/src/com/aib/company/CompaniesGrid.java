@@ -41,7 +41,11 @@ public class CompaniesGrid extends GeneralGridPanel {
     public CompaniesGrid(IMessageSender exchanger, String select) throws RemoteException {
         super(exchanger, select, maxWidths, false);
     }
-
+    
+    public CompaniesGrid(IMessageSender exchanger, String select, boolean readOnly) throws RemoteException {
+        super(exchanger, select, maxWidths, readOnly);
+    }
+    
     @Override
     protected AbstractAction addAction() {
         return new AbstractAction("Add") {

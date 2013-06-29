@@ -76,7 +76,6 @@ public class ColumnFilterComponent extends FilterComponent {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-//        sb.append(columnName).append(" ").append(operatorCB.getSelectedItem());
         if (operatorCB.getSelectedItem().equals(BETWEEN_STR)) {
             sb.append(columnName).append(" ").append(operatorCB.getSelectedItem());
             sb.append(" '").append(fromValueTF.getText()).append("' And '").append(toValueTF.getText()).append("'");
@@ -84,7 +83,11 @@ public class ColumnFilterComponent extends FilterComponent {
             sb.append(columnName).append(" ").append(operatorCB.getSelectedItem());
         } else if (abbreviationCB != null && !abbreviationCB.getSelectedItem().equals("")) {
             sb.append(columnName).append(" ").append(operatorCB.getSelectedItem());
-            sb.append(" '").append(abbreviationCB.getSelectedItem()).append("'");;
+            if (operatorCB.getSelectedItem().equals(IN)) {
+                sb.append(" ('").append(((String)abbreviationCB.getSelectedItem()).replaceAll(",", "','")).append("')");
+            } else {
+                sb.append(" '").append(abbreviationCB.getSelectedItem()).append("'");
+            };
         } else if (titleCB != null && !titleCB.getSelectedItem().equals("")) {
             sb.append(columnName).append(" ").append(operatorCB.getSelectedItem());
             sb.append(" '").append(titleCB.getSelectedItem()).append("'");
@@ -269,9 +272,9 @@ public class ColumnFilterComponent extends FilterComponent {
                     operatorCB.setSelectedItem(BETWEEN_STR);
                     val = extract(exp.substring(BETWEEN_STR.length() + 1), "'", "' And");
                     val2 = extract(exp.substring(BETWEEN_STR.length() + 1), "And '", "'");
-                } else if (exp.startsWith(IS_NOT_NULL + " ")) {
+                } else if (exp.startsWith(IS_NOT_NULL)) {
                     operatorCB.setSelectedItem(IS_NOT_NULL);
-                } else if (exp.startsWith(IS_NULL + " ")) {
+                } else if (exp.startsWith(IS_NULL)) {
                     operatorCB.setSelectedItem(IS_NULL);
                 }
                 setVals(val, val2);
