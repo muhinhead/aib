@@ -120,7 +120,8 @@ class EditLocationPanel extends EditPanelWithPhoto {
 //        }
         JComponent[] edits = new JComponent[]{
             getGridPanel(idField = new JTextField(), 6),
-            comboPanelWithLookupBtn(companyCB = new JComboBox(companyCbModel), compLookupAction = new CompanyLookupAction(companyCB)),
+            comboPanelWithLookupBtn(companyCB = new JComboBox(companyCbModel), 
+                compLookupAction = new CompanyLookupAction(companyCB, false)),
             getGridPanel(new JComponent[]{
                 locationNameTF = new JTextField(),
                 getGridPanel(new JComponent[]{

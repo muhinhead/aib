@@ -58,6 +58,8 @@ class EditPeoplePanel extends EditPanelWithPhoto {
     
     private JTextField idField;
     private Java2sAutoComboBox titleCB;
+    private Java2sAutoComboBox sourceCB;
+    private JTextField sourceTF;
     private JTextField firstNameTF;
     private JTextField familyName;
     private Java2sAutoComboBox suffixCB;
@@ -109,7 +111,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
     @Override
     protected void fillContent() {
         String titles[] = new String[]{
-            "ID:",//"Title:",
+            "ID:",//"Source:",
             "First Name:", //"Family Name:", 
             "Title:",//"Suffix:", //"Greeting:",
             "Companies:",//"Location:"
@@ -137,7 +139,13 @@ class EditPeoplePanel extends EditPanelWithPhoto {
         JLabel paEmailLBL;
         JLabel alterEmailLBL;
         JComponent[] edits = new JComponent[]{
-            getGridPanel(idField = new JTextField(), 6),
+            getGridPanel(new JComponent[]{
+                getGridPanel(idField = new JTextField(), 5),
+                getGridPanel(new JComponent[]{
+                    new JLabel("Source:",SwingConstants.RIGHT), 
+                    sourceCB=new Java2sAutoComboBox(AIBclient.loadDistinctSources())
+                })
+            }),
             getGridPanel(new JComponent[]{
                 getBorderPanel(new JComponent[]{null, firstNameTF = new JTextField(16)}),
                 getBorderPanel(new JComponent[]{new JLabel("Family Name:", SwingConstants.RIGHT),
@@ -279,11 +287,11 @@ class EditPeoplePanel extends EditPanelWithPhoto {
         sourceBookCB.setHorizontalTextPosition(SwingConstants.LEFT);
         
         sp1.setPreferredSize(new Dimension(sp1.getPreferredSize().width, idField.getPreferredSize().height));
-//        salesContactCB.setPreferredSize(new Dimension(salesContactCB.getPreferredSize().width, idField.getPreferredSize().height));
         idField.setEnabled(false);
         mailingAddressTA.setEditable(false);
         
-        for (Java2sAutoComboBox cb : new Java2sAutoComboBox[]{jobDisciplineCB, departmentCB, titleCB, greetingCB, suffixCB}) {
+        for (Java2sAutoComboBox cb : new Java2sAutoComboBox[]{
+            jobDisciplineCB, sourceCB, departmentCB, titleCB, greetingCB, suffixCB}) {
             cb.setEditable(true);
             cb.setStrict(false);
         }
@@ -345,6 +353,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
         People person = (People) getDbObject();
         if (person != null) {
             idField.setText(person.getPeopleId().toString());
+            sourceCB.setSelectedItem(person.getSource());
             titleCB.setSelectedItem(person.getTitle());
             firstNameTF.setText(person.getFirstName());
             familyName.setText(person.getLastName());
@@ -413,6 +422,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             isNew = true;
         }
         person.setTitle((String) titleCB.getSelectedItem());
+        person.setSource((String) sourceCB.getSelectedItem());
         person.setFirstName(firstNameTF.getText());
         person.setLastName(familyName.getText());
         person.setLocationId(getSelectedCbItem(locationCB));

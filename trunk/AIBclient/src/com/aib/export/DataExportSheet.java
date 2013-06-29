@@ -52,11 +52,11 @@ public class DataExportSheet extends PopupDialog {
     @Override
     protected void fillContent() {
         super.fillContent();
-        final String tmpHtmlName = System.getProperty("user.home") + "/$tmp.html";
+        final String tmpHtmlName = System.getProperty("user.home").replace("\\","/") + "/$tmp.html";
         Object[] params = (Object[]) getObject();
         generateOutputHTML(tmpHtmlName, (Integer) params[0], (String) params[1]);
         HTMLapplet.SHOWURL = false;
-        HTMLapplet browser = new HTMLapplet("file://" + tmpHtmlName);
+        HTMLapplet browser = new HTMLapplet("file:///" + tmpHtmlName);
         browser.init();
         getContentPane().add(browser, BorderLayout.CENTER);
         JPanel btnPanel = new JPanel(new FlowLayout());
@@ -166,10 +166,10 @@ public class DataExportSheet extends PopupDialog {
         return "unknown table";
     }
 
-    private static void saveImage(String fname, byte[] imageData) {
-        File fout = new File(System.getProperty("user.home") + "/" + fname);
-        Util.writeFile(fout, imageData);
-    }
+//    private static void saveImage(String fname, byte[] imageData) {
+//        File fout = new File(System.getProperty("user.home") + "/" + fname);
+//        Util.writeFile(fout, imageData);
+//    }
 
     private void generateOutputHTML(String tmpHtmlName, Integer tmpID, String select) {
         StringBuffer sb = new StringBuffer(select);
@@ -300,6 +300,9 @@ public class DataExportSheet extends PopupDialog {
                 } else if (itm.getColumnname().equals("country_id")) {
                     colsList.append("(select shortname from country where country_id="
                             + outerTable + ".country_id) as \"Country\"");
+                } else if (itm.getColumnname().equals("lastedited_by")) {
+                    colsList.append("(select initials from user where user_id="
+                            + outerTable + ".lastedited_by) as \"Edited By\"");
                 } else {
                     colsList.append(itm.getColumnname())
                             .append(itm.getHeader() != null ? " as \"" + itm.getHeader() + "\"" : "");
