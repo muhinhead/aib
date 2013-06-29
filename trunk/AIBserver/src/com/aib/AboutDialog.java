@@ -28,7 +28,7 @@ public class AboutDialog extends PopupDialog {
         AIBserver.setWindowIcon(this, "aib.png");
     }
 
-    protected Color getHederBackground() {
+    protected Color getHeaderBackground() {
         return null;//new Color(102, 125, 158);
     }
 
