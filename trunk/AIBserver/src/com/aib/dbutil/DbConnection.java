@@ -97,7 +97,11 @@ public class DbConnection {
         "alter table country add status bit default 1",
         "alter table company add parent_id int null",
         "alter table company add constraint company_company_fk foreign key (parent_id) references company (company_id)",
-        "alter table people add source varchar(50)"
+        "alter table people add source varchar(50)",
+        "alter table people modify greeting varchar(32) null",
+        "alter table people modify desk_phone varchar(80) null",
+        "alter table people modify desk_fax varchar(80) null",
+        "alter table people modify job_discip varchar(150) null"
     };
 
     public static String getLogin() {
