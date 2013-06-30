@@ -1,0 +1,27 @@
+use aibcontact1;
+delete from peopleaward;          
+delete from peoplecompany;        
+delete from peopleindustry;       
+delete from peopleinterest;       
+delete from peoplelink;           
+delete from peopleloc;            
+delete from peoplenote;           
+delete from peopleproduct;        
+delete from locindustry;          
+delete from loclink;              
+delete from complink;             
+delete from comppublic;           
+delete from aibaward;             
+delete from compindustry;         
+delete from aibpublic;             
+delete from departmenthistory;    
+delete from people;               
+delete from location;             
+delete from company;              
+delete from country;              
+delete from industry;             
+delete from link;                 
+delete from product;              
+delete from `user` where user_id > 1;  
+delete from worldregion;
+        
