@@ -32,6 +32,9 @@ create table worldregion
 (
     worldregion_id int not null auto_increment,
     descr          varchar(64),
+    post_price     decimal(6,2),
+    post_status    int,
+    post_number    int,
     constraint worldregion_pk primary key (worldregion_id)
 );
 
@@ -40,7 +43,8 @@ create table country
     country_id     int not null auto_increment,
     country        varchar(128),
     shortname      varchar(4),
-    worldregion_id int not null, 
+    worldregion_id int not null,
+    status         bit default 1,
     constraint country_pk primary key (country_id),
     constraint country_worldregion_fk foreign key (worldregion_id) references worldregion (worldregion_id)
 );
@@ -62,11 +66,13 @@ create table company
     renewal_date  date,
     verify_date   date,
     comments      text,
+    parent_id     int,
     lastedited_by int,
     lastedit_date datetime,
     constraint company_pk primary key (company_id),
     constraint company_country_fk foreign key (country_id) references country (country_id),
-    constraint company_user_fk foreign key (lastedited_by) references user (user_id)
+    constraint company_user_fk foreign key (lastedited_by) references user (user_id),
+    constraint company_company_fk foreign key (parent_id) references company (company_id)
 );
 
 create unique index company_abbreviation_uniq on company (abbreviation);
@@ -167,20 +173,21 @@ create table loclink
 create table people 
 (
     people_id        int not null auto_increment,
+    source           varchar(50),
     title            varchar(16),
     first_name       varchar(32),
     last_name        varchar(32) not null,
     suffix           varchar(16),
-    greeting         varchar(16),
+    greeting         varchar(32),
     location_id      int,
     photo            mediumblob,
     level            varchar(64),
-    job_discip       varchar(64),
+    job_discip       varchar(150),
     department       varchar(128),
     spec_address     varchar(128),
     mailaddress      varchar(512),
-    desk_phone       varchar(32),
-    desk_fax         varchar(32),
+    desk_phone       varchar(80),
+    desk_fax         varchar(80),
     mobile_phone     varchar(32),
     main_email       varchar(64),
     alter_email      varchar(64),
