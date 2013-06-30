@@ -1,9 +1,11 @@
 use aibcontact1;
 
 delete from aibcontact1.company;
+delete from aibcontact1.people;            
 delete from aibcontact1.worldregion;
 delete from aibcontact1.country;
-    
+delete from aibcontact1.peoplenote;
+
 
 insert into aibcontact1.worldregion (worldregion_id,descr,post_price,post_status,post_number) 
 select post_id,post_name,post_price,post_status,post_number 
@@ -44,13 +46,58 @@ insert into aibcontact1.company (
                                             where contact_org=organisations.org_id 
                                              and exists (select country_name from countries where country_name=contacts.country) order by contact_id limit 1)),
                     (select ifnull(tel,mobile)
-                        from contacts 
-                       where contact_org=org_id and not ifnull(tel,mobile) is null
-                    order by contact_id limit 1),
-                     (select fax 
-                        from contacts 
-                       where contact_org=org_id and not fax is null
-                    order by contact_id limit 1)
+                              from contacts 
+                             where contact_org=org_id and not ifnull(tel,mobile) is null
+                          order by contact_id limit 1),
+                    (select fax 
+                              from contacts 
+                             where contact_org=org_id and not fax is null
+                          order by contact_id limit 1)
                from organisations;
                
-               
+insert into aibcontact1.people (people_id,
+                                title,
+                                first_name,
+                                last_name,
+                                suffix,
+                                greeting,
+                                job_discip,
+                                department,
+                                mailaddress,
+                                desk_phone,
+                                desk_fax,
+                                mobile_phone,
+                                main_email,
+                                other_contacts)
+             select contact_id,
+                    contact_title,
+                    contact_first_name,
+                    contact_last_name,
+                    contact_suffix,
+                    contact_greeting,
+                    contact_position,
+                    `Sub organisation`,
+                    concat(ifnull(Address_1,''),'\n ',ifnull(Address_2,''),'\n ',ifnull(Town_code_1,''),'\n',ifnull(Town_code_2,'')),
+                    ifnull(Tel,(select group_concat(pf_value) from contactfeatures where pf_contact_id=contacts.contact_id and pf_feature_id in(8,10))),
+                    ifnull(Fax,Fax_gen),
+                    Mobile,
+                    ifnull(Email,(select group_concat(pf_value) from contactfeatures where pf_contact_id=contacts.contact_id and pf_feature_id in(11,13))),
+                    ifnull(Web,(select group_concat(pf_value) from contactfeatures where pf_contact_id=contacts.contact_id and pf_feature_id=12))
+               from contacts;
+
+insert into aibcontact1.peoplenote (peoplenote_id,
+                                    people_id,
+                                    comments,
+                                    note_date,
+                                    lastedit_date,lastedited_by)
+             select note_id,
+                    note_contact_id,
+                    note_text,
+                    note_added,
+                    note_updated,
+                    1
+               from notes 
+              where exists (select people_id from aibcontact1.people where people_id=note_contact_id);
+              
+              
+                    
