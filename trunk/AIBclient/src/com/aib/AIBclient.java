@@ -972,7 +972,7 @@ public class AIBclient {
 
     public static List loadDistinctJobDisciplines() {
         List ans = loadStringsOnSelect(getExchanger(),
-                "select distinct job_discip from people order by job_discip", "");
+                "select distinct substr(job_discip,1,32) from people order by job_discip", "");
 //        ans.add("");
         return ans;
     }
