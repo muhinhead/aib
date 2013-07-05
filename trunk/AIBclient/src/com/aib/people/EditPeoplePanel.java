@@ -354,7 +354,6 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             suffixCB.setSelectedItem(person.getSuffix());
             greetingCB.setSelectedItem(person.getGreeting());
             jobDisciplineCB.setSelectedItem(person.getJobDiscip());
-//            locationCB.setSelectedIndex(person.getLocationId());
             selectComboItem(locationCB, person.getLocationId());
             selectComboItem(salesContactCB, person.getSalesContactId());
             departmentCB.setSelectedItem(person.getDepartment());
@@ -364,7 +363,6 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             companiesListTF.setText(AIBclient.getCompaniesOnPeopleID(person.getPeopleId()));
             specAddressTF.setText(person.getSpecAddress());
             mailingAddressTA.setText(person.getMailaddress());
-//            mailingPostCodeTF.setText(person.getMailpostcode());
             deskPhoneTF.setText(person.getDeskPhone());
             deskFaxTF.setText(person.getDeskFax());
             mobilePhoneTF.setText(person.getMobilePhone());
@@ -378,7 +376,6 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             marketingIntelDistCB.setSelected(person.getIsMarketintl() != null && person.getIsMarketintl() == 1);
             mediaBriefingDistCB.setSelected(person.getIsMediabrief() != null && person.getIsMediabrief() == 1);
             sourceBookCB.setSelected(person.getIsInsourcebook() != null && person.getIsInsourcebook() == 1);
-//            commentsTA.setText(person.getComments());
             nextActionTA.setText(person.getNextAction());
             extUserNameTF.setText(person.getExternalUser());
             extPassworTF.setText(person.getExternalPasswd());
