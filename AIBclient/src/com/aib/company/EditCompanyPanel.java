@@ -12,6 +12,8 @@ import com.aib.GeneralGridPanel;
 import com.aib.MyJideTabbedPane;
 import static com.aib.RecordEditPanel.comboPanelWithLookupBtn;
 import static com.aib.RecordEditPanel.getGridPanel;
+import static com.aib.RecordEditPanel.getSelectedCbItem;
+import static com.aib.RecordEditPanel.selectComboItem;
 import com.aib.lookup.ListInTextFieldDialog;
 //import static com.aib.RecordEditPanel.getBorderPanel;
 //import static com.aib.RecordEditPanel.getGridPanel;
@@ -255,6 +257,7 @@ class EditCompanyPanel extends EditPanelWithPhoto {
             mainPhoneTF.setText(comp.getMainPhone());
             mainFaxTF.setText(comp.getMainFax());
             membershipLevelCB.setSelectedIndex(comp.getMemberLevel() != null ? comp.getMemberLevel().intValue() - 1 : 1);
+            selectComboItem(parentCompanyCB,comp.getParentId());
             if (comp.getLasteditDate() != null) {
                 Timestamp t = comp.getLasteditDate();
                 lastVerifiedDateSP.setValue(new java.util.Date(t.getTime()));
@@ -304,7 +307,7 @@ class EditCompanyPanel extends EditPanelWithPhoto {
         comp.setLasteditDate(new java.sql.Timestamp(dt.getTime()));
         comp.setLogo(imageData);
         comp.setComments(commentsTA.getText());
-
+        comp.setParentId(getSelectedCbItem(parentCompanyCB));
         boolean ok = saveDbRecord(comp, isNew);
         if (ok) {
             comp = (Company) getDbObject();
