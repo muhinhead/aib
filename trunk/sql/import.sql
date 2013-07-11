@@ -1,5 +1,6 @@
 use aibcontact1;
 
+delete from aibcontact1.peoplecompany;
 delete from aibcontact1.company;
 delete from aibcontact1.people;            
 delete from aibcontact1.worldregion;
@@ -12,10 +13,13 @@ select post_id,post_name,post_price,post_status,post_number
   from aibcontact.postage 
  where not exists (select worldregion_id from worldregion where worldregion_id=post_id);
  
+insert into worldregion values (0,'unknown',0,1,0);
+update worldregion set worldregion_id=0 where descr='unknown';
+ 
 insert into aibcontact1.country (country_id,country,shortname,worldregion_id,status) 
 select country_id,country_name,country_code,country_post_id,country_status 
   from aibcontact.countries 
- where not exists (select country_id from country where country_id=countries.country_id);
+ where not exists (select country_id from aibcontact1.country where country_id=countries.country_id);
  
 insert into aibcontact1.company (
                      company_id, 
@@ -39,20 +43,21 @@ insert into aibcontact1.company (
                     ), 
                     if(ifnull(org_status,0)>0,0,1), 
                     (select concat(ifnull(Address_1,''),'\n ',ifnull(Address_2,''),'\n ',ifnull(Town_code_1,''),'\n',ifnull(Town_code_2,''))
-                      from contacts where contact_org=org_id order by contact_id limit 1),
+                      from contacts 
+                     where contact_org=org_id order by contact_id limit 1),
                     (select country_id
                         from countries 
                        where country_name=(select country from contacts 
                                             where contact_org=organisations.org_id 
                                              and exists (select country_name from countries where country_name=contacts.country) order by contact_id limit 1)),
                     (select ifnull(tel,mobile)
-                              from contacts 
-                             where contact_org=org_id and not ifnull(tel,mobile) is null
-                          order by contact_id limit 1),
+                       from contacts 
+                      where contact_org=org_id and not ifnull(tel,mobile) is null
+                   order by contact_id limit 1),
                     (select fax 
-                              from contacts 
-                             where contact_org=org_id and not fax is null
-                          order by contact_id limit 1)
+                       from contacts 
+                      where contact_org=org_id and not fax is null
+                   order by contact_id limit 1)
                from organisations;
                
 insert into aibcontact1.people (people_id,
@@ -102,5 +107,6 @@ insert into aibcontact1.peoplenote (peoplenote_id,
                from notes 
               where exists (select people_id from aibcontact1.people where people_id=note_contact_id);
               
-              
+insert into aibcontact1.peoplecompany (people_id,company_id)
+select contact_id, contact_org from contacts where exists (select org_id from organisations where org_id=contact_org); 
                     

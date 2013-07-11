@@ -10,7 +10,7 @@ create table dbversion
     constraint dbversion_pk primary key (dbversion_id)
 );
 
-insert into dbversion (dbversion_id,version_id,version) values (1,1,'0.1');
+insert into dbversion (dbversion_id,version_id,version) values (1,2,'0.2');
 
 
 create table user
@@ -26,7 +26,7 @@ create table user
     constraint user_pk primary key (user_id)
 );
 
-insert into user values(1,'Admin','Adminson','AA','admin','admin');
+insert into user (user_id,first_name,last_name,initials,login,passwd) values(1,'Admin','Adminson','AA','admin','admin');
 
 create table worldregion 
 (
