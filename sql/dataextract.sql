@@ -1,8 +1,8 @@
 SET group_concat_max_len = 4096;
 
-drop temporary table if exists extract_tmp;
+drop table if exists extract_tmp;
 
-create temporary table extract_tmp as
+create table extract_tmp as
 select c.contact_id,
        t.title_name,
        c.contact_first_name,
