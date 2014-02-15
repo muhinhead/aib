@@ -189,6 +189,7 @@ create table people
     department       varchar(128),
     spec_address     varchar(128),
     mailaddress      varchar(512),
+    mailpostcode     varchar(16),
     desk_phone       varchar(80),
     desk_fax         varchar(80),
     mobile_phone     varchar(32),
