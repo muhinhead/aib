@@ -1,4 +1,4 @@
-use aibcontact1;
+#-- use aibcontact1;
 delete from peopleaward;          
 delete from peoplecompany;        
 delete from peopleindustry;       

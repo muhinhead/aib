@@ -1,6 +1,6 @@
-create database if not exists aibcontact1 default character set=utf8 default collate=utf8_general_ci;
-
-use aibcontact1;
+#-- create database if not exists aibcontact1 default character set=utf8 default collate=utf8_general_ci;
+#-- 
+#-- use aibcontact1;
 
 create table dbversion
 (
@@ -52,17 +52,19 @@ create table country
 create table company 
 (
     company_id    int not null auto_increment,
-    full_name     varchar(512) not null	comment 'Full company name',
-    is_dummy      bit default 0                comment 'Is dummy company?',
-    abbreviation  varchar(64) not null         comment 'Abbreviation',
-    logo          mediumblob                   comment 'Logotype',
-    turnover      decimal(10.2)                comment 'Turnover/Year',
-    address       varchar(512)                 comment 'Address',
+    full_name     varchar(512) not null,
+    is_dummy      bit default 0        ,
+    abbreviation  varchar(64) not null ,
+    logo          mediumblob           ,
+    turnover      decimal(10.2)        ,
+    address       varchar(512)         ,
+    post_code     varchar(16),
     mailaddress   varchar(512),
+    mailing_post_code varchar(16),
     country_id    int,
     main_phone    varchar(32),
     main_fax      varchar(32),
-    member_level  int,          -- ?
+    member_level  int,          
     renewal_date  date,
     verify_date   date,
     comments      text,
@@ -75,7 +77,6 @@ create table company
     constraint company_company_fk foreign key (parent_id) references company (company_id)
 );
 
-create unique index company_abbreviation_uniq on company (abbreviation);
 
 create table link 
 (
@@ -135,13 +136,15 @@ create table location
     name          varchar(256) not null,
     abbreviation  varchar(32),
     address       varchar(512),
+    postcode      varchar(32),
     mailaddress   varchar(512),
+    mailpostcode  varchar(32),
     country_id    int,
     main_phone    varchar(32),
     main_fax      varchar(32),
     logo          mediumblob,
     comments      text,
-    company_id    int not null,
+    company_id    int,
     lastedited_by int,
     lastedit_date datetime,
     constraint location_pk primary key (location_id),
@@ -191,7 +194,7 @@ create table people
     mobile_phone     varchar(32),
     main_email       varchar(64),
     alter_email      varchar(64),
-    pa               varchar(128), #--?
+    pa               varchar(128),
     pa_phone         varchar(32),
     pa_email         varchar(64),
     other_contacts   varchar(512),
@@ -208,6 +211,8 @@ create table people
     external_passwd  varchar(32),
     lastedited_by    int,
     lastedit_date    datetime,
+    is_invoice_cntct bit default 0,
+    is_digital_chnl  bit default 0,
     constraint people_pk primary key (people_id),
     constraint people_location_fk foreign key (location_id) references location (location_id),
     constraint people_user_fk foreign key (lastedited_by) references user (user_id),
@@ -256,7 +261,7 @@ create table peopleproduct
 );
 
 create table peopleinterest
-( #-- purchase interest
+( 
     peopleinterest_id int not null auto_increment,
     purchase_date     date,
     people_id         int not null,
