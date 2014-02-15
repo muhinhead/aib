@@ -56,7 +56,7 @@ import javax.swing.SpinnerNumberModel;
  */
 public class AIBclient {
 
-    private static final String version = "0.11";
+    private static final String version = "0.12";
 //    private static Userprofile currentUser;
     private static Logger logger = null;
     private static FileHandler fh;
@@ -331,10 +331,11 @@ public class AIBclient {
 
     public static ComboItem[] loadAllCompanies() {
         return loadOnSelect(exchanger,
-                "select company_id,"
+                "select 0 as company_id, '--no parent--' as fullname union "
+                + "select company_id,"
                 + "substr(full_name,1,60) "
 //                + "substr(concat(abbreviation,' (',full_name,')'),1,60) "
-                + "from company order by abbreviation");
+                + "from company ");
     }
 
     public static void reloadLocations() {
