@@ -62,6 +62,8 @@ public class EditAreaDialog extends PopupDialog {
         JScrollPane sp = new JScrollPane(textArea = new JTextArea(tf.getText()),
                 JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
                 JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+        textArea.setWrapStyleWord(true);
+        textArea.setLineWrap(true);
         sp.setPreferredSize(new Dimension(tf.getWidth(), 200));
         add(sp, BorderLayout.CENTER);
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));

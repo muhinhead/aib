@@ -238,6 +238,9 @@ public class AdminsFrame extends GeneralFrame {
             JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED), 2),
             new JPanel()
         }));
+        descrArea.setWrapStyleWord(true);
+        descrArea.setLineWrap(true);
+
         tmpNamePanel.setBorder(BorderFactory.createEmptyBorder(10, 0, 0, 0));
         descrlbl.setPreferredSize(tmplbl.getPreferredSize());
         repEditorPanel.add(upperPanel, BorderLayout.NORTH);

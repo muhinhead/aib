@@ -71,7 +71,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
     private JTextField specAddressTF;
     private JScrollPane sp1;
     private JTextArea mailingAddressTA;
-//    private JTextField mailingPostCodeTF;
+    private JTextField mailingPostCodeTF;
     private JTextField deskPhoneTF;
     private JTextField deskFaxTF;
     private JTextField mobilePhoneTF;
@@ -171,7 +171,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
                     new JButton(getLinkListAction("..."))
                 }),
                 getBorderPanel(new JComponent[]{
-                    new JLabel("Job discipline:", SwingConstants.RIGHT),
+                    new JLabel("Job title:", SwingConstants.RIGHT),
                     jobDisciplineCB = new Java2sAutoComboBox(AIBclient.loadDistinctJobDisciplines())
                 })
             }),
@@ -191,11 +191,11 @@ class EditPeoplePanel extends EditPanelWithPhoto {
                     JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER),
                     new JButton(new EditAreaAction("...", mailingAddressTA))
                 }),
-                new JPanel()
-//                getGridPanel(new JComponent[]{
-//                    new JLabel("Post Code:", SwingConstants.RIGHT),
-//                    mailingPostCodeTF = new JTextField()
-//                })
+//                new JPanel()
+                getGridPanel(new JComponent[]{
+                    new JLabel("Post Code:", SwingConstants.RIGHT),
+                    mailingPostCodeTF = new JTextField()
+                })
             }),
             getGridPanel(new JComponent[]{
                 getGridPanel(new JComponent[]{
@@ -273,6 +273,10 @@ class EditPeoplePanel extends EditPanelWithPhoto {
                 })
             })
         };
+        mailingAddressTA.setWrapStyleWord(true);
+        mailingAddressTA.setLineWrap(true);
+//        nextActionTA.setWrapStyleWord(true);
+//        nextActionTA.setLineWrap(true);
 
         primaryContactCB.setHorizontalTextPosition(SwingConstants.LEFT);
         channelSubscriberCB.setHorizontalTextPosition(SwingConstants.LEFT);
@@ -363,6 +367,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             companiesListTF.setText(AIBclient.getCompaniesOnPeopleID(person.getPeopleId()));
             specAddressTF.setText(person.getSpecAddress());
             mailingAddressTA.setText(person.getMailaddress());
+            mailingPostCodeTF.setText(person.getMailpostcode());
             deskPhoneTF.setText(person.getDeskPhone());
             deskFaxTF.setText(person.getDeskFax());
             mobilePhoneTF.setText(person.getMobilePhone());
@@ -425,6 +430,8 @@ class EditPeoplePanel extends EditPanelWithPhoto {
         person.setDeskFax(deskFaxTF.getText());
         person.setMobilePhone(mobilePhoneTF.getText());
         person.setMainEmail(mainEmailTF.getText());
+        person.setMailaddress(mailingAddressTA.getText());
+        person.setMailpostcode(mailingPostCodeTF.getText());
         person.setAlterEmail(alterEmailTF.getText());
         person.setPa(paTF.getText());
         person.setPaEmail(paEmailTF.getText());

@@ -56,10 +56,10 @@ class EditLocationPanel extends EditPanelWithPhoto {
     private JTextField abbreviationTF;
     private JScrollPane sp1;
     private JTextArea physicAddressTA;
-//    private JTextField postCodeTF;
+    private JTextField postCodeTF;
     private JScrollPane sp2;
     private JTextArea mailingAddressTA;
-//    private JTextField mailingPostCodeTF;
+    private JTextField mailingPostCodeTF;
     private JComboBox regionWorldCb;
     private JComboBox countryCB;
     private JTextField mainPhoneTF;
@@ -140,11 +140,11 @@ class EditLocationPanel extends EditPanelWithPhoto {
                     JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER),
                     new JButton(new EditAreaAction("...", physicAddressTA))
                 }),
-                new JPanel()
-//                getGridPanel(new JComponent[]{
-//                    new JLabel("Post Code:", SwingConstants.RIGHT),
-//                    postCodeTF = new JTextField()
-//                })
+//                new JPanel()
+                getGridPanel(new JComponent[]{
+                    new JLabel("Post Code:", SwingConstants.RIGHT),
+                    postCodeTF = new JTextField()
+                })
             }),
             getGridPanel(new JComponent[]{
                 getBorderPanel(new JComponent[]{
@@ -153,11 +153,11 @@ class EditLocationPanel extends EditPanelWithPhoto {
                     JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER),
                     new JButton(new EditAreaAction("...", mailingAddressTA))
                 }),
-                new JPanel()
-//                getGridPanel(new JComponent[]{
-//                    new JLabel("Mailing Post Code:", SwingConstants.RIGHT),
-//                    mailingPostCodeTF = new JTextField()
-//                })
+//                new JPanel()
+                getGridPanel(new JComponent[]{
+                    new JLabel("Mailing Post Code:", SwingConstants.RIGHT),
+                    mailingPostCodeTF = new JTextField()
+                })
             }),
             getGridPanel(new JComponent[]{
                 comboPanelWithLookupBtn(regionWorldCb = new JComboBox(regionWorldCbModel),
@@ -177,6 +177,11 @@ class EditLocationPanel extends EditPanelWithPhoto {
                 })
             })
         };
+        physicAddressTA.setWrapStyleWord(true);
+        physicAddressTA.setLineWrap(true);
+        mailingAddressTA.setWrapStyleWord(true);
+        mailingAddressTA.setLineWrap(true);
+
         sp1.setPreferredSize(new Dimension(sp1.getPreferredSize().width, idField.getPreferredSize().height));
         sp2.setPreferredSize(sp1.getPreferredSize());
         idField.setEnabled(false);
@@ -228,9 +233,9 @@ class EditLocationPanel extends EditPanelWithPhoto {
             linksListTF.setText(AIBclient.getLinkListOnLocationID(loc.getLocationId()));
             industriesListTF.setText(AIBclient.getIndustryListOnLocationID(loc.getLocationId()));
             physicAddressTA.setText(loc.getAddress());
-//            postCodeTF.setText(loc.getPostcode());
+            postCodeTF.setText(loc.getPostcode());
             mailingAddressTA.setText(loc.getMailaddress());
-//            mailingPostCodeTF.setText(loc.getMailpostcode());
+            mailingPostCodeTF.setText(loc.getMailpostcode());
             commentsTA.setText(loc.getComments());
             selectComboItem(companyCB, loc.getCompanyId());
             selectComboItem(countryCB, loc.getCountryId());

@@ -70,6 +70,8 @@ class EditPeopleNotePanel extends RecordEditPanel {
         organizePanels(titles, edits, null);
         JScrollPane spComments = new JScrollPane(
                 commentsTA = new JTextArea(), JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        commentsTA.setWrapStyleWord(true);
+        commentsTA.setLineWrap(true);
         spComments.setBorder(BorderFactory.createTitledBorder(BorderFactory.createEtchedBorder(), "Comments"));
         spComments.setPreferredSize(new Dimension(400, 200));
         add(spComments, BorderLayout.CENTER);

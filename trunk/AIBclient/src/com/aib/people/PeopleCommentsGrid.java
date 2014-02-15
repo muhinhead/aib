@@ -23,8 +23,9 @@ public class PeopleCommentsGrid extends GeneralGridPanel {
 
     private static final String SELECT = "select n.peoplenote_id \"ID\","
             + "DATE_FORMAT(n.note_date,'%Y-%m-%e') \"Date\",concat(substr(n.comments,1,60),'...') \"Note\", "
-            + "DATE_FORMAT(n.lastedit_date,'%Y-%m-%e %H:%i') \"Last edited\", u.initials \"Editor\" "
-            + "from peoplenote n, user u where u.user_id=n.lastedited_by and n.people_id=# order by n.note_date desc";
+            + "DATE_FORMAT(n.lastedit_date,'%Y-%m-%e %H:%i') \"Last edited\", "
+            + "(Select initials from user where user_id=n.lastedited_by) \"Editor\" "
+            + "from peoplenote n where n.people_id=# order by n.note_date desc";
     private static HashMap<Integer, Integer> maxWidths = new HashMap<Integer, Integer>();
 
     static {
