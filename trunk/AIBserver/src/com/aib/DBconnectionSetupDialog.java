@@ -11,6 +11,8 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.sql.Connection;
@@ -127,6 +129,18 @@ class DBconnectionSetupDialog extends PopupDialog {
 
     private JPanel getMainPanel() {
         Properties props = (Properties) getObject();
+            File propFile = new File(AIBserver.PROPERTYFILENAME);
+            try {
+                if (propFile.exists()) {
+                    props.load(new FileInputStream(propFile));
+//                    DbConnection.setProps(props);
+                    System.out.println("Properties loaded from " + AIBserver.PROPERTYFILENAME);
+                }
+                System.out.println("\nPress Ctrl+C to interrupt");
+            } catch (IOException ioe) {
+                AIBserver.log(ioe);
+            }
+        
         final int ROWS = 5;
         JPanel mainPanel = new JPanel(new BorderLayout());
         JPanel labelPanel = new JPanel(new GridLayout(ROWS, 1, 5, 5));
