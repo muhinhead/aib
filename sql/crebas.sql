@@ -26,7 +26,7 @@ create table user
     constraint user_pk primary key (user_id)
 );
 
-insert into user (user_id,first_name,last_name,initials,login,passwd) values(1,'Admin','Adminson','AA','admin','admin');
+insert into user (user_id,first_name,last_name,initials,login,passwd,is_admin) values(1,'Admin','Adminson','AA','admin','admin',1);
 
 create table worldregion 
 (
@@ -64,7 +64,7 @@ create table company
     country_id    int,
     main_phone    varchar(32),
     main_fax      varchar(32),
-    member_level  int,          
+    member_level  varchar(32),          
     renewal_date  date,
     verify_date   date,
     comments      text,
