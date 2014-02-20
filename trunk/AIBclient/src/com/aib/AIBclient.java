@@ -22,6 +22,7 @@ import com.aib.orm.User;
 import com.aib.orm.dbobject.ComboItem;
 import com.aib.orm.dbobject.DbObject;
 import com.aib.remote.IMessageSender;
+import com.aib.rmi.ExchangeFactory;
 import com.jidesoft.plaf.LookAndFeelFactory;
 import com.xlend.util.SelectedDateSpinner;
 import java.awt.Color;
@@ -46,6 +47,7 @@ import javax.imageio.ImageIO;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
+import javax.swing.JPasswordField;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
@@ -69,6 +71,8 @@ public class AIBclient {
     private static ComboItem[] locationsDictionary;
     public static final Color HDR_COLOR = new Color(102, 125, 158);
     private static List prospLevelList;
+    public static String protocol = "unknown";
+    public static final String defaultServerIP = "localhost";
 
     /**
      * @param args the command line arguments
@@ -79,8 +83,19 @@ public class AIBclient {
         String serverIP = readProperty("ServerAddress", "localhost");
         while (true) {
             try {
-                exchanger = (IMessageSender) Naming.lookup("rmi://" + serverIP + "/AIBserver");
-                if (login(exchanger)) {
+                IMessageSender exc = ExchangeFactory.getExchanger("rmi://" + serverIP + "/AIBServer", getProperties());
+                if (exc == null) {
+                    exc = ExchangeFactory.getExchanger(readProperty("JDBCconnection", "jdbc:mysql://"
+                            + defaultServerIP
+                            + "/aibclient"),
+                            getProperties());
+                }
+                if (exc == null) {
+                    configureConnection();
+                } else {
+                    setExchanger(exc);
+                }
+                if (getExchanger() != null && matchVersions() && login(getExchanger())) {
                     new DashBoard("AIBclient", exchanger);
                     break;
                 } else {
@@ -95,6 +110,49 @@ public class AIBclient {
                 }
             }
         }
+    }
+
+    public static void configureConnection() {
+        String cnctStr = serverSetup("Options");
+        if (cnctStr != null) {
+            try {
+                if (ConfigEditor.getProtocol().equals("rmi")) {
+                    getProperties().setProperty("ServerAddress", cnctStr);
+                    setExchanger(ExchangeFactory.createRMIexchanger(cnctStr));
+                } else {
+                    String[] dbParams = cnctStr.split(";");
+                    setExchanger(ExchangeFactory.createJDBCexchanger(dbParams));
+                }
+                saveProperties();
+            } catch (Exception ex) {
+                logAndShowMessage(ex);
+                System.exit(1);
+            }
+        }
+    }
+    
+    private static String removeTail(String s) {
+        int p = s.lastIndexOf(".");
+        if (p > 0 && s.length() > p + 1) {
+            if ("0123456789".indexOf(s.substring(p + 1, p + 2)) < 0) {
+                return s.substring(0, p);
+            }
+        }
+        return s;
+    }
+
+    private static boolean matchVersions() {
+        try {
+            String servVersion = getExchanger().getServerVersion();
+            boolean match = removeTail(servVersion).equals(removeTail(version));
+            if (!match) {
+                GeneralFrame.errMessageBox("Error:", "Client's software version (" + version + ") doesn't match server (" + servVersion + ")");
+            }
+            return match;
+        } catch (RemoteException ex) {
+            logAndShowMessage(ex);
+        }
+        return false;
     }
 
     public static void logAndShowMessage(Throwable ne) {
@@ -210,23 +268,66 @@ public class AIBclient {
     }
 
     public static String serverSetup(String title) {
-        String address = readProperty("ServerAddress", "localhost");
+        String cnctStr = null;
+        String address = readProperty("ServerAddress", defaultServerIP);
         String[] vals = address.split(":");
         JTextField imageDirField = new JTextField(getProperties().getProperty("imagedir"));
         JTextField addressField = new JTextField(16);
         addressField.setText(vals[0]);
         JSpinner portSpinner = new JSpinner(new SpinnerNumberModel(
                 vals.length > 1 ? new Integer(vals[1]) : 1099, 0, 65536, 1));
-        JComponent[] edits = new JComponent[]{imageDirField, addressField, portSpinner};
+        JTextField dbConnectionField = new JTextField(getProperties()
+                .getProperty("JDBCconnection", "jdbc:mysql://"
+                + defaultServerIP
+                + "/aibcontact"));
+        JTextField dbDriverField = new JTextField(getProperties()
+                .getProperty("dbDriverName", "com.mysql.jdbc.Driver"));
+        JTextField dbUserField = new JTextField(getProperties()
+                .getProperty("dbUser", "root"));
+        JPasswordField dbPasswordField = new JPasswordField();
+
+        JComponent[] edits = new JComponent[]{
+            imageDirField, addressField, portSpinner,
+            dbConnectionField, dbDriverField, dbUserField, dbPasswordField
+        };
         new ConfigEditor(title, edits);
-        if (addressField.getText().trim().length() > 0) {
-            String addr = addressField.getText() + ":" + portSpinner.getValue();
-            getProperties().setProperty("ServerAddress", addr);
-            getProperties().setProperty("imagedir", imageDirField.getText());
-            return addr;
-        } else {
-            return null;
+        if (ConfigEditor.getProtocol().equals("rmi")) {
+            if (addressField.getText().trim().length() > 0) {
+                cnctStr = addressField.getText() + ":" + portSpinner.getValue();
+                getProperties().setProperty("ServerAddress", cnctStr);
+                getProperties().setProperty("imagedir", imageDirField.getText());
+            }
+        } else if (ConfigEditor.getProtocol().equals("jdbc")) {
+            if (dbConnectionField.getText().trim().length() > 0) {
+                cnctStr = dbDriverField.getText() + ";"
+                        + dbConnectionField.getText() + ";"
+                        + dbUserField.getText() + ";"
+                        + new String(dbPasswordField.getPassword());
+                getProperties().setProperty("JDBCconnection", dbConnectionField.getText());
+                getProperties().setProperty("dbDriverName", dbDriverField.getText());
+                getProperties().setProperty("dbUser", dbUserField.getText());
+                getProperties().setProperty("dbPassword", new String(dbPasswordField.getPassword()));
+            }
         }
+        return cnctStr;
+
+//        String address = readProperty("ServerAddress", "localhost");
+//        String[] vals = address.split(":");
+//        JTextField imageDirField = new JTextField(getProperties().getProperty("imagedir"));
+//        JTextField addressField = new JTextField(16);
+//        addressField.setText(vals[0]);
+//        JSpinner portSpinner = new JSpinner(new SpinnerNumberModel(
+//                vals.length > 1 ? new Integer(vals[1]) : 1099, 0, 65536, 1));
+//        JComponent[] edits = new JComponent[]{imageDirField, addressField, portSpinner};
+//        new ConfigEditor(title, edits);
+//        if (addressField.getText().trim().length() > 0) {
+//            String addr = addressField.getText() + ":" + portSpinner.getValue();
+//            getProperties().setProperty("ServerAddress", addr);
+//            getProperties().setProperty("imagedir", imageDirField.getText());
+//            return addr;
+//        } else {
+//            return null;
+//        }
     }
 
     /**
@@ -331,18 +432,18 @@ public class AIBclient {
 
     public static ComboItem[] loadAllCompanies() {
         return loadOnSelect(exchanger,
-                "select 0 as company_id, '--no parent--' as fullname union "
+                "select 0 as company_id, '--uknnown--' as fullname union "
                 + "select company_id,"
                 + "substr(full_name,1,60) "
-//                + "substr(concat(abbreviation,' (',full_name,')'),1,60) "
+                //                + "substr(concat(abbreviation,' (',full_name,')'),1,60) "
                 + "from company ");
     }
 
     public static void reloadLocations() {
         locationsDictionary = loadOnSelect(exchanger,
-                "select location_id, concat(l.name,' (',c.abbreviation,')') "
-                + "from location l, company c where c.company_id=l.company_id "
-                + "order by c.abbreviation,l.name");
+                "select location_id, concat(l.name,' (',ifnull((Select abbreviation from company where company_id=l.company_id),''),')') "
+                + "from location l "
+                + "order by l.name");
     }
 
     public static ComboItem[] loadAllLocations() {

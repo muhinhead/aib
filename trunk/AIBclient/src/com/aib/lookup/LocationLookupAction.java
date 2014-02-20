@@ -32,8 +32,9 @@ public class LocationLookupAction extends AbstractAction {
             ComboItem citm = (ComboItem) locationCB.getSelectedItem();
             LookupDialog ld = new LookupDialog("Location Lookup", locationCB,
                     new LocationsGrid(AIBclient.getExchanger(), 
-                    "select location_id \"Id\",name \"Location\",c.abbreviation \"Company\" "
-                    + "from location l, company c where c.company_id=l.company_id order by c.abbreviation,name"
+                    "select location_id \"Id\",name \"Location\","
+                    + "(Select abbreviation from company where company_id=l.company_id) \"Company\" "
+                    + "from location l order by name"
                     ), new String[]{"name","c.abbreviation"});
         } catch (RemoteException ex) {
             GeneralFrame.errMessageBox("Error:", ex.getMessage());

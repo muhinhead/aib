@@ -120,8 +120,8 @@ class EditLocationPanel extends EditPanelWithPhoto {
 //        }
         JComponent[] edits = new JComponent[]{
             getGridPanel(idField = new JTextField(), 6),
-            comboPanelWithLookupBtn(companyCB = new JComboBox(companyCbModel), 
-                compLookupAction = new CompanyLookupAction(companyCB, false)),
+            comboPanelWithLookupBtn(companyCB = new JComboBox(companyCbModel),
+            compLookupAction = new CompanyLookupAction(companyCB, false)),
             getGridPanel(new JComponent[]{
                 locationNameTF = new JTextField(),
                 getGridPanel(new JComponent[]{
@@ -140,7 +140,7 @@ class EditLocationPanel extends EditPanelWithPhoto {
                     JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER),
                     new JButton(new EditAreaAction("...", physicAddressTA))
                 }),
-//                new JPanel()
+                //                new JPanel()
                 getGridPanel(new JComponent[]{
                     new JLabel("Post Code:", SwingConstants.RIGHT),
                     postCodeTF = new JTextField()
@@ -153,7 +153,7 @@ class EditLocationPanel extends EditPanelWithPhoto {
                     JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER),
                     new JButton(new EditAreaAction("...", mailingAddressTA))
                 }),
-//                new JPanel()
+                //                new JPanel()
                 getGridPanel(new JComponent[]{
                     new JLabel("Mailing Post Code:", SwingConstants.RIGHT),
                     mailingPostCodeTF = new JTextField()
@@ -214,12 +214,12 @@ class EditLocationPanel extends EditPanelWithPhoto {
         downTabs.add(sp, "Comments");
         try {
             downTabs.add(peopleGrid = new PeopleGrid(
-                    AIBclient.getExchanger(),PeopleGrid.SELECT.replace(
+                    AIBclient.getExchanger(), PeopleGrid.SELECT.replace(
                     "from people ", "from people where location_id<0 ")), "People");
         } catch (RemoteException ex) {
             AIBclient.logAndShowMessage(ex);
         }
-        downTabs.setPreferredSize(new Dimension(downTabs.getPreferredSize().width,200));
+        downTabs.setPreferredSize(new Dimension(downTabs.getPreferredSize().width, 200));
         add(downTabs, BorderLayout.SOUTH);
     }
 
@@ -242,7 +242,9 @@ class EditLocationPanel extends EditPanelWithPhoto {
             selectComboItem(regionWorldCb, AIBclient.getRegionOnCountry(loc.getCountryId()));
             mainPhoneTF.setText(loc.getMainPhone());
             mainFaxTF.setText(loc.getMainFax());
-            lastEditedSP.setValue(new java.util.Date(loc.getLasteditDate().getTime()));
+            if (loc.getLasteditDate() != null) {
+                lastEditedSP.setValue(new java.util.Date(loc.getLasteditDate().getTime()));
+            }
             Integer userID = loc.getLasteditedBy();
             if (userID != null) {
                 try {
