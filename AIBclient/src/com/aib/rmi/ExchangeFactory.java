@@ -20,11 +20,10 @@ public class ExchangeFactory {
 
     private static final int DB_VERSION_ID = 51;
     public static final String DB_VERSION = "0.51";
-
     private static String[] fixLocalDBsqls = new String[]{
         "update dbversion set version_id = " + DB_VERSION_ID + ",version = '" + DB_VERSION + "'",
-//        "alter table xemployee add notes text",
-//        "alter table xsupplier add is_fuel_suppllier bit default 0",
+        //        "alter table xemployee add notes text",
+        //        "alter table xsupplier add is_fuel_suppllier bit default 0",
         // 50->51
         "create table xmachineorder"
         + "("
@@ -57,7 +56,7 @@ public class ExchangeFactory {
         + "    constraint xmachineorderitm_xemployee_fk foreign key (xemployee_id) references xemployee (xemployee_id)"
         + ")"
     };
-    
+
     public static IMessageSender getExchanger(String connectString, Properties props) {
         IMessageSender exchanger = null;
         if (connectString.startsWith("rmi:")) {
@@ -69,7 +68,7 @@ public class ExchangeFactory {
             }
         } else if (connectString.startsWith("jdbc:")) {
             String dbUser = props.getProperty("dbUser", "root");
-            String dbPassword = props.getProperty("dbPasword", "root");
+            String dbPassword = props.getProperty("dbPassword", "root");
             String dbDriver = props.getProperty("dbDriverName", "com.mysql.jdbc.Driver");
             try {
                 exchanger = createJDBCexchanger(dbDriver, connectString, dbUser, dbPassword);
@@ -106,7 +105,7 @@ public class ExchangeFactory {
         Connection connection = DriverManager.getConnection(connectString, dbUser, dbPassword);
         connection.setAutoCommit(true);
         sqlBatch(fixLocalDBsqls, connection, false);
-        exchanger = new DbClientDataSender(connection);
+        exchanger = new DbClientDataSender(connection, connectString, dbUser, dbPassword);
         return exchanger;
     }
 
