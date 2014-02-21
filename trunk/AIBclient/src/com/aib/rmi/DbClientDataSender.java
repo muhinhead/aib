@@ -7,6 +7,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 import java.sql.Connection;
+import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -14,6 +15,8 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Vector;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  *
@@ -21,20 +24,45 @@ import java.util.Vector;
  */
 public class DbClientDataSender implements IMessageSender {
 
+    private static final int ATTEMPTS = 5;
     private Connection connection;
+    private final String connectString;
+    private final String dbUser;
+    private final String dbPassword;
 
-    public DbClientDataSender(Connection connection) {
+    public DbClientDataSender(Connection connection, String connectString,
+            String dbUser, String dbPassword) {
         this.connection = connection;
+        this.connectString = connectString;
+        this.dbUser = dbUser;
+        this.dbPassword = dbPassword;
     }
-    
+
+    private boolean reconnect() {
+        try {
+            connection = DriverManager.getConnection(connectString, dbUser, dbPassword);
+            connection.setAutoCommit(true);
+        } catch (Exception ex) {
+            return false;
+        }
+        return true;
+    }
+
     @Override
     public DbObject[] getDbObjects(Class dbobClass, String whereCondition, String orderCondition) throws RemoteException {
         DbObject[] rows = null;
-        try {
-            Method method = dbobClass.getDeclaredMethod("load", Connection.class, String.class, String.class);
-            rows = (DbObject[]) method.invoke(null, connection, whereCondition, orderCondition);
-        } catch (Exception ex) {
-            throw new java.rmi.RemoteException(ex.getMessage());
+        for (int t = 0; t < ATTEMPTS; t++) {
+            try {
+                Method method = dbobClass.getDeclaredMethod("load", Connection.class, String.class, String.class);
+                rows = (DbObject[]) method.invoke(null, connection, whereCondition, orderCondition);
+                return rows;
+            } catch (Exception ex) {
+                if (t == ATTEMPTS - 1) {
+                    throw new java.rmi.RemoteException(ex.getMessage());
+                } else {
+                    reconnect();
+                }
+            }
         }
         return rows;
     }
@@ -42,38 +70,57 @@ public class DbClientDataSender implements IMessageSender {
     @Override
     public DbObject saveDbObject(DbObject dbob) throws RemoteException {
         if (dbob != null) {
-            try {
-                boolean wasNew = dbob.isNew();
-                dbob.setConnection(connection);
-                dbob.save();
-            } catch (Exception ex) {
-                throw new java.rmi.RemoteException("Can't save DB object:", ex);
+            for (int t = 0; t < ATTEMPTS; t++) {
+                try {
+                    dbob.setConnection(connection);
+                    dbob.save();
+                    return dbob;
+                } catch (Exception ex) {
+                    if (t == ATTEMPTS - 1) {
+                        throw new java.rmi.RemoteException("Can't save DB object:", ex);
+                    } else {
+                        reconnect();
+                    }
+                }
             }
         }
-        return dbob;
+        return null;
     }
 
     @Override
     public void deleteObject(DbObject dbob) throws RemoteException {
         if (dbob != null) {
-            try {
-                dbob.setConnection(connection);
-                dbob.delete();
-            } catch (Exception ex) {
-                throw new java.rmi.RemoteException(ex.getMessage());
+            for (int t = 0; t < ATTEMPTS; t++) {
+                try {
+                    dbob.setConnection(connection);
+                    dbob.delete();
+                } catch (Exception ex) {
+                    if (t == ATTEMPTS - 1) {
+                        throw new java.rmi.RemoteException(ex.getMessage());
+                    } else {
+                        reconnect();
+                    }
+                }
             }
         }
     }
 
     @Override
     public DbObject loadDbObjectOnID(Class dbobClass, int id) throws RemoteException {
-        DbObject dbob;
-        try {
-            Constructor constructor = dbobClass.getConstructor(Connection.class);
-            dbob = (DbObject) constructor.newInstance(connection);
-            dbob = dbob.loadOnId(id);
-        } catch (Exception ex) {
-            throw new java.rmi.RemoteException(ex.getMessage());
+        DbObject dbob = null;
+        for (int t = 0; t < ATTEMPTS; t++) {
+            try {
+                Constructor constructor = dbobClass.getConstructor(Connection.class);
+                dbob = (DbObject) constructor.newInstance(connection);
+                dbob = dbob.loadOnId(id);
+                return dbob;
+            } catch (Exception ex) {
+                if (t == ATTEMPTS - 1) {
+                    throw new java.rmi.RemoteException("Can't save DB object:", ex);
+                } else {
+                    reconnect();
+                }
+            }
         }
         return dbob;
     }
@@ -104,21 +151,32 @@ public class DbClientDataSender implements IMessageSender {
                 pagedSelect = select;
             } else {
                 pagedSelect = select.replaceFirst("select", "SELECT").replaceAll("Select", "SELECT");
-                    pagedSelect += (" LIMIT " + (startrow - 1) + "," + (endrow - startrow + 1));
+                pagedSelect += (" LIMIT " + (startrow - 1) + "," + (endrow - startrow + 1));
             }
             Vector line;
-            ps = connection.prepareStatement(pagedSelect);
-            rs = ps.executeQuery();
-            while (rs.next()) {
-                line = new Vector();
-                for (int c = 0; c < cols; c++) {
-                    String ceil = rs.getString(c + 1);
-                    ceil = ceil == null ? "" : ceil;
-                    line.add(ceil);
-                }
-                rows.add(line);
-            }
-            return rows;
+//            for (int t = 0; t < ATTEMPTS; t++) {
+//                try {
+                    ps = connection.prepareStatement(pagedSelect);
+                    rs = ps.executeQuery();
+                    while (rs.next()) {
+                        line = new Vector();
+                        for (int c = 0; c < cols; c++) {
+                            String ceil = rs.getString(c + 1);
+                            ceil = ceil == null ? "" : ceil;
+                            line.add(ceil);
+                        }
+                        rows.add(line);
+                    }
+                    return rows;
+//                } catch (Exception ex) {
+//                    if (t == ATTEMPTS - 1) {
+//                        throw ex;
+//                    } else {
+//                        reconnect();
+//                    }
+//                }
+//            }
+//            return null;
         } catch (SQLException ex) {
             throw new java.rmi.RemoteException(ex.getMessage());
         } finally {
@@ -137,7 +195,7 @@ public class DbClientDataSender implements IMessageSender {
             }
         }
     }
-    
+
     public Vector getColNames(String select) throws RemoteException {
         String original = null;
         Vector colNames = new Vector();
@@ -165,12 +223,22 @@ public class DbClientDataSender implements IMessageSender {
             if (sb != null) {
                 select = sb.toString();
             }
-            ps = connection.prepareStatement(select);
-            rs = ps.executeQuery();
-            ResultSetMetaData md = rs.getMetaData();
-            for (i = 0; i < md.getColumnCount(); i++) {
-                colNames.add(md.getColumnLabel(i + 1));
-            }
+//            for (int t = 0; t < ATTEMPTS; t++) {
+//                try {
+                    ps = connection.prepareStatement(select);
+                    rs = ps.executeQuery();
+                    ResultSetMetaData md = rs.getMetaData();
+                    for (i = 0; i < md.getColumnCount(); i++) {
+                        colNames.add(md.getColumnLabel(i + 1));
+                    }
+//                } catch (Exception ex) {
+//                    if (t == ATTEMPTS - 1) {
+//                        throw ex;
+//                    } else {
+//                        reconnect();
+//                    }
+//                }
+//            }
         } catch (SQLException ex) {
             throw new java.rmi.RemoteException(ex.getMessage());
         } finally {
@@ -190,7 +258,7 @@ public class DbClientDataSender implements IMessageSender {
         }
         return colNames;
     }
-    
+
     @Override
     public int getCount(String select) throws RemoteException {
         StringBuffer slct;
@@ -200,11 +268,21 @@ public class DbClientDataSender implements IMessageSender {
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
-            ps = connection.prepareStatement(slct.toString());
-            rs = ps.executeQuery();
-            if (rs.next()) {
-                count = rs.getInt(1);
-            }
+//            for (int t = 0; t < ATTEMPTS; t++) {
+//                try {
+                    ps = connection.prepareStatement(slct.toString());
+                    rs = ps.executeQuery();
+                    if (rs.next()) {
+                        count = rs.getInt(1);
+                    }
+//                } catch (Exception ex) {
+//                    if (t == ATTEMPTS - 1) {
+//                        throw ex;
+//                    } else {
+//                        reconnect();
+//                    }
+//                }
+//            }
         } catch (SQLException ex) {
             throw new java.rmi.RemoteException(ex.getMessage());
         } finally {
@@ -269,14 +347,25 @@ public class DbClientDataSender implements IMessageSender {
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
-            ps = connection.prepareStatement(select);
-            rs = ps.executeQuery();
-            ResultSetMetaData md = rs.getMetaData();
-            for (int i = 0; i < md.getColumnCount(); i++) {
-                names.add(md.getColumnLabel(i + 1));
-                types.put(md.getColumnLabel(i + 1), new Integer(md.getColumnType(i + 1)));
+            for (int t = 0; t < ATTEMPTS; t++) {
+                try {
+                    ps = connection.prepareStatement(select);
+                    rs = ps.executeQuery();
+                    ResultSetMetaData md = rs.getMetaData();
+                    for (int i = 0; i < md.getColumnCount(); i++) {
+                        names.add(md.getColumnLabel(i + 1));
+                        types.put(md.getColumnLabel(i + 1), new Integer(md.getColumnType(i + 1)));
+                    }
+                    return new Object[]{names, types};
+                } catch (Exception ex) {
+                    if (t == ATTEMPTS - 1) {
+                        throw ex;
+                    } else {
+                        reconnect();
+                    }
+                }
             }
-            return new Object[]{names,types};
+            return null;
         } catch (SQLException ex) {
             AIBclient.log(ex);
             throw new java.rmi.RemoteException(ex.getMessage());
