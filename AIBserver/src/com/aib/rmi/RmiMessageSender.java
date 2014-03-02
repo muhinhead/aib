@@ -29,6 +29,7 @@ public class RmiMessageSender extends java.rmi.server.UnicastRemoteObject implem
     public static Boolean isMySQL = null;
     private static ConcurrentHashMap dbObjectMap = new ConcurrentHashMap();
     private static List synchList = (List) Collections.synchronizedList(new ArrayList());
+//    private int headerLength = 0;
 
     public RmiMessageSender() throws java.rmi.RemoteException {
     }
@@ -152,7 +153,8 @@ public class RmiMessageSender extends java.rmi.server.UnicastRemoteObject implem
             startrow = page * pagesize + 1; //int page starts from 0, int startrow starts from 1
             endrow = (page + 1) * pagesize; //last row of page
         }
-        return new Vector[]{headers, getRows(select, headers.size(), startrow, endrow)};
+        return new Vector[]{headers, getRows(select, headers.size(), 
+                startrow, endrow)};
     }
 
     @Override
@@ -165,6 +167,7 @@ public class RmiMessageSender extends java.rmi.server.UnicastRemoteObject implem
             ps = connection.prepareStatement(select);
             rs = ps.executeQuery();
             ResultSetMetaData md = rs.getMetaData();
+//            headerLength = md.getColumnCount();
             for (int i = 0; i < md.getColumnCount(); i++) {
                 colNames.add(md.getColumnLabel(i + 1));
             }
