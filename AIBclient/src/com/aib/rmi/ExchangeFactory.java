@@ -105,7 +105,7 @@ public class ExchangeFactory {
         Connection connection = DriverManager.getConnection(connectString, dbUser, dbPassword);
         connection.setAutoCommit(true);
         sqlBatch(fixLocalDBsqls, connection, false);
-        exchanger = new DbClientDataSender(connection, connectString, dbUser, dbPassword);
+        exchanger = new DbClientDataSender(AIBclient.getProperties());
         return exchanger;
     }
 

@@ -22,6 +22,7 @@ import com.aib.orm.User;
 import com.aib.orm.dbobject.ComboItem;
 import com.aib.orm.dbobject.DbObject;
 import com.aib.remote.IMessageSender;
+import com.aib.rmi.DbConnection;
 import com.aib.rmi.ExchangeFactory;
 import com.jidesoft.plaf.LookAndFeelFactory;
 import com.xlend.util.SelectedDateSpinner;
@@ -58,7 +59,7 @@ import javax.swing.SpinnerNumberModel;
  */
 public class AIBclient {
 
-    private static final String version = "0.13";
+    private static final String version = "0.13.a";
 //    private static Userprofile currentUser;
     private static Logger logger = null;
     private static FileHandler fh;
@@ -236,6 +237,7 @@ public class AIBclient {
                 } else {
                     props.load(new FileInputStream(propFile));
                 }
+                DbConnection.setProps(props);
             } catch (IOException e) {
                 log(e);
                 return deflt;
