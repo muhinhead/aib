@@ -60,7 +60,7 @@ public class DbConnection {
         public void run() {
             for (ConnectionWithFlag cf : connections) {
                 if (!cf.isBusy) {
-                    if (Calendar.getInstance().getTimeInMillis() - cf.lastUsage > 60 * 1000) {
+                    if (Calendar.getInstance().getTimeInMillis() - cf.lastUsage > 10 * 1000) {
                         try {
                             cf.connection.close();
                             connections.remove(cf);
@@ -150,7 +150,7 @@ public class DbConnection {
                     "com.mysql.jdbc.Driver")).newInstance());
             connection = DriverManager.getConnection(
                     props.getProperty("dbConnection",
-                    "jdbc:mysql://ec2-54-226-3-180.compute-1.amazonaws.com/aibcontact1?characterEncoding=UTF8"),
+                    "jdbc:mysql://aibcontact.db.9298823.hostedresource.com/aibcontact?characterEncoding=UTF8"),
                     getLogin(), getPassword());
             connection.setAutoCommit(true);
             RmiMessageSender.isMySQL = (connection.getClass().getCanonicalName().indexOf("mysql") > -1);
