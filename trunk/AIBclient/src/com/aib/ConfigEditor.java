@@ -213,7 +213,7 @@ public class ConfigEditor extends PopupDialog {
                 try {
                     if (appServerRB.isSelected()) {
                         String serverIP = addressField.getText() + ":" + portSpinner.getValue();
-                        IMessageSender exch = (IMessageSender) Naming.lookup("rmi://" + serverIP + "/XlendServer");
+                        IMessageSender exch = (IMessageSender) Naming.lookup("rmi://" + serverIP + "/AIBserver");
                         protocol = "rmi";
                     } else {
                         IMessageSender exch = ExchangeFactory.createJDBCexchanger(

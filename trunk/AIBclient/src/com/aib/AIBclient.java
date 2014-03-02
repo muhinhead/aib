@@ -58,7 +58,7 @@ import javax.swing.SpinnerNumberModel;
  */
 public class AIBclient {
 
-    private static final String version = "0.12";
+    private static final String version = "0.13";
 //    private static Userprofile currentUser;
     private static Logger logger = null;
     private static FileHandler fh;
@@ -83,7 +83,7 @@ public class AIBclient {
         String serverIP = readProperty("ServerAddress", "localhost");
         while (true) {
             try {
-                IMessageSender exc = ExchangeFactory.getExchanger("rmi://" + serverIP + "/AIBServer", getProperties());
+                IMessageSender exc = ExchangeFactory.getExchanger("rmi://" + serverIP + "/AIBserver", getProperties());
                 if (exc == null) {
                     exc = ExchangeFactory.getExchanger(readProperty("JDBCconnection", "jdbc:mysql://"
                             + defaultServerIP

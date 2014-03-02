@@ -82,7 +82,7 @@ public class ExchangeFactory {
 
     public static IMessageSender createRMIexchanger(String address) throws NotBoundException, MalformedURLException, RemoteException {
         AIBclient.protocol = "rmi";
-        return (IMessageSender) Naming.lookup("rmi://" + address + "/XlendServer");
+        return (IMessageSender) Naming.lookup("rmi://" + address + "/AIBserver");
     }
 
     public static IMessageSender createJDBCexchanger(String[] dbParams) throws SQLException, IllegalAccessException, ClassNotFoundException, InstantiationException {

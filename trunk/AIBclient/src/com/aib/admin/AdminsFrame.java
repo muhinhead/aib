@@ -17,6 +17,7 @@ import com.aib.remote.IMessageSender;
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.rmi.RemoteException;
@@ -31,6 +32,9 @@ import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JList;
+import javax.swing.JMenu;
+import javax.swing.JMenuBar;
+import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -121,6 +125,29 @@ public class AdminsFrame extends GeneralFrame {
     @Override
     protected String[] getSheetList() {
         return sheetList;
+    }
+
+    @Override
+    protected void buildMenu() {
+        JMenuBar bar = new JMenuBar();
+        JMenu m = createMenu("File", "File Operations");
+        JMenuItem mi = createMenuItem("Connection setup", "Server connection parameters");
+        mi.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent ae) {
+                AIBclient.configureConnection();
+            }
+        });
+        m.add(mi);
+        mi = createMenuItem("Hide", "Hide this window");
+        mi.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                setVisible(false);
+            }
+        });
+        m.add(mi);
+        bar.add(m);
+        setJMenuBar(bar);
     }
 
     @Override
