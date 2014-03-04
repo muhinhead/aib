@@ -67,8 +67,8 @@ public abstract class GeneralFrame extends JFrame implements WindowListener {
         boolean maximize = (width < 0 || width < 0);
         width = (width > 0.0 ? width : (float) 0.8);
         height = (height > 0.0 ? height : (float) 0.8);
-        AbstractDashBoard.setSizes(this, width, height);
-        AbstractDashBoard.centerWindow(this);
+        DashBoard.setSizes(this, width, height);
+        DashBoard.centerWindow(this);
         if (maximize) {
             setExtendedState(getExtendedState() | JFrame.MAXIMIZED_BOTH);
         }
@@ -339,8 +339,8 @@ public abstract class GeneralFrame extends JFrame implements WindowListener {
         float xRatio = -1;
         float yRatio = -1;
         if (this.getExtendedState() != JFrame.MAXIMIZED_BOTH) {
-            xRatio = AbstractDashBoard.getXratio(this);
-            yRatio = AbstractDashBoard.getYratio(this);
+            xRatio = DashBoard.getXratio(this);
+            yRatio = DashBoard.getYratio(this);
         }
         AIBclient.getProperties().setProperty("WindowWidth", "" + xRatio);
         AIBclient.getProperties().setProperty("WindowHeight", "" + yRatio);

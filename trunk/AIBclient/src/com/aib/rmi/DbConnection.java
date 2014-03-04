@@ -135,8 +135,9 @@ public class DbConnection {
 //                AIBclient.log("connection (" + new Date(con.lastUsage).toString() + ") used");
                 con.lastUsage = Calendar.getInstance().getTimeInMillis();
                 return con.connection;
-            } else
-                System.out.println("!!! "+con.hashCode()+"connection is busy");
+            } 
+//            else
+//                System.out.println("!!! "+con.hashCode()+"connection is busy");
         }
         Connection connection = null;
         try {
@@ -151,7 +152,7 @@ public class DbConnection {
                     getLogin(), getPassword());
             connection.setAutoCommit(true);
 //            RmiMessageSender.isMySQL = (connection.getClass().getCanonicalName().indexOf("mysql") > -1);
-            System.out.println("!!! "+connection.hashCode()+" - NEW CONNECTION");
+//            System.out.println("!!! "+connection.hashCode()+" - NEW CONNECTION");
         } catch (Exception e) {
             AIBclient.log(e);
         }
