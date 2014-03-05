@@ -139,20 +139,21 @@ public class DashBoard extends JFrame {//extends AbstractDashBoard {
 
         int step = 120;
         int shift = 80;
+        int yshift = 38;
 
         ImagePanel img = new ImagePanel(AIBclient.loadImage(imgName, this));
-        compsButton.setBounds(shift, 40, img.getWidth(), img.getHeight());
+        compsButton.setBounds(shift, 38, img.getWidth(), img.getHeight());
         main.add(compsButton);
 
-        peopleButton.setBounds(shift + step, 40, img.getWidth(), img.getHeight());
+        peopleButton.setBounds(shift + step, 38, img.getWidth(), img.getHeight());
         main.add(peopleButton);
         shift += step;
 
-        locationsButton.setBounds(shift + step, 40, img.getWidth(), img.getHeight());
+        locationsButton.setBounds(shift + step, 38, img.getWidth(), img.getHeight());
         main.add(locationsButton);
         shift += step;
 
-        setupButton.setBounds(shift + step, 40, img.getWidth(), img.getHeight());
+        setupButton.setBounds(shift + step, 38, img.getWidth(), img.getHeight());
         main.add(setupButton);
 
         compsButton.addActionListener(new AbstractAction() {

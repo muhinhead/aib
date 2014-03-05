@@ -59,7 +59,7 @@ import javax.swing.SpinnerNumberModel;
  */
 public class AIBclient {
 
-    private static final String version = "0.13.b";
+    private static final String version = "0.13.c";
 //    private static Userprofile currentUser;
     private static Logger logger = null;
     private static FileHandler fh;
@@ -131,7 +131,7 @@ public class AIBclient {
             }
         }
     }
-    
+
     private static String removeTail(String s) {
         int p = s.lastIndexOf(".");
         if (p > 0 && s.length() > p + 1) {
@@ -393,16 +393,25 @@ public class AIBclient {
 //        }
 //        return null;
 //    }
+    
     private static ComboItem[] loadOnSelect(IMessageSender exchanger, String select) {
+        return loadOnSelect(exchanger, select, null);
+    }
+    
+    private static ComboItem[] loadOnSelect(IMessageSender exchanger, String select, ComboItem startItem) {
         try {
             Vector[] tab = exchanger.getTableBody(select);
             Vector rows = tab[1];
-            ComboItem[] ans = new ComboItem[rows.size()];
+            ComboItem[] ans = new ComboItem[rows.size() + (startItem != null ? 1 : 0)];
             for (int i = 0; i < rows.size(); i++) {
-                Vector line = (Vector) rows.get(i);
-                int id = Integer.parseInt(line.get(0).toString());
-                String tmvnr = line.get(1).toString();
-                ans[i] = new ComboItem(id, tmvnr);
+                if (startItem != null && i == 0) {
+                    ans[i] = startItem;
+                } else {
+                    Vector line = (Vector) rows.get(i);
+                    int id = Integer.parseInt(line.get(0).toString());
+                    String tmvnr = line.get(1).toString();
+                    ans[i] = new ComboItem(id, tmvnr);
+                }
             }
             return ans;
         } catch (RemoteException ex) {
@@ -441,16 +450,16 @@ public class AIBclient {
                 + "from company ");
     }
 
-    public static void reloadLocations() {
+    public static void reloadLocations(ComboItem startItem) {
         locationsDictionary = loadOnSelect(exchanger,
                 "select location_id, concat(l.name,' (',ifnull((Select abbreviation from company where company_id=l.company_id),''),')') "
                 + "from location l "
-                + "order by l.name");
+                + "order by l.name",startItem);
     }
 
-    public static ComboItem[] loadAllLocations() {
+    public static ComboItem[] loadAllLocations(ComboItem startItem) {
         if (locationsDictionary == null) {
-            reloadLocations();
+            reloadLocations(startItem);
         }
         return locationsDictionary;
     }
@@ -1122,10 +1131,11 @@ public class AIBclient {
         return ans;
     }
 
-    public static List loadAllCompaniesShortNames() {
+    public static List loadAllCompaniesNames() {
         List ans = loadStringsOnSelect(getExchanger(),
-                "select '' abbreviation union "
-                + "select concat(abbreviation,' - ',full_name) from company order by abbreviation", null);
+                "select '' full_name union "
+                + "select concat(full_name,if(ifnull(abbreviation,'')<>'', concat('(',abbreviation, ')'),'')) "
+                + "from company order by full_name", null);
         return ans;
     }
 

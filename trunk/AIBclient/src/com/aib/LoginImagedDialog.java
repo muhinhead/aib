@@ -135,18 +135,19 @@ public class LoginImagedDialog extends PopupDialog {
         m.add(new JMenuItem(new AbstractAction("Settings") {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String newAddress = AIBclient.serverSetup("Options");
-                if (newAddress != null) {
-                    AIBclient.getProperties().setProperty("ServerAddress", newAddress);
-                    try {
-                        AIBclient.setExchanger(
-                                (IMessageSender) Naming.lookup("rmi://"
-                                + newAddress + "/AIBserver"));
-                    } catch (Exception ex) {
-                        AIBclient.logAndShowMessage(ex);
-                        System.exit(1);
-                    }
-                }
+                AIBclient.configureConnection();
+//                String newAddress = AIBclient.serverSetup("Options");
+//                if (newAddress != null) {
+//                    AIBclient.getProperties().setProperty("ServerAddress", newAddress);
+//                    try {
+//                        AIBclient.setExchanger(
+//                                (IMessageSender) Naming.lookup("rmi://"
+//                                + newAddress + "/AIBserver"));
+//                    } catch (Exception ex) {
+//                        AIBclient.logAndShowMessage(ex);
+//                        System.exit(1);
+//                    }
+//                }
             }
         }));
         m.add(appearanceMenu("Theme"));
