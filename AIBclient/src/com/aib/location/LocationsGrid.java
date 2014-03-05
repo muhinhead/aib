@@ -60,7 +60,7 @@ public class LocationsGrid extends GeneralGridPanel {
                     java.awt.EventQueue.invokeLater(new Runnable() {
                         @Override
                         public void run() {
-                            AIBclient.reloadLocations();
+                            AIBclient.reloadLocations(null);
                         }
                     });
                 }

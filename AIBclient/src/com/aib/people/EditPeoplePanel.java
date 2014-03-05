@@ -128,7 +128,8 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             "Sales contact:",//"Action date:", "External user name:", "External user password:"
             "Last verified" //"Last editor:" //"Last edited:
         };
-        locationCbModel = new DefaultComboBoxModel(AIBclient.loadAllLocations());
+        ComboItem emptyItem = new ComboItem(0,"");
+        locationCbModel = new DefaultComboBoxModel(AIBclient.loadAllLocations(emptyItem));
         salesContactCbModel = new DefaultComboBoxModel(AIBclient.loadAllUsersInitials());
         JLabel paEmailLBL;
         JLabel alterEmailLBL;
@@ -534,7 +535,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 new CompanyListInTextFieldDialog("Companies List",
-                        new Object[]{companiesListTF.getText(), AIBclient.loadAllCompaniesShortNames(), "Company short name:"});
+                        new Object[]{companiesListTF.getText(), AIBclient.loadAllCompaniesNames(), "Company short name:"});
                 companiesListTF.setText(ListInTextFieldDialog.getResultList());
             }
         };
