@@ -145,12 +145,12 @@ public class DashBoard extends JFrame {//extends AbstractDashBoard {
         compsButton.setBounds(shift, 38, img.getWidth(), img.getHeight());
         main.add(compsButton);
 
-        peopleButton.setBounds(shift + step, 38, img.getWidth(), img.getHeight());
-        main.add(peopleButton);
-        shift += step;
-
         locationsButton.setBounds(shift + step, 38, img.getWidth(), img.getHeight());
         main.add(locationsButton);
+        shift += step;
+
+        peopleButton.setBounds(shift + step, 38, img.getWidth(), img.getHeight());
+        main.add(peopleButton);
         shift += step;
 
         setupButton.setBounds(shift + step, 38, img.getWidth(), img.getHeight());

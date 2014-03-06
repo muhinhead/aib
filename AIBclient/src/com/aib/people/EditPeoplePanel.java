@@ -535,8 +535,12 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 new CompanyListInTextFieldDialog("Companies List",
-                        new Object[]{companiesListTF.getText(), AIBclient.loadAllCompaniesNames(), "Company short name:"});
-                companiesListTF.setText(ListInTextFieldDialog.getResultList());
+                        new Object[]{companiesListTF.getText(), AIBclient.loadAllCompaniesNames(), 
+                            "Company name:"});
+                String compList = ListInTextFieldDialog.getResultList();
+                companiesListTF.setText(compList);
+//                locationCB.setModel(locationCbModel = 
+//                        AIBclient.loadLocationsForCompanies(compList,new ComboItem(0,"")));
             }
         };
     }

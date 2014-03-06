@@ -107,7 +107,7 @@ class EditCompanyPanel extends EditPanelWithPhoto {
     protected void fillContent() {
         String titles[] = new String[]{
             "ID:",
-            "Full Company Name:",//           "Abbreviation:", 
+            "Company Name:",//           "Abbreviation:", 
             "Dummy Company:", // "Parent Company:"
             "Links:",
             "Industry:",
@@ -131,7 +131,7 @@ class EditCompanyPanel extends EditPanelWithPhoto {
             getGridPanel(new JComponent[]{
                 fullCompanyNameTF = new JTextField(),
                 getGridPanel(new JComponent[]{
-                    new JLabel("Abbreviation:", SwingConstants.RIGHT),
+                    new JLabel("Alternative Name:", SwingConstants.RIGHT),
                     abbreviationTF = new JTextField(5)
                 })
             }),

@@ -41,20 +41,20 @@ public class CompanyListInTextFieldDialog extends ListInTextFieldDialog {
     }
 
     @Override
-    protected String additionalDialog(String shortName) {
-        shortName = shortName.trim();
-        int p = shortName.indexOf(" - ");
+    protected String additionalDialog(String nameAndID) {
+        nameAndID = nameAndID.trim();
+        int p = nameAndID.indexOf(" - ");
         if (p > 0) {
-            shortName = shortName.substring(0, p);
+            nameAndID = nameAndID.substring(0, p);
         }
-        if (AIBclient.companyNotExists(shortName)) {
+        if (AIBclient.companyNotExists(nameAndID)) {
             EditCompanyDialog ed = new EditCompanyDialog("New Company", null);
             if (ed.okPressed) {
                 Company comp = (Company) ed.getEditPanel().getDbObject();
                 return comp.getAbbreviation() + " - " + comp.getFullName();
             }
         }
-        return shortName;
+        return nameAndID;
     }
 
     @Override
@@ -72,12 +72,14 @@ public class CompanyListInTextFieldDialog extends ListInTextFieldDialog {
                     int row = urlJList.getSelectedIndex();
                     try {
                         DbObject[] recs = AIBclient.getExchanger().getDbObjects(
-                                Company.class, "abbreviation='" + itm + "'", null);
+                                Company.class, "concat(full_name,'(',company_id,')')='" + itm + "'", null);
+//                                Company.class, "abbreviation='" + itm + "'", null);
                         if (recs.length > 0) {
                             EditCompanyDialog ed = new EditCompanyDialog("Edit Company", recs[0]);
                             if (ed.okPressed) {
                                 Company comp = (Company) ed.getEditPanel().getDbObject();
-                                selectedItems.set(row, comp.getAbbreviation() + " - " + comp.getFullName());
+                                selectedItems.set(row, comp.getFullName()+"("+comp.getCompanyId()+")");
+//                                selectedItems.set(row, comp.getAbbreviation() + " - " + comp.getFullName());
                                 urlJList.updateUI();
                             }
                         }
