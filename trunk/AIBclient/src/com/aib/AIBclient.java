@@ -45,6 +45,7 @@ import java.util.logging.Logger;
 import java.util.logging.SimpleFormatter;
 import java.util.prefs.Preferences;
 import javax.imageio.ImageIO;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JOptionPane;
@@ -393,11 +394,10 @@ public class AIBclient {
 //        }
 //        return null;
 //    }
-    
     private static ComboItem[] loadOnSelect(IMessageSender exchanger, String select) {
         return loadOnSelect(exchanger, select, null);
     }
-    
+
     private static ComboItem[] loadOnSelect(IMessageSender exchanger, String select, ComboItem startItem) {
         try {
             Vector[] tab = exchanger.getTableBody(select);
@@ -454,7 +454,7 @@ public class AIBclient {
         locationsDictionary = loadOnSelect(exchanger,
                 "select location_id, concat(l.name,' (',ifnull((Select abbreviation from company where company_id=l.company_id),''),')') "
                 + "from location l "
-                + "order by l.name",startItem);
+                + "order by l.name", startItem);
     }
 
     public static ComboItem[] loadAllLocations(ComboItem startItem) {
@@ -630,9 +630,15 @@ public class AIBclient {
         try {
             Company comp = null;
             Peoplecompany pc = null;
-            DbObject[] recs = getExchanger().getDbObjects(Company.class,
-                    "abbreviation='" + abbreviation + "'", null);
-            comp = (Company) recs[0];
+            int p = abbreviation.indexOf("(")+1;
+            //int pp = abbreviation.indexOf(")");
+            String sid = abbreviation.substring(p);
+            sid = sid.substring(0,sid.length()-1);
+            int company_id = Integer.parseInt(sid);
+//            DbObject[] recs = getExchanger().getDbObjects(Company.class,
+//                    "abbreviation='" + abbreviation + "'", null);
+//            comp = (Company) recs[0];
+            comp = (Company) getExchanger().loadDbObjectOnID(Company.class, company_id);
             if (getExchanger().getCount("select peoplecompany_id "
                     + "from peoplecompany where people_id="
                     + peopleID + " and company_id=" + comp.getCompanyId()) == 0) {
@@ -856,11 +862,12 @@ public class AIBclient {
         }
     }
 
-    public static void removeRedundantPeopleCompany(Integer peopleID, String abrreviationsList) {
+    public static void removeRedundantPeopleCompany(Integer peopleID, String companyList) {
         try {
             DbObject[] recs = getExchanger().getDbObjects(Peoplecompany.class,
                     "people_id=" + peopleID + " and company_id not in "
-                    + "(select company_id from company where instr('" + abrreviationsList + "',abbreviation)>0)", null);
+                    + "(select company_id from company where instr('" + companyList 
+                    + "',concat(full_name,'(',company_id,')'))>0)", null);
             for (DbObject rec : recs) {
                 getExchanger().deleteObject(rec);
             }
@@ -1041,7 +1048,7 @@ public class AIBclient {
                 Peoplecompany pc = (Peoplecompany) rec;
                 Company comp = (Company) getExchanger().loadDbObjectOnID(Company.class, pc.getCompanyId());
                 sb.append(sb.length() > 0 ? "," : "");
-                sb.append(comp.getAbbreviation());
+                sb.append(comp.getFullName() + "(" + comp.getCompanyId() + ")");
             }
             return sb.toString();
         } catch (RemoteException ex) {
@@ -1134,14 +1141,14 @@ public class AIBclient {
     public static List loadAllCompaniesNames() {
         List ans = loadStringsOnSelect(getExchanger(),
                 "select '' full_name union "
-                + "select concat(full_name,if(ifnull(abbreviation,'')<>'', concat('(',abbreviation, ')'),'')) "
+                + "select concat(full_name,'(',company_id,')') "
                 + "from company order by full_name", null);
         return ans;
     }
 
-    public static boolean companyNotExists(String shortName) {
+    public static boolean companyNotExists(String nameAndID) {
         try {
-            DbObject[] recs = getExchanger().getDbObjects(Company.class, "abbreviation='" + shortName + "'", null);
+            DbObject[] recs = getExchanger().getDbObjects(Company.class, "concat(full_name,'(',company_id,')')='" + nameAndID + "'", null);
             if (recs.length > 0) {
                 return false;
             }
@@ -1255,4 +1262,11 @@ public class AIBclient {
         }
         return fltrs1;
     }
+
+//    public static DefaultComboBoxModel loadLocationsForCompanies(String compList,ComboItem startItem) {
+//        String sql = "select location_id, concat(l.name,' (',ifnull((Select abbreviation from company where company_id=l.company_id),''),')') "
+//                + "from location l where company_id in (select company_id from company where instr('"+compList+"',concat(full_name,'(',company_id,')'))>0) "
+//                + "order by l.name";
+//        return new DefaultComboBoxModel(loadOnSelect(exchanger, sql, startItem));
+//    }
 }

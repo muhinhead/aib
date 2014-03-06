@@ -146,10 +146,13 @@ public class DbConnection {
                     (java.sql.Driver) Class.forName(
                     props.getProperty("dbDriverName",
                     "com.mysql.jdbc.Driver")).newInstance());
+            String connectionString = props.getProperty("JDBCconnection",
+                    "jdbc:mysql://aibcontact.db.9298823.hostedresource.com/aibcontact?characterEncoding=UTF8");
+            String login = getLogin();
+            String pwd = getPassword();
             connection = DriverManager.getConnection(
-                    props.getProperty("dbConnection",
-                    "jdbc:mysql://aibcontact.db.9298823.hostedresource.com/aibcontact?characterEncoding=UTF8"),
-                    getLogin(), getPassword());
+                    connectionString,
+                    login, pwd);
             connection.setAutoCommit(true);
 //            RmiMessageSender.isMySQL = (connection.getClass().getCanonicalName().indexOf("mysql") > -1);
 //            System.out.println("!!! "+connection.hashCode()+" - NEW CONNECTION");
