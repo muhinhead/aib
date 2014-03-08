@@ -85,6 +85,7 @@ public class LoginImagedDialog extends PopupDialog {
 //        AIBclient.setExchanger(exchanger);
         loginField = new Java2sAutoComboBox(AIBclient.loadAllLogins("login"));
         loginField.setEditable(true);
+        loginField.setStrict(false);
         pwdField = new JPasswordField(20);
         controlsPanel = new JPanel(new BorderLayout());
         JPanel main = new TexturedPanel(BACKGROUNDIMAGE);

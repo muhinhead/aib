@@ -29,6 +29,8 @@ import com.xlend.util.Util;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.rmi.RemoteException;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -49,6 +51,7 @@ import javax.swing.JSpinner;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.text.JTextComponent;
 
 /**
  *
@@ -60,8 +63,8 @@ class EditPeoplePanel extends EditPanelWithPhoto {
     private Java2sAutoComboBox titleCB;
     private Java2sAutoComboBox sourceCB;
     private JTextField sourceTF;
-    private JTextField firstNameTF;
-    private JTextField familyName;
+    private Java2sAutoComboBox firstNameTF;
+    private Java2sAutoComboBox familyNameTF;
     private Java2sAutoComboBox suffixCB;
     private Java2sAutoComboBox greetingCB;
     private JTextField linksListTF;
@@ -75,7 +78,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
     private JTextField deskPhoneTF;
     private JTextField deskFaxTF;
     private JTextField mobilePhoneTF;
-    private JTextField mainEmailTF;
+    private Java2sAutoComboBox mainEmailTF;
     private JTextField alterEmailTF;
     private JTextField paTF;
     private JTextField paPhoneTF;
@@ -114,13 +117,13 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             "ID:",//"Source:",
             "First Name:", //"Family Name:", 
             "Title:",//"Suffix:", //"Greeting:",
+            "Main email:", // "Alternate email:"
             "Companies:",//"Location:"
             "Links:",// "Job discipline:",
             "Department:", //"Industry:",
             "Specific address:",
             "Mailing address:", //"Mailing post code"
             "Desk phone:", // "Desk fax:", "Mobile phone:"
-            "Main email:", // "Alternate email:"
             "PA:", // "PA phone:", //"PA email:"
             "Other contact info:",// "AIB actions/date:",
             "",
@@ -128,7 +131,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             "Sales contact:",//"Action date:", "External user name:", "External user password:"
             "Last verified" //"Last editor:" //"Last edited:
         };
-        ComboItem emptyItem = new ComboItem(0,"");
+        ComboItem emptyItem = new ComboItem(0, "");
         locationCbModel = new DefaultComboBoxModel(AIBclient.loadAllLocations(emptyItem));
         salesContactCbModel = new DefaultComboBoxModel(AIBclient.loadAllUsersInitials());
         JLabel paEmailLBL;
@@ -142,9 +145,9 @@ class EditPeoplePanel extends EditPanelWithPhoto {
                 })
             }),
             getGridPanel(new JComponent[]{
-                getBorderPanel(new JComponent[]{null, firstNameTF = new JTextField(16)}),
+                getBorderPanel(new JComponent[]{null, firstNameTF = new Java2sAutoComboBox(AIBclient.loadDistinctPeopleData("first_name"))}),
                 getBorderPanel(new JComponent[]{new JLabel("Family Name:", SwingConstants.RIGHT),
-                    familyName = new JTextField(16)})
+                    familyNameTF = new Java2sAutoComboBox(AIBclient.loadDistinctPeopleData("last_name"))})
             }),
             getGridPanel(new JComponent[]{
                 titleCB = new Java2sAutoComboBox(AIBclient.loadDistinctTitles()),//JTextField(),
@@ -152,6 +155,11 @@ class EditPeoplePanel extends EditPanelWithPhoto {
                 suffixCB = new Java2sAutoComboBox(AIBclient.loadDistinctSuffixes()),
                 new JLabel("Greeting:", SwingConstants.RIGHT),
                 greetingCB = new Java2sAutoComboBox(AIBclient.loadDistinctGreetings())
+            }),
+            getGridPanel(new JComponent[]{
+                mainEmailTF = new Java2sAutoComboBox(AIBclient.loadDistinctPeopleData("main_email")),
+                alterEmailLBL = new JLabel("Alternate email:", SwingConstants.RIGHT),
+                alterEmailTF = new JTextField(12)
             }),
             getGridPanel(new JComponent[]{
                 getBorderPanel(new JComponent[]{
@@ -192,7 +200,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
                     JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER),
                     new JButton(new EditAreaAction("...", mailingAddressTA))
                 }),
-//                new JPanel()
+                //                new JPanel()
                 getGridPanel(new JComponent[]{
                     new JLabel("Post Code:", SwingConstants.RIGHT),
                     mailingPostCodeTF = new JTextField()
@@ -208,11 +216,6 @@ class EditPeoplePanel extends EditPanelWithPhoto {
                     new JLabel("Mobile phone:", SwingConstants.RIGHT),
                     mobilePhoneTF = new JTextField(6)
                 })
-            }),
-            getGridPanel(new JComponent[]{
-                mainEmailTF = new JTextField(12),
-                alterEmailLBL = new JLabel("Alternate email:", SwingConstants.RIGHT),
-                alterEmailTF = new JTextField(12)
             }),
             getGridPanel(new JComponent[]{
                 paTF = new JTextField(12),
@@ -284,11 +287,11 @@ class EditPeoplePanel extends EditPanelWithPhoto {
         marketingIntelDistCB.setHorizontalTextPosition(SwingConstants.LEFT);
         mediaBriefingDistCB.setHorizontalTextPosition(SwingConstants.LEFT);
         sourceBookCB.setHorizontalTextPosition(SwingConstants.LEFT);
-        
+
         sp1.setPreferredSize(new Dimension(sp1.getPreferredSize().width, idField.getPreferredSize().height));
         idField.setEnabled(false);
         mailingAddressTA.setEditable(false);
-        
+
         for (Java2sAutoComboBox cb : new Java2sAutoComboBox[]{
             jobDisciplineCB, sourceCB, departmentCB, titleCB, greetingCB, suffixCB}) {
             cb.setEditable(true);
@@ -344,9 +347,32 @@ class EditPeoplePanel extends EditPanelWithPhoto {
 
         paEmailTF.addFocusListener(new EmailFocusAdapter(paEmailLBL, paEmailTF));
         alterEmailTF.addFocusListener(new EmailFocusAdapter(alterEmailLBL, alterEmailTF));
-        mainEmailTF.addFocusListener(new EmailFocusAdapter(labels[10], mainEmailTF));
+        mainEmailTF.addFocusListener(new EmailFocusAdapter(labels[10], (JTextComponent) (mainEmailTF.getEditor().getEditorComponent())));
+
+        familyNameTF.setEditable(true);
+        familyNameTF.setStrict(false);
+        firstNameTF.setEditable(true);
+        firstNameTF.setStrict(false);
+        mainEmailTF.setEditable(true);
+        mainEmailTF.setStrict(false);
+        mainEmailTF.getEditor().getEditorComponent().addFocusListener(new FocusAdapter() {
+            public void focusLost(FocusEvent e) {
+                    People people = AIBclient.getPeopleOnValue("main_email", mainEmailTF.getSelectedItem().toString());
+                    reload(people);
+            }
+        });
     }
 
+    private void reload(People people) {
+        if (people != getDbObject()) {
+            getOwnerDialog().setTitle("Edit Person");
+            setDbObject(people);
+            loadData();
+            commentsGrid.refresh(people.getPeopleId());
+        }
+    }
+    
+    
     @Override
     public void loadData() {
         People person = (People) getDbObject();
@@ -354,8 +380,8 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             idField.setText(person.getPeopleId().toString());
             sourceCB.setSelectedItem(person.getSource());
             titleCB.setSelectedItem(person.getTitle());
-            firstNameTF.setText(person.getFirstName());
-            familyName.setText(person.getLastName());
+            firstNameTF.setSelectedItem(person.getFirstName());
+            familyNameTF.setSelectedItem(person.getLastName());
             suffixCB.setSelectedItem(person.getSuffix());
             greetingCB.setSelectedItem(person.getGreeting());
             jobDisciplineCB.setSelectedItem(person.getJobDiscip());
@@ -372,7 +398,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             deskPhoneTF.setText(person.getDeskPhone());
             deskFaxTF.setText(person.getDeskFax());
             mobilePhoneTF.setText(person.getMobilePhone());
-            mainEmailTF.setText(person.getMainEmail());
+            mainEmailTF.setSelectedItem(person.getMainEmail());
             alterEmailTF.setText(person.getAlterEmail());
             paTF.setText(person.getPa());
             paPhoneTF.setText(person.getPaPhone());
@@ -420,8 +446,8 @@ class EditPeoplePanel extends EditPanelWithPhoto {
         }
         person.setTitle((String) titleCB.getSelectedItem());
         person.setSource((String) sourceCB.getSelectedItem());
-        person.setFirstName(firstNameTF.getText());
-        person.setLastName(familyName.getText());
+        person.setFirstName(firstNameTF.getSelectedItem().toString());
+        person.setLastName(familyNameTF.getSelectedItem().toString());
         person.setLocationId(getSelectedCbItem(locationCB));
         person.setSuffix((String) suffixCB.getSelectedItem());
         person.setGreeting((String) greetingCB.getSelectedItem());
@@ -430,7 +456,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
         person.setDeskPhone(deskPhoneTF.getText());
         person.setDeskFax(deskFaxTF.getText());
         person.setMobilePhone(mobilePhoneTF.getText());
-        person.setMainEmail(mainEmailTF.getText());
+        person.setMainEmail(mainEmailTF.getSelectedItem().toString());
         person.setMailaddress(mailingAddressTA.getText());
         person.setMailpostcode(mailingPostCodeTF.getText());
         person.setAlterEmail(alterEmailTF.getText());
@@ -535,12 +561,12 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 new CompanyListInTextFieldDialog("Companies List",
-                        new Object[]{companiesListTF.getText(), AIBclient.loadAllCompaniesNames(), 
-                            "Company name:"});
+                        new Object[]{companiesListTF.getText(), AIBclient.loadAllCompaniesNames(),
+                    "Company name:"});
                 String compList = ListInTextFieldDialog.getResultList();
                 companiesListTF.setText(compList);
-//                locationCB.setModel(locationCbModel = 
-//                        AIBclient.loadLocationsForCompanies(compList,new ComboItem(0,"")));
+                locationCB.setModel(locationCbModel = 
+                        AIBclient.loadLocationsForCompanies(compList, new ComboItem(0,"")));
             }
         };
     }

@@ -43,7 +43,7 @@ public class PeopleCommentsGrid extends GeneralGridPanel {
         this.peoplePanel = peoplePanel;
     }
 
-    private void updateContent(Integer peopleID) {
+    private void refresh(Integer peopleID) {
         this.peopleID = peopleID;
         setSelect(SELECT.replace("#", peopleID == null ? "0" : peopleID.toString()));
         refresh();
@@ -127,6 +127,6 @@ public class PeopleCommentsGrid extends GeneralGridPanel {
      * @param peopleID the peopleID to set
      */
     public void setPeopleID(Integer peopleID) {
-        updateContent(peopleID);
+        refresh(peopleID);
     }
 }

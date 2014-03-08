@@ -150,7 +150,7 @@ public class LookupDialog extends PopupDialog {
                 choosedID = grid.getSelectedID();
                 for (int i = 0; comboBox != null && i < comboBox.getItemCount(); i++) {
                     ComboItem citm = (ComboItem) comboBox.getItemAt(i);
-                    if (citm.getId() == choosedID) {
+                    if (citm != null && citm.getId() == choosedID) {
                         comboBox.setSelectedIndex(i);
                         found = true;
                         break;
