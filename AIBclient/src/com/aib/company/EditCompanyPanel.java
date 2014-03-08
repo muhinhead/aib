@@ -1,7 +1,3 @@
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
 package com.aib.company;
 
 import com.aib.AIBclient;
@@ -26,12 +22,15 @@ import com.aib.orm.User;
 import com.aib.orm.dbobject.ComboItem;
 import com.aib.orm.dbobject.DbObject;
 import com.aib.people.PeopleGrid;
+import com.xlend.util.Java2sAutoComboBox;
 import com.xlend.util.SelectedDateSpinner;
 import com.xlend.util.SelectedNumberSpinner;
 import com.xlend.util.Util;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.FocusAdapter;
+import java.awt.event.FocusEvent;
 import java.rmi.RemoteException;
 import java.sql.Timestamp;
 import java.util.Calendar;
@@ -44,6 +43,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
@@ -60,7 +60,7 @@ class EditCompanyPanel extends EditPanelWithPhoto {
     private JTextField idField;
     private DefaultComboBoxModel regionWorldCbModel;
     private DefaultComboBoxModel countryCbModel;
-    private JTextField fullCompanyNameTF;
+    private Java2sAutoComboBox fullCompanyNameTF;
     private JCheckBox isDummyCB;
     private SelectedNumberSpinner turnoverSP;
     private JTextArea physicAddressTA;
@@ -68,7 +68,7 @@ class EditCompanyPanel extends EditPanelWithPhoto {
     private JTextArea mailingAddressTA;
     private JComboBox regionWorldCb;
     private JComboBox countryCB;
-    private JTextField abbreviationTF;
+    private Java2sAutoComboBox abbreviationTF;
     private JTextField linksListTF;
     private JTextField industriesListTF;
 //    private JTextField mailingPostCodeTF;
@@ -84,6 +84,8 @@ class EditCompanyPanel extends EditPanelWithPhoto {
     private DefaultComboBoxModel parentCompanyCbModel;
     private JTextField mailingPostCodeTF;
     private JTextField physicalPostCodeTF;
+    private CompLocationsGrid compLocationsGrid;
+    private PeopleGrid peopleGrid;
 
     private class RegionsLookupAction extends WorldRegionLookupAction {
 
@@ -107,7 +109,7 @@ class EditCompanyPanel extends EditPanelWithPhoto {
     protected void fillContent() {
         String titles[] = new String[]{
             "ID:",
-            "Company Name:",//           "Abbreviation:", 
+            "Company Name:",//           "Alternative Name:", 
             "Dummy Company:", // "Parent Company:"
             "Links:",
             "Industry:",
@@ -129,10 +131,10 @@ class EditCompanyPanel extends EditPanelWithPhoto {
         JComponent[] edits = new JComponent[]{
             getGridPanel(idField = new JTextField(), 6),
             getGridPanel(new JComponent[]{
-                fullCompanyNameTF = new JTextField(),
+                fullCompanyNameTF = new Java2sAutoComboBox(AIBclient.loadDistinctCompanyNames("full_name")),
                 getGridPanel(new JComponent[]{
                     new JLabel("Alternative Name:", SwingConstants.RIGHT),
-                    abbreviationTF = new JTextField(5)
+                    abbreviationTF = new Java2sAutoComboBox(AIBclient.loadDistinctCompanyNames("abbreviation"))
                 })
             }),
             getBorderPanel(new JComponent[]{
@@ -155,7 +157,7 @@ class EditCompanyPanel extends EditPanelWithPhoto {
                     JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER),
                     new JButton(new EditAreaAction("...", physicAddressTA))
                 }),
-//                new JPanel()
+                //                new JPanel()
                 getGridPanel(new JComponent[]{
                     new JLabel("Physical Post Code:", SwingConstants.RIGHT),
                     physicalPostCodeTF = new JTextField()
@@ -168,7 +170,7 @@ class EditCompanyPanel extends EditPanelWithPhoto {
                     JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER),
                     new JButton(new EditAreaAction("...", mailingAddressTA))
                 }),
-//                new JPanel()
+                //                new JPanel()
                 getGridPanel(new JComponent[]{
                     new JLabel("Mailing Post Code:", SwingConstants.RIGHT),
                     mailingPostCodeTF = new JTextField()
@@ -201,11 +203,32 @@ class EditCompanyPanel extends EditPanelWithPhoto {
                 })
             })
         };
+        fullCompanyNameTF.setEditable(true);
+        fullCompanyNameTF.setStrict(false);
+        fullCompanyNameTF.getEditor().getEditorComponent().addFocusListener(new FocusAdapter() {
+            public void focusLost(FocusEvent e) {
+//                if (getDbObject() == null) {
+                    Company comp = AIBclient.getCompanyOnValue("full_name", fullCompanyNameTF.getSelectedItem().toString());
+                    reload(comp);
+//                }
+            }
+        });
+        abbreviationTF.setEditable(true);
+        abbreviationTF.setStrict(false);
+        abbreviationTF.getEditor().getEditorComponent().addFocusListener(new FocusAdapter() {
+            public void focusLost(FocusEvent e) {
+//                if (getDbObject() == null) {
+                    Company comp = AIBclient.getCompanyOnValue("abbreviation", abbreviationTF.getSelectedItem().toString());
+                    reload(comp);
+//                }
+            }
+        });
+
         mailingAddressTA.setWrapStyleWord(true);
         mailingAddressTA.setLineWrap(true);
         physicAddressTA.setWrapStyleWord(true);
         physicAddressTA.setLineWrap(true);
-                
+
         sp1.setPreferredSize(new Dimension(sp1.getPreferredSize().width, idField.getPreferredSize().height));
         sp2.setPreferredSize(sp1.getPreferredSize());
         idField.setEnabled(false);
@@ -236,8 +259,8 @@ class EditCompanyPanel extends EditPanelWithPhoto {
         try {
             Company comp = (Company) getDbObject();
             Integer compID = comp == null ? new Integer(0) : comp.getCompanyId();
-            downTabs.add(new CompLocationsGrid(AIBclient.getExchanger(), compID), "Company Locations");
-            downTabs.add(new PeopleGrid(AIBclient.getExchanger(), PeopleGrid.SELECT.replace(GeneralGridPanel.SELECTLIMIT, "")
+            downTabs.add(compLocationsGrid = new CompLocationsGrid(AIBclient.getExchanger(), compID), "Company Locations");
+            downTabs.add(peopleGrid = new PeopleGrid(AIBclient.getExchanger(), PeopleGrid.SELECT.replace(GeneralGridPanel.SELECTLIMIT, "")
                     + " where people_id in (select people_id from peoplecompany where company_id=" + compID + ")"), "People");
         } catch (RemoteException ex) {
             AIBclient.logAndShowMessage(ex);
@@ -247,13 +270,23 @@ class EditCompanyPanel extends EditPanelWithPhoto {
         add(downTabs);
     }
 
+    private void reload(Company comp) {
+        if (comp != getDbObject()) {
+            getOwnerDialog().setTitle("Edit Company");
+            setDbObject(comp);
+            loadData();
+            compLocationsGrid.refresh(comp.getCompanyId());
+            peopleGrid.refresh(comp.getCompanyId());
+        }
+    }
+
     @Override
     public void loadData() {
         Company comp = (Company) getDbObject();
         if (comp != null) {
             idField.setText(comp.getCompanyId().toString());
-            fullCompanyNameTF.setText(comp.getFullName());
-            abbreviationTF.setText(comp.getAbbreviation());
+            fullCompanyNameTF.setSelectedItem(comp.getFullName());
+            abbreviationTF.setSelectedItem(comp.getAbbreviation());
             isDummyCB.setSelected(comp.getIsDummy() != null && comp.getIsDummy() == 1);
             linksListTF.setText(AIBclient.getLinkListOnCompanyID(comp.getCompanyId()));
             industriesListTF.setText(AIBclient.getIndustryListOnCompanyID(comp.getCompanyId()));
@@ -262,7 +295,7 @@ class EditCompanyPanel extends EditPanelWithPhoto {
             physicAddressTA.setText(comp.getAddress());
             physicAddressTA.setCaretPosition(0);
             physicalPostCodeTF.setText(comp.getPostCode());
-            
+
             mailingAddressTA.setText(comp.getMailaddress());
             mailingAddressTA.setCaretPosition(0);
             mailingPostCodeTF.setText(comp.getMailingPostCode());
@@ -281,7 +314,9 @@ class EditCompanyPanel extends EditPanelWithPhoto {
             if (userID != null) {
                 try {
                     User user = (User) AIBclient.getExchanger().loadDbObjectOnID(User.class, userID);
-                    lastEditorTF.setText(user.getInitials());
+                    if (user != null) {
+                        lastEditorTF.setText(user.getInitials());
+                    }
                 } catch (RemoteException ex) {
                     AIBclient.log(ex);
                 }
@@ -302,8 +337,8 @@ class EditCompanyPanel extends EditPanelWithPhoto {
             comp.setCompanyId(0);
             isNew = true;
         }
-        comp.setFullName(fullCompanyNameTF.getText());
-        comp.setAbbreviation(abbreviationTF.getText());
+        comp.setFullName(fullCompanyNameTF.getSelectedItem().toString());
+        comp.setAbbreviation(abbreviationTF.getSelectedItem().toString());
         comp.setIsDummy(isDummyCB.isSelected() ? 1 : 0);
         comp.setTurnover((Double) turnoverSP.getValue());
         comp.setAddress(physicAddressTA.getText());

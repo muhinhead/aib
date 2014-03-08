@@ -4,6 +4,7 @@
  */
 package com.aib.location;
 
+import static com.aib.location.LocationsGrid.SELECT;
 import com.aib.remote.IMessageSender;
 import java.rmi.RemoteException;
 
@@ -20,6 +21,12 @@ public class CompLocationsGrid extends LocationsGrid {
                 .replace("from location", "from location where location.company_id=" + (companyID = compID)));
     }
 
+    public void refresh(Integer compID) {
+        setSelect(SELECT.replace("(select full_name from company where company_id=location.company_id) \"Company\",","")
+                .replace("from location", "from location where location.company_id=" + (companyID = compID)));
+        refresh();
+    }
+    
     @Override
     protected void additionalSettings() {
         EditLocationDialog.companyID = companyID;

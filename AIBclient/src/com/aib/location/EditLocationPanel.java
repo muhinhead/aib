@@ -100,7 +100,7 @@ class EditLocationPanel extends EditPanelWithPhoto {
         String titles[] = new String[]{
             "ID:",
             "Company:",
-            "Location Name:", //"Abbreviation:"
+            "Location Name:", //"Alternate Name:"
             "Links:",
             "Industry:",
             "Physical Address:",//            "Post Code:",
@@ -125,7 +125,7 @@ class EditLocationPanel extends EditPanelWithPhoto {
             getGridPanel(new JComponent[]{
                 locationNameTF = new JTextField(),
                 getGridPanel(new JComponent[]{
-                    new JLabel("Abbreviation:", SwingConstants.RIGHT),
+                    new JLabel("Alternative Name:", SwingConstants.RIGHT),
                     abbreviationTF = new JTextField()
                 })
             }),

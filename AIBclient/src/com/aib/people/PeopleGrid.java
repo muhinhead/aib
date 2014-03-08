@@ -54,6 +54,12 @@ public class PeopleGrid extends GeneralGridPanel {
         refresh();
     }
 
+    public void refresh(Integer compID) {
+        setSelect(SELECT.replace(GeneralGridPanel.SELECTLIMIT, "")
+                    + " where people_id in (select people_id from peoplecompany where company_id=" + compID + ")");
+        refresh();
+    }
+    
     protected void additionalSettings() {
         
     }
