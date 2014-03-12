@@ -60,7 +60,7 @@ import javax.swing.SpinnerNumberModel;
  */
 public class AIBclient {
 
-    private static final String version = "0.13.d";
+    private static final String version = "0.13.e";
 //    private static Userprofile currentUser;
     private static Logger logger = null;
     private static FileHandler fh;
@@ -461,7 +461,7 @@ public class AIBclient {
                 //                + "substr(concat(abbreviation,' (',full_name,')'),1,60) "
                 + "from company ");
     }
-
+    
     public static void reloadLocations(ComboItem startItem) {
         locationsDictionary = loadOnSelect(exchanger,
                 "select location_id, concat(l.name,' (',ifnull((Select abbreviation from company where company_id=l.company_id),''),')') "

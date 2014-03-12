@@ -15,6 +15,7 @@ import com.aib.lookup.ListInTextFieldDialog;
 //import static com.aib.RecordEditPanel.getGridPanel;
 import com.aib.location.CompLocationsGrid;
 import com.aib.lookup.CompanyLookupAction;
+import com.aib.lookup.LookupDialog;
 import com.aib.lookup.PublicationsListInTextFieldDialog;
 import com.aib.lookup.WorldRegionLookupAction;
 import com.aib.orm.Company;
@@ -36,6 +37,8 @@ import java.sql.Timestamp;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.StringTokenizer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -207,20 +210,42 @@ class EditCompanyPanel extends EditPanelWithPhoto {
         fullCompanyNameTF.setStrict(false);
         fullCompanyNameTF.getEditor().getEditorComponent().addFocusListener(new FocusAdapter() {
             public void focusLost(FocusEvent e) {
-//                if (getDbObject() == null) {
-                    Company comp = AIBclient.getCompanyOnValue("full_name", fullCompanyNameTF.getSelectedItem().toString());
-                    reload(comp);
-//                }
+                String fullName = fullCompanyNameTF.getSelectedItem().toString();
+                if (fullName.trim().length() > 0) {
+                    Company comp = AIBclient.getCompanyOnValue("full_name", fullName);
+                    if (comp != null && (getDbObject() == null || comp.getCompanyId().intValue() != getDbObject().getPK_ID().intValue())) {
+                        new CompanyLookupAction(fullCompanyNameTF, "full_name", fullCompanyNameTF.getSelectedItem().toString());
+                        if (LookupDialog.getChoosed() != null) {
+                            try {
+                                comp = (Company) AIBclient.getExchanger().loadDbObjectOnID(Company.class, LookupDialog.getChoosed().intValue());
+                                reload(comp);
+                            } catch (RemoteException ex) {
+                                AIBclient.logAndShowMessage(ex);
+                            }
+                        }
+                    }
+                }
             }
         });
         abbreviationTF.setEditable(true);
         abbreviationTF.setStrict(false);
         abbreviationTF.getEditor().getEditorComponent().addFocusListener(new FocusAdapter() {
             public void focusLost(FocusEvent e) {
-//                if (getDbObject() == null) {
-                    Company comp = AIBclient.getCompanyOnValue("abbreviation", abbreviationTF.getSelectedItem().toString());
-                    reload(comp);
-//                }
+                String abbreviation = abbreviationTF.getSelectedItem().toString();
+                if (abbreviation.trim().length() > 0) {
+                    Company comp = AIBclient.getCompanyOnValue("abbreviation", abbreviation);
+                    if (comp != null && (getDbObject() == null || comp.getCompanyId().intValue() != getDbObject().getPK_ID().intValue())) {
+                        new CompanyLookupAction(abbreviationTF, "abbreviation", abbreviationTF.getSelectedItem().toString());
+                        if (LookupDialog.getChoosed() != null) {
+                            try {
+                                comp = (Company) AIBclient.getExchanger().loadDbObjectOnID(Company.class, LookupDialog.getChoosed().intValue());
+                                reload(comp);
+                            } catch (RemoteException ex) {
+                                AIBclient.logAndShowMessage(ex);
+                            }
+                        }
+                    }
+                }
             }
         });
 
