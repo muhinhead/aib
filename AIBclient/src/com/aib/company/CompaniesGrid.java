@@ -22,10 +22,10 @@ import javax.swing.JOptionPane;
 public class CompaniesGrid extends GeneralGridPanel {
 
     public static final String SELECT = "select distinct company.company_id \"ID\","
-            + "company.abbreviation \"Abbreviation\",company.full_name \"Name\", "
+            + "company.full_name \"Name\", company.abbreviation \"Alternate Name\", "
 //            + "(select abbreviation from company c where company_id=company.parent_id) \"Parent\", "
             + "(select country from country where country_id=company.country_id) \"Country\","
-            + "company.main_phone \"Main phone\",company.main_fax \"Main fax\", "
+            + "company.main_phone \"Main Phone\",company.main_fax \"Main Fax\", "
             + "company.renewal_date \"Renewal Date\", company.verify_date \"Verify Date\", company.lastedit_date \"Last Edited\" "
             + "from company order by lastedit_date desc "+GeneralGridPanel.SELECTLIMIT;
     private static HashMap<Integer, Integer> maxWidths = new HashMap<Integer, Integer>();

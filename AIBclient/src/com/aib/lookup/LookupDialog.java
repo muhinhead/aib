@@ -4,6 +4,7 @@ import com.aib.AIBclient;
 import com.aib.GeneralFrame;
 import com.aib.GeneralGridPanel;
 import com.aib.orm.dbobject.ComboItem;
+import com.xlend.util.Java2sAutoComboBox;
 import com.xlend.util.PopupDialog;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -47,7 +48,7 @@ public class LookupDialog extends PopupDialog {
         Object[] params = (Object[]) getObject();
         comboBox = (JComboBox) params[0];
         grid = (GeneralGridPanel) params[1];
-        if (comboBox != null && comboBox.getSelectedItem() != null) {
+        if (comboBox != null && comboBox.getSelectedItem() != null && !(comboBox instanceof Java2sAutoComboBox)) {
             choosedID = ((ComboItem) comboBox.getSelectedItem()).getId();
             grid.selectRowOnId(choosedID);
         }
@@ -149,18 +150,26 @@ public class LookupDialog extends PopupDialog {
                 boolean found = false;
                 choosedID = grid.getSelectedID();
                 for (int i = 0; comboBox != null && i < comboBox.getItemCount(); i++) {
-                    ComboItem citm = (ComboItem) comboBox.getItemAt(i);
-                    if (citm != null && citm.getId() == choosedID) {
-                        comboBox.setSelectedIndex(i);
-                        found = true;
-                        break;
+                    if (comboBox instanceof Java2sAutoComboBox) {
+                        //TODO
+                    } else {
+                        ComboItem citm = (ComboItem) comboBox.getItemAt(i);
+                        if (citm != null && citm.getId() == choosedID) {
+                            comboBox.setSelectedIndex(i);
+                            found = true;
+                            break;
+                        }
                     }
                 }
                 if (!found && comboBox != null) {
-                    ComboItem newItem;
-                    DefaultComboBoxModel cbModel = (DefaultComboBoxModel) comboBox.getModel();
-                    cbModel.addElement(newItem = new ComboItem(choosedID, grid.getSelectedRowCeil(1)));
-                    comboBox.setSelectedItem(newItem);
+                    if (comboBox instanceof Java2sAutoComboBox) {
+                        //TODO
+                    } else {
+                        ComboItem newItem;
+                        DefaultComboBoxModel cbModel = (DefaultComboBoxModel) comboBox.getModel();
+                        cbModel.addElement(newItem = new ComboItem(choosedID, grid.getSelectedRowCeil(1)));
+                        comboBox.setSelectedItem(newItem);
+                    }
                 }
                 dispose();
             }
