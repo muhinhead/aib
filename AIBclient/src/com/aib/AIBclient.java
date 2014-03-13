@@ -414,12 +414,13 @@ public class AIBclient {
         try {
             Vector[] tab = exchanger.getTableBody(select);
             Vector rows = tab[1];
-            ComboItem[] ans = new ComboItem[rows.size() + (startItem != null ? 1 : 0)];
-            for (int i = 0; i < rows.size(); i++) {
+            int delta = (startItem != null ? 1 : 0);
+            ComboItem[] ans = new ComboItem[rows.size() + delta];
+            for (int i = 0; i < rows.size() + delta; i++) {
                 if (startItem != null && i == 0) {
                     ans[i] = startItem;
                 } else {
-                    Vector line = (Vector) rows.get(i);
+                    Vector line = (Vector) rows.get(i - delta);
                     int id = Integer.parseInt(line.get(0).toString());
                     String tmvnr = line.get(1).toString();
                     ans[i] = new ComboItem(id, tmvnr);

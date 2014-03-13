@@ -11,6 +11,7 @@ import com.aib.GeneralFrame;
 import com.aib.ModalGridDialog;
 import static com.aib.RecordEditPanel.getBorderPanel;
 import static com.aib.RecordEditPanel.getGridPanel;
+import static com.aib.RecordEditPanel.selectComboItem;
 import com.aib.lookup.CompanyListInTextFieldDialog;
 import com.aib.lookup.AIBawardsListInTextFieldDialog;
 import com.aib.lookup.ListInTextFieldDialog;
@@ -132,7 +133,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             "Last verified" //"Last editor:" //"Last edited:
         };
         ComboItem emptyItem = new ComboItem(0, "");
-        locationCbModel = new DefaultComboBoxModel(AIBclient.loadAllLocations(emptyItem));
+        locationCbModel = new DefaultComboBoxModel();//AIBclient.loadAllLocations(emptyItem));
         salesContactCbModel = new DefaultComboBoxModel(AIBclient.loadAllUsersInitials());
         JLabel paEmailLBL;
         JLabel alterEmailLBL;
@@ -357,8 +358,8 @@ class EditPeoplePanel extends EditPanelWithPhoto {
         mainEmailTF.setStrict(false);
         mainEmailTF.getEditor().getEditorComponent().addFocusListener(new FocusAdapter() {
             public void focusLost(FocusEvent e) {
-                    People people = AIBclient.getPeopleOnValue("main_email", mainEmailTF.getSelectedItem().toString());
-                    reload(people);
+                People people = AIBclient.getPeopleOnValue("main_email", mainEmailTF.getSelectedItem().toString());
+                reload(people);
             }
         });
     }
@@ -371,8 +372,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             commentsGrid.refresh(people.getPeopleId());
         }
     }
-    
-    
+
     @Override
     public void loadData() {
         People person = (People) getDbObject();
@@ -385,13 +385,17 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             suffixCB.setSelectedItem(person.getSuffix());
             greetingCB.setSelectedItem(person.getGreeting());
             jobDisciplineCB.setSelectedItem(person.getJobDiscip());
-            selectComboItem(locationCB, person.getLocationId());
+            
             selectComboItem(salesContactCB, person.getSalesContactId());
             departmentCB.setSelectedItem(person.getDepartment());
             linksListTF.setText(AIBclient.getLinkListOnPeopleID(person.getPeopleId()));
             industriesListTF.setText(AIBclient.getIndustryListOnPeopleID(person.getPeopleId()));
             aibAwardsListTF.setText(AIBclient.getAwardsOnPeopleID(person.getPeopleId()));
-            companiesListTF.setText(AIBclient.getCompaniesOnPeopleID(person.getPeopleId()));
+            String compList;
+            companiesListTF.setText(compList = AIBclient.getCompaniesOnPeopleID(person.getPeopleId()));
+            locationCB.setModel(locationCbModel =
+                        AIBclient.loadLocationsForCompanies(compList, new ComboItem(0, "")));
+            selectComboItem(locationCB, person.getLocationId());
             specAddressTF.setText(person.getSpecAddress());
             mailingAddressTA.setText(person.getMailaddress());
             mailingPostCodeTF.setText(person.getMailpostcode());
@@ -565,8 +569,12 @@ class EditPeoplePanel extends EditPanelWithPhoto {
                     "Company name:"});
                 String compList = ListInTextFieldDialog.getResultList();
                 companiesListTF.setText(compList);
-                locationCB.setModel(locationCbModel = 
-                        AIBclient.loadLocationsForCompanies(compList, new ComboItem(0,"")));
+                locationCB.setModel(locationCbModel =
+                        AIBclient.loadLocationsForCompanies(compList, new ComboItem(0, "")));
+                if (getDbObject() != null) {
+                    People person = (People) getDbObject();
+                    selectComboItem(locationCB, person.getLocationId());
+                }
             }
         };
     }
