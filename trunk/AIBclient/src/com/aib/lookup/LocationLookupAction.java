@@ -35,7 +35,7 @@ public class LocationLookupAction extends AbstractAction {
                     "select location_id \"Id\",name \"Location\","
                     + "(Select abbreviation from company where company_id=l.company_id) \"Company\" "
                     + "from location l order by name"
-                    ), new String[]{"name","c.abbreviation"});
+                    ), new String[]{"name"});
         } catch (RemoteException ex) {
             GeneralFrame.errMessageBox("Error:", ex.getMessage());
         }
