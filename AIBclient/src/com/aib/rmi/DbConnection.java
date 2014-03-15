@@ -55,7 +55,7 @@ public class DbConnection {
         public void run() {
             for (ConnectionWithFlag cf : connections) {
                 if (!cf.isBusy) {
-                    if (Calendar.getInstance().getTimeInMillis() - cf.lastUsage > 60 * 1000) {
+                    if (Calendar.getInstance().getTimeInMillis() - cf.lastUsage > 30 * 1000) {
                         try {
                             cf.connection.close();
                             connections.remove(cf);
@@ -163,7 +163,7 @@ public class DbConnection {
             initLocalDB(connection);
             fixLocalDB(connection);
             Timer timer = new Timer();
-            timer.schedule(new ConnectionTouchTask(false), 1000, 60 * 1000);
+            timer.schedule(new ConnectionTouchTask(false), 1000, 30 * 1000);
             isFirstTime = false;
         }
         if (connection != null) {

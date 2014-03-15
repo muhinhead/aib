@@ -16,6 +16,7 @@ import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.StringTokenizer;
 import javax.swing.AbstractAction;
 import javax.swing.AbstractListModel;
 import javax.swing.JButton;
@@ -201,11 +202,20 @@ public class ListInTextFieldDialog extends PopupDialog {
 
     protected void fillJList(List linkList) {
         if (oldList.length() > 0) {
-            for (Object url : linkList) {
-                if (oldList.indexOf((String) url) >= 0) {
-                    selectedItems.add(url);
+            StringTokenizer st = new StringTokenizer(oldList,",");
+            while (st.hasMoreTokens()) {
+                String token = st.nextToken();
+                for (Object url : linkList) {
+                    if(((String) url).equals(token)) {
+                        selectedItems.add(url);
+                    }
                 }
             }
+//            for (Object url : linkList) {
+//                if (oldList.indexOf((String) url) >= 0) {
+//                    selectedItems.add(url);
+//                }
+//            }
         }
     }
 }

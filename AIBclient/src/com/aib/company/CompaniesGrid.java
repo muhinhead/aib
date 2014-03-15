@@ -32,7 +32,8 @@ public class CompaniesGrid extends GeneralGridPanel {
 
     static {
         maxWidths.put(0, 40);
-        maxWidths.put(1, 200);
+//        maxWidths.put(1, 400);
+//        maxWidths.put(2, 400);
     }
 
     public CompaniesGrid(IMessageSender exchanger) throws RemoteException {
