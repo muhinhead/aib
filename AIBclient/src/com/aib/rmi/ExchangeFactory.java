@@ -64,7 +64,7 @@ public class ExchangeFactory {
                 exchanger = (IMessageSender) Naming.lookup(connectString);
                 AIBclient.protocol = "rmi";
             } catch (Exception ex) {
-                AIBclient.log(ex);
+                AIBclient.log("RMI server not found");
             }
         } else if (connectString.startsWith("jdbc:")) {
             String dbUser = props.getProperty("dbUser", "root");
