@@ -290,7 +290,7 @@ class EditCompanyPanel extends EditPanelWithPhoto {
         } catch (RemoteException ex) {
             AIBclient.logAndShowMessage(ex);
         }
-
+        
         downTabs.setPreferredSize(new Dimension(downTabs.getPreferredSize().width, 200));
         add(downTabs);
     }
@@ -328,7 +328,6 @@ class EditCompanyPanel extends EditPanelWithPhoto {
             selectComboItem(countryCB, comp.getCountryId());
             mainPhoneTF.setText(comp.getMainPhone());
             mainFaxTF.setText(comp.getMainFax());
-//            membershipLevelTF.setSelectedIndex(comp.getMemberLevel() != null ? comp.getMemberLevel().intValue() - 1 : 1);
             membershipLevelTF.setText(comp.getMemberLevel());
             selectComboItem(parentCompanyCB, comp.getParentId());
             if (comp.getLasteditDate() != null) {
