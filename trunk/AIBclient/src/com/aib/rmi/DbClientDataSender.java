@@ -13,9 +13,12 @@ import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Properties;
 import java.util.Vector;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -25,8 +28,35 @@ import java.util.logging.Logger;
  */
 public class DbClientDataSender implements IMessageSender {
 
+    private static final int CACHESIZE = 1000;
+    private static ConcurrentHashMap dbObjectMap = new ConcurrentHashMap();
+    private static List synchList = (List) Collections.synchronizedList(new ArrayList());
+
     public DbClientDataSender(Properties props) {
         DbConnection.setProps(props);
+    }
+
+    private static void put2cache(String key, DbObject dbobj) {
+        if (synchList.size() >= CACHESIZE) {
+            dbObjectMap.remove((String) synchList.get(0));
+            synchList.remove(0);
+        }
+        dbObjectMap.put(key, dbobj);
+        synchList.add(key);
+    }
+
+    private static DbObject getFromCache(String key) {
+        return (DbObject) dbObjectMap.get(key);
+    }
+
+    private static void removeFromCache(String key) {
+        dbObjectMap.remove(key);
+        for (int i = synchList.size() - 1; i >= 0; i--) {
+            if (synchList.get(i).equals(key)) {
+                synchList.remove(i);
+                break;
+            }
+        }
     }
 
     @Override
@@ -36,6 +66,9 @@ public class DbClientDataSender implements IMessageSender {
         try {
             Method method = dbobClass.getDeclaredMethod("load", Connection.class, String.class, String.class);
             rows = (DbObject[]) method.invoke(null, con = DbConnection.getConnection(), whereCondition, orderCondition);
+            for (int i = 0; rows.length < CACHESIZE - synchList.size() && i < rows.length; i++) {
+                put2cache(dbobClass.getName() + "#" + rows[i].getPK_ID(), rows[i]);
+            }
             return rows;
         } catch (Exception ex) {
             throw new java.rmi.RemoteException(ex.getMessage());
@@ -54,6 +87,7 @@ public class DbClientDataSender implements IMessageSender {
             try {
                 dbob.setConnection(con = DbConnection.getConnection());
                 dbob.save();
+                put2cache(dbob.getClass().getName() + "#" + dbob.getPK_ID(), dbob);
                 return dbob;
             } catch (Exception ex) {
                 throw new java.rmi.RemoteException("Can't save DB object:", ex);
@@ -74,6 +108,7 @@ public class DbClientDataSender implements IMessageSender {
             try {
                 dbob.setConnection(con = DbConnection.getConnection());
                 dbob.delete();
+                removeFromCache(dbob.getClass().getName() + "#" + dbob.getPK_ID());
             } catch (Exception ex) {
                 throw new java.rmi.RemoteException(ex.getMessage());
             } finally {
@@ -87,21 +122,26 @@ public class DbClientDataSender implements IMessageSender {
 
     @Override
     public DbObject loadDbObjectOnID(Class dbobClass, int id) throws RemoteException {
-        DbObject dbob = null;
-        Connection con = null;
-        try {
-            Constructor constructor = dbobClass.getConstructor(Connection.class);
-            dbob = (DbObject) constructor.newInstance(con = DbConnection.getConnection());
-            dbob = dbob.loadOnId(id);
-            return dbob;
-        } catch (Exception ex) {
-            throw new java.rmi.RemoteException("Can't save DB object:", ex);
-        } finally {
+        String key = dbobClass.getName() + "#" + id;
+        DbObject dbob = getFromCache(key);
+        if (dbob == null) {
+            Connection con = null;
             try {
-                DbConnection.closeConnection(con);
-            } catch (SQLException ex) {
+                Constructor constructor = dbobClass.getConstructor(Connection.class);
+                dbob = (DbObject) constructor.newInstance(con = DbConnection.getConnection());
+                dbob = dbob.loadOnId(id);
+                put2cache(key, dbob);
+//            return dbob;
+            } catch (Exception ex) {
+                throw new java.rmi.RemoteException("Can't save DB object:", ex);
+            } finally {
+                try {
+                    DbConnection.closeConnection(con);
+                } catch (SQLException ex) {
+                }
             }
         }
+        return dbob;
     }
 
     @Override
@@ -325,7 +365,7 @@ public class DbClientDataSender implements IMessageSender {
             }
             return new Object[]{names, types};
         } catch (SQLException ex) {
-            AIBclient.log(ex);
+//            AIBclient.log(ex);
             throw new java.rmi.RemoteException(ex.getMessage());
         } finally {
             try {

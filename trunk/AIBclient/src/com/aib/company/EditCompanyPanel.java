@@ -135,10 +135,10 @@ class EditCompanyPanel extends EditPanelWithPhoto {
             getGridPanel(idField = new JTextField(), 6),
             getGridPanel(new JComponent[]{
                 fullCompanyNameTF = new Java2sAutoComboBox(AIBclient.loadDistinctCompanyNames("full_name")),
-                getGridPanel(new JComponent[]{
+//                getGridPanel(new JComponent[]{
                     new JLabel("Alternative Name:", SwingConstants.RIGHT),
                     abbreviationTF = new Java2sAutoComboBox(AIBclient.loadDistinctCompanyNames("abbreviation"))
-                })
+//                })
             }),
             getBorderPanel(new JComponent[]{
                 getGridPanel(new JComponent[]{
@@ -212,7 +212,7 @@ class EditCompanyPanel extends EditPanelWithPhoto {
             public void focusLost(FocusEvent e) {
                 String fullName = fullCompanyNameTF.getSelectedItem().toString();
                 if (fullName.trim().length() > 0) {
-                    Company comp = AIBclient.getCompanyOnValue("full_name", fullName);
+                    Company comp = AIBclient.getCompanyOnValue("full_name", fullName.trim());
                     if (comp != null && (getDbObject() == null || comp.getCompanyId().intValue() != getDbObject().getPK_ID().intValue())) {
                         new CompanyLookupAction(fullCompanyNameTF, "full_name", fullCompanyNameTF.getSelectedItem().toString());
                         if (LookupDialog.getChoosed() != null) {
@@ -233,7 +233,7 @@ class EditCompanyPanel extends EditPanelWithPhoto {
             public void focusLost(FocusEvent e) {
                 String abbreviation = abbreviationTF.getSelectedItem().toString();
                 if (abbreviation.trim().length() > 0) {
-                    Company comp = AIBclient.getCompanyOnValue("abbreviation", abbreviation);
+                    Company comp = AIBclient.getCompanyOnValue("abbreviation", abbreviation.trim());
                     if (comp != null && (getDbObject() == null || comp.getCompanyId().intValue() != getDbObject().getPK_ID().intValue())) {
                         new CompanyLookupAction(abbreviationTF, "abbreviation", abbreviationTF.getSelectedItem().toString());
                         if (LookupDialog.getChoosed() != null) {
@@ -286,7 +286,7 @@ class EditCompanyPanel extends EditPanelWithPhoto {
             Integer compID = comp == null ? new Integer(0) : comp.getCompanyId();
             downTabs.add(compLocationsGrid = new CompLocationsGrid(AIBclient.getExchanger(), compID), "Company Locations");
             downTabs.add(peopleGrid = new PeopleGrid(AIBclient.getExchanger(), PeopleGrid.SELECT.replace(GeneralGridPanel.SELECTLIMIT, "")
-                    + " where people_id in (select people_id from peoplecompany where company_id=" + compID + ")"), "People");
+                    + " where people_id in (select people_id from peoplecompany where company_id=" + compID + ")", false), "People");
         } catch (RemoteException ex) {
             AIBclient.logAndShowMessage(ex);
         }

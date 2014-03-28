@@ -24,7 +24,8 @@ public class PeopleGrid extends GeneralGridPanel {
     
     public static final String SELECT = "select people_id \"ID\","
             + "title \"Title\",first_name \"First Name\", "
-            + "last_name \"Last Name\",suffix \"Suffix\", greeting \"Greeting\", "
+            + "last_name \"Last Name\",main_email \"E-mail\","
+//            + "suffix \"Suffix\", greeting \"Greeting\", "
             + "desk_phone \"Desk Phone\", mobile_phone \"Mobile Phone\", "
             + "lastedit_date \"Last Edited\", "
             + "(select initials from user where user_id=people.lastedited_by) \"Editor\" "
@@ -33,18 +34,18 @@ public class PeopleGrid extends GeneralGridPanel {
 
     static {
         maxWidths.put(0, 40);
-        maxWidths.put(1, 80);
-        maxWidths.put(4, 80);
-        maxWidths.put(5, 80);
-        maxWidths.put(9, 40);
+//        maxWidths.put(1, 80);
+//        maxWidths.put(4, 80);
+//        maxWidths.put(5, 80);
+//        maxWidths.put(9, 40);
     }
 
     public PeopleGrid(IMessageSender exchanger) throws RemoteException {
         super(exchanger, SELECT, maxWidths, false);
     }
 
-    public PeopleGrid(IMessageSender exchanger, String select) throws RemoteException {
-        super(exchanger, select, maxWidths, false);
+    public PeopleGrid(IMessageSender exchanger, String select, boolean readOnly) throws RemoteException {
+        super(exchanger, select, maxWidths, readOnly);
         EditPeopleDialog.locationID = null;
     }
 

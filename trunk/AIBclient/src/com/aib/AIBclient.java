@@ -39,6 +39,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 import java.util.Vector;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -60,7 +61,7 @@ import javax.swing.SpinnerNumberModel;
  */
 public class AIBclient {
 
-    private static final String version = "0.13.e";
+    private static final String version = "0.13.g";
 //    private static Userprofile currentUser;
     private static Logger logger = null;
     private static FileHandler fh;
@@ -75,6 +76,7 @@ public class AIBclient {
     private static List prospLevelList;
     public static String protocol = "unknown";
     public static final String defaultServerIP = "localhost";
+    private static ConcurrentHashMap listsCached = new ConcurrentHashMap();
 
     /**
      * @param args the command line arguments
@@ -368,7 +370,7 @@ public class AIBclient {
                 "select distinct " + fld + " from people order by " + fld, "");
         return ans;
     }
-    
+
     public static List loadAllLogins(String fld) {
         try {
             DbObject[] users = exchanger.getDbObjects(User.class, null, "login");
@@ -435,16 +437,20 @@ public class AIBclient {
 
     private static List loadStringsOnSelect(IMessageSender exchanger, String select, String begin) {
         int pos = select.indexOf("select distinct ");
-        String slct = pos == 0 ? select.replaceAll("select distinct ", "select distinct 0,")
-                : select.replaceAll("select ", "select 0,");
-        ComboItem[] itms = loadOnSelect(exchanger, slct);
-        List answerArray = new ArrayList();
-        if (begin != null) {
-            answerArray.add(begin);
-        }
-        for (int i = 0; i < itms.length; i++) {
-            answerArray.add(//i, 
-                    itms[i].getValue());
+        List answerArray = (List) listsCached.get(select);
+        if (answerArray == null) {
+            answerArray = new ArrayList();
+            String slct = pos == 0 ? select.replaceAll("select distinct ", "select distinct 0,")
+                    : select.replaceAll("select ", "select 0,");
+            ComboItem[] itms = loadOnSelect(exchanger, slct);
+            if (begin != null) {
+                answerArray.add(begin);
+            }
+            for (int i = 0; i < itms.length; i++) {
+                answerArray.add(//i, 
+                        itms[i].getValue());
+            }
+            listsCached.put(select, answerArray);
         }
         return answerArray;
     }
@@ -462,7 +468,7 @@ public class AIBclient {
                 //                + "substr(concat(abbreviation,' (',full_name,')'),1,60) "
                 + "from company ");
     }
-    
+
     public static void reloadLocations(ComboItem startItem) {
         locationsDictionary = loadOnSelect(exchanger,
                 "select location_id, concat(l.name,' (',ifnull((Select abbreviation from company where company_id=l.company_id),''),')') "
@@ -1276,16 +1282,16 @@ public class AIBclient {
         return fltrs1;
     }
 
-    public static DefaultComboBoxModel loadLocationsForCompanies(String compList,ComboItem startItem) {
+    public static DefaultComboBoxModel loadLocationsForCompanies(String compList, ComboItem startItem) {
         String sql = "select location_id, concat(l.name,' (',ifnull((Select abbreviation from company where company_id=l.company_id),''),')') "
-                + "from location l where company_id in (select company_id from company where instr('"+compList+"',concat(full_name,'(',company_id,')'))>0) "
+                + "from location l where company_id in (select company_id from company where instr('" + compList + "',concat(full_name,'(',company_id,')'))>0) "
                 + "order by l.name";
         return new DefaultComboBoxModel(loadOnSelect(exchanger, sql, startItem));
     }
 
     public static Company getCompanyOnValue(String column, String value) {
         try {
-            DbObject[] obs = getExchanger().getDbObjects(Company.class, column + "='" + value + "'", column);
+            DbObject[] obs = getExchanger().getDbObjects(Company.class, column + " like '" + value + "%'", column);
             if (obs.length > 0) {
                 Company comp = (Company) obs[0];
                 return comp;
@@ -1295,10 +1301,10 @@ public class AIBclient {
         }
         return null;
     }
-    
+
     public static People getPeopleOnValue(String column, String value) {
         try {
-            DbObject[] obs = getExchanger().getDbObjects(People.class, column + "='" + value + "'", column);
+            DbObject[] obs = getExchanger().getDbObjects(People.class, "UPPER(" + column + ") like UPPER('" + value.trim() + "%')", column);
             if (obs.length > 0) {
                 People people = (People) obs[0];
                 return people;

@@ -49,7 +49,7 @@ public class CompanyLookupAction extends AbstractAction {
                     + "full_name \"Name\",abbreviation \"Alternate Name\", "
                     + "(select country from country where country_id=company.country_id) \"Country\","
                     + "main_phone \"Main phone\",main_fax \"Main fax\" "
-                    + "from company " + (column != null && value != null ? "where upper(" + column + ") like upper('" + value + "%')" : "");
+                    + "from company " + (column != null && value != null ? "where upper(" + column + ") like upper('" + value.trim() + "%')" : "");
             LookupDialog ld = new LookupDialog((column != null && value != null ? "Select old or new record" : "Company Lookup"),companyCB,
                     new CompaniesGrid(AIBclient.getExchanger(), select, readOnly),
                     new String[]{"abbreviation", "full_name", "main_phone", "main_fax"});
@@ -65,7 +65,7 @@ public class CompanyLookupAction extends AbstractAction {
                     + "full_name \"Name\",abbreviation \"Alternate Name\", "
                     + "(select country from country where country_id=company.country_id) \"Country\","
                     + "main_phone \"Main phone\",main_fax \"Main fax\" "
-                    + "from company " + (column != null && value != null ? "where upper(" + column + ") like upper('" + value + "%')" : "");
+                    + "from company " + (column != null && value != null ? "where upper(" + column + ") like upper('" + value.trim() + "%')" : "");
             LookupDialog ld = new LookupDialog("Company Lookup", companyCB,
                     new CompaniesGrid(AIBclient.getExchanger(), select, readOnly),
                     new String[]{"abbreviation", "full_name", "main_phone", "main_fax"});

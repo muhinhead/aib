@@ -26,6 +26,8 @@ public abstract class AncestorFilterPanel extends AbstractFilterPanel {
     @Override
     protected void loadColNamesTypes() throws RemoteException {
         super.loadColNamesTypes();
+        colNames.add("Countries");
+        colNamesTypes.put("Countries",java.sql.Types.VARCHAR);
         colNames.add("Links");
         colNamesTypes.put("Links", Types.VARCHAR);
         colNames.add("Industries");

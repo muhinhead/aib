@@ -352,6 +352,7 @@ public class AdminsFrame extends GeneralFrame {
                         "select * from " + tableName.toLowerCase() + " where " + tableName + "_id<0");
                 ArrayList<String> colNames = (ArrayList<String>) obs[0];
                 colNames.remove(tableName.toLowerCase() + "_id");
+                colNames.add("Countries");
                 colNames.add("Links");
                 colNames.add("Industries");
                 columnList = colNames.toArray();

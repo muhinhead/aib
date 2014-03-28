@@ -215,7 +215,7 @@ class EditLocationPanel extends EditPanelWithPhoto {
         try {
             downTabs.add(peopleGrid = new PeopleGrid(
                     AIBclient.getExchanger(), PeopleGrid.SELECT.replace(
-                    "from people ", "from people where location_id<0 ")), "People");
+                    "from people ", "from people where location_id<0 "), false), "People");
         } catch (RemoteException ex) {
             AIBclient.logAndShowMessage(ex);
         }
