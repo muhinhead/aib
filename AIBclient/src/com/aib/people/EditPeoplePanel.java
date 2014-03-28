@@ -16,6 +16,8 @@ import com.aib.lookup.CompanyListInTextFieldDialog;
 import com.aib.lookup.AIBawardsListInTextFieldDialog;
 import com.aib.lookup.ListInTextFieldDialog;
 import com.aib.lookup.LocationLookupAction;
+import com.aib.lookup.LookupDialog;
+import com.aib.lookup.PeopleLookupAction;
 import com.aib.lookup.UserLookupAction;
 import com.aib.orm.People;
 import com.aib.orm.User;
@@ -352,6 +354,28 @@ class EditPeoplePanel extends EditPanelWithPhoto {
 
         familyNameTF.setEditable(true);
         familyNameTF.setStrict(false);
+        familyNameTF.getEditor().getEditorComponent().addFocusListener(new FocusAdapter() {
+            public void focusLost(FocusEvent e) {
+//                People people = AIBclient.getPeopleOnValue("main_email", mainEmailTF.getSelectedItem().toString());
+//                reload(people);
+                String familyName = familyNameTF.getSelectedItem().toString();
+                if (familyName.trim().length() > 0) {
+                    People people = AIBclient.getPeopleOnValue("last_name", familyNameTF.getSelectedItem().toString());
+                    if (people != null && (getDbObject() == null || people.getPeopleId().intValue() != getDbObject().getPK_ID().intValue())) {
+                        new PeopleLookupAction(familyNameTF, "last_name", familyNameTF.getSelectedItem().toString());
+                        if (LookupDialog.getChoosed() != null) {
+                            try {
+                                people = (People) AIBclient.getExchanger().loadDbObjectOnID(People.class,
+                                        LookupDialog.getChoosed().intValue());
+                                reload(people);
+                            } catch (RemoteException ex) {
+                                AIBclient.logAndShowMessage(ex);
+                            }
+                        }
+                    }
+                }
+            }
+        });
         firstNameTF.setEditable(true);
         firstNameTF.setStrict(false);
         mainEmailTF.setEditable(true);
@@ -359,7 +383,18 @@ class EditPeoplePanel extends EditPanelWithPhoto {
         mainEmailTF.getEditor().getEditorComponent().addFocusListener(new FocusAdapter() {
             public void focusLost(FocusEvent e) {
                 People people = AIBclient.getPeopleOnValue("main_email", mainEmailTF.getSelectedItem().toString());
-                reload(people);
+                if (people != null && (getDbObject() == null || people.getPeopleId().intValue() != getDbObject().getPK_ID().intValue())) {
+                    new PeopleLookupAction(mainEmailTF, "main_email", mainEmailTF.getSelectedItem().toString());
+                    if (LookupDialog.getChoosed() != null) {
+                        try {
+                            people = (People) AIBclient.getExchanger().loadDbObjectOnID(People.class,
+                                    LookupDialog.getChoosed().intValue());
+                            reload(people);
+                        } catch (RemoteException ex) {
+                            AIBclient.logAndShowMessage(ex);
+                        }
+                    }
+                }
             }
         });
     }
@@ -385,7 +420,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             suffixCB.setSelectedItem(person.getSuffix());
             greetingCB.setSelectedItem(person.getGreeting());
             jobDisciplineCB.setSelectedItem(person.getJobDiscip());
-            
+
             selectComboItem(salesContactCB, person.getSalesContactId());
             departmentCB.setSelectedItem(person.getDepartment());
             linksListTF.setText(AIBclient.getLinkListOnPeopleID(person.getPeopleId()));
@@ -394,7 +429,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             String compList;
             companiesListTF.setText(compList = AIBclient.getCompaniesOnPeopleID(person.getPeopleId()));
             locationCB.setModel(locationCbModel =
-                        AIBclient.loadLocationsForCompanies(compList, new ComboItem(0, "")));
+                    AIBclient.loadLocationsForCompanies(compList, new ComboItem(0, "")));
             selectComboItem(locationCB, person.getLocationId());
             specAddressTF.setText(person.getSpecAddress());
             mailingAddressTA.setText(person.getMailaddress());

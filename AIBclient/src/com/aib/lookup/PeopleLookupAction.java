@@ -8,6 +8,7 @@ import com.aib.AIBclient;
 import com.aib.GeneralFrame;
 import com.aib.orm.dbobject.ComboItem;
 import com.aib.people.PeopleGrid;
+import com.xlend.util.Java2sAutoComboBox;
 import java.awt.event.ActionEvent;
 import java.rmi.RemoteException;
 import javax.swing.AbstractAction;
@@ -20,10 +21,44 @@ import javax.swing.JComboBox;
 public class PeopleLookupAction extends AbstractAction {
 
     private final JComboBox locationCB;
+    private final boolean readOnly;
+    private final String column;
+    private final String value;
 
-    public PeopleLookupAction(JComboBox cb) {
+    /**
+     *
+     * @param cb
+     */
+    public PeopleLookupAction(JComboBox cb, boolean readOnly) {
         super("...");
         this.locationCB = cb;
+        this.readOnly = readOnly;
+        this.column = this.value = null;
+    }
+    
+    public PeopleLookupAction(JComboBox cb) {
+        this(cb, false);
+    }
+
+    public PeopleLookupAction(Java2sAutoComboBox cb, String column, String value) {
+        super("...");
+        this.locationCB = cb;
+        this.readOnly = true;
+        this.column = column;
+        this.value = value;
+        try {
+            String select = "select " + (column != null && value != null ? "0 \"ID\",'NEW' as \"First Name\",'RECORD' as \"Last name\","
+                    + "' ' as \"E-mail\", ' ' as \"Job\",' ' as \"Department\" union select " : "")
+                    + "people_id \"ID\","
+                    + "first_name \"First Name\", "
+                    + "last_name \"Last Name\", main_email as \"E-mail\",job_discip \"Job\", department \"Department\" "
+                    + "from people " + (column != null && value != null ? "where upper(" + column + ") like upper('" + value.trim() + "%')" : "");
+            LookupDialog ld = new LookupDialog((column != null && value != null ? "Select old or new record" : "Company Lookup"), locationCB,
+                    new PeopleGrid(AIBclient.getExchanger(), select, readOnly),
+                    new String[]{"abbreviation", "full_name", "main_phone", "main_fax"});
+        } catch (RemoteException ex) {
+            GeneralFrame.errMessageBox("Error:", ex.getMessage());
+        }
     }
 
     @Override
@@ -32,10 +67,10 @@ public class PeopleLookupAction extends AbstractAction {
             ComboItem citm = (ComboItem) locationCB.getSelectedItem();
             LookupDialog ld = new LookupDialog("People Lookup", locationCB,
                     new PeopleGrid(AIBclient.getExchanger(), "select people_id \"ID\","
-                    + "title \"Title\",first_name \"First Name\", "
-                    + "last_name \"Last Name\",suffix \"Suffix\", greeting \"Greeting\" "
-                    + "from people"),
-                    new String[]{"title", "first_name", "last_name", "suffix", "greeting"});
+                    + "first_name \"First Name\", "
+                    + "last_name \"Last Name\",job_discip \"Job\", department \"Department\", main_email \"E-mail\" "
+                    + "from people", false),
+                    new String[]{"first_name", "last_name", "suffix", "greeting"});
         } catch (RemoteException ex) {
             GeneralFrame.errMessageBox("Error:", ex.getMessage());
         }

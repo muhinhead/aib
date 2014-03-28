@@ -64,6 +64,8 @@ public class LocationsFrame extends FilteredListFrame {
     @Override
     public void applyFilter(Filter flt) {
         if (flt != null) {
+            adjustFilterQuery(flt, "Countries",
+                    "exists (select country from country where country.country_id=location.country_id and country");
             adjustFilterQuery(flt, "Links",
                     "exists (select url from link,loclink where link.link_id=loclink.link_id "
                     + "and loclink.location_id=location.location_id and url");

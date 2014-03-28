@@ -74,6 +74,8 @@ public class CompanyFrame extends FilteredListFrame {
             String newSelect;
             int p = CompaniesGrid.SELECT.indexOf(FROM_COMP);
             if (flt.getIsComplex() != null && flt.getIsComplex().intValue() == 1) {
+                adjustFilterQuery(flt, "Countries",
+                        "exists (select country from country where country.country_id=company.country_id and country");
                 adjustFilterQuery(flt, "Links",
                         "exists (select url from link,complink where link.link_id=complink.link_id "
                         + "and complink.company_id=company.company_id and url");
