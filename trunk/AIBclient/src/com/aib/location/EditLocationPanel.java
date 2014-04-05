@@ -291,13 +291,13 @@ class EditLocationPanel extends EditPanelWithPhoto {
 
             StringTokenizer tok = new StringTokenizer(linksListTF.getText(), ",");
             while (tok.hasMoreTokens()) {
-                AIBclient.saveOrInsertLocationLink(loc.getLocationId(), tok.nextToken());
+                AIBclient.saveOrInsertLocationLink(loc.getLocationId(), tok.nextToken().trim());
             }
             AIBclient.removeRedundantLocationLinks(loc.getLocationId(), linksListTF.getText());
 
             tok = new StringTokenizer(industriesListTF.getText(), ",");
             while (tok.hasMoreTokens()) {
-                AIBclient.saveOrInsertLocationIndustry(loc.getLocationId(), tok.nextToken());
+                AIBclient.saveOrInsertLocationIndustry(loc.getLocationId(), tok.nextToken().trim());
             }
             AIBclient.removeRedundantLocationIndustries(loc.getLocationId(), industriesListTF.getText());
         }

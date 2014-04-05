@@ -8,6 +8,7 @@ import com.xlend.util.Java2sAutoComboBox;
 import com.xlend.util.PopupDialog;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.KeyAdapter;
@@ -122,6 +123,7 @@ public class LookupDialog extends PopupDialog {
                 }
             }
         });
+        setPreferredSize(new Dimension(800,getPreferredSize().height));
 //        } else {
 //            GeneralFrame.errMessageBox("Sorry!", "Empty combobox, couldn't build lookup dialog");
 //            dispose();

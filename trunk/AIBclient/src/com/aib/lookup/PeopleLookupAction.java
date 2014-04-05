@@ -48,11 +48,19 @@ public class PeopleLookupAction extends AbstractAction {
         this.value = value;
         try {
             String select = "select " + (column != null && value != null ? "0 \"ID\",'NEW' as \"First Name\",'RECORD' as \"Last name\","
-                    + "' ' as \"E-mail\", ' ' as \"Job\",' ' as \"Department\" union select " : "")
-                    + "people_id \"ID\","
-                    + "first_name \"First Name\", "
-                    + "last_name \"Last Name\", main_email as \"E-mail\",job_discip \"Job\", department \"Department\" "
-                    + "from people " + (column != null && value != null ? "where upper(" + column + ") like upper('" + value.trim() + "%')" : "");
+                    + "' ' as \"E-mail\", ' ' as \"Job\","
+                    + "' ' as \"Company\","
+                    + "' ' as \"Department\""
+                    + " union select " : "")
+                    + "p.people_id \"ID\","
+                    + "p.first_name \"First Name\", "
+                    + "p.last_name \"Last Name\", p.main_email as \"E-mail\",p.job_discip \"Job\", "
+                    + "group_concat(c.full_name) \"Company\", "
+                    + "p.department \"Department\" "
+                    + "from people p left outer join peoplecompany pc on p.people_id=pc.people_id "
+                    + "left outer join company c on pc.company_id=c.company_id "
+                    + (column != null && value != null ? "where upper(" + column + ") like upper('" + value.trim() + "%')" : "")
+                    + " group by p.people_id";
             LookupDialog ld = new LookupDialog((column != null && value != null ? "Select old or new record" : "Company Lookup"), locationCB,
                     new PeopleGrid(AIBclient.getExchanger(), select, readOnly),
                     new String[]{"abbreviation", "full_name", "main_phone", "main_fax"});

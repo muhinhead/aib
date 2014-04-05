@@ -388,19 +388,19 @@ class EditCompanyPanel extends EditPanelWithPhoto {
             comp = (Company) getDbObject();
             StringTokenizer tok = new StringTokenizer(linksListTF.getText(), ",");
             while (tok.hasMoreTokens()) {
-                AIBclient.saveOrInsertCompanyLink(comp.getCompanyId(), tok.nextToken());
+                AIBclient.saveOrInsertCompanyLink(comp.getCompanyId(), tok.nextToken().trim());
             }
             AIBclient.removeRedundantCompanyLinks(comp.getCompanyId(), linksListTF.getText());
 
             tok = new StringTokenizer(industriesListTF.getText(), ",");
             while (tok.hasMoreTokens()) {
-                AIBclient.saveOrInsertCompanyIndustry(comp.getCompanyId(), tok.nextToken());
+                AIBclient.saveOrInsertCompanyIndustry(comp.getCompanyId(), tok.nextToken().trim());
             }
             AIBclient.removeRedundantCompanyIndustries(comp.getCompanyId(), industriesListTF.getText());
 
             tok = new StringTokenizer(mentionsListTF.getText(), ",");
             while (tok.hasMoreTokens()) {
-                AIBclient.saveCompanyPublication(comp.getCompanyId(), tok.nextToken());
+                AIBclient.saveCompanyPublication(comp.getCompanyId(), tok.nextToken().trim());
             }
             AIBclient.removeRedundantPublications(comp.getCompanyId(), mentionsListTF.getText());
         }
