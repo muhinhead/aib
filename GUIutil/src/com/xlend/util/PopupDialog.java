@@ -12,6 +12,7 @@ public abstract class PopupDialog extends JDialog {
 
     protected Frame ownerFrame;
     private Object object;
+    private JLabel headerLabel;
 
     public PopupDialog(Frame owner, String title, Object obj) {
         super(owner, title);
@@ -41,13 +42,21 @@ public abstract class PopupDialog extends JDialog {
         if (bg != null) {
             JPanel headerPanel = new JPanel();
             headerPanel.setBackground(bg);
-            JLabel lbl = new JLabel(getTitle(), SwingConstants.CENTER);
-            lbl.setFont(lbl.getFont().deriveFont(Font.BOLD, 18));
-            lbl.setForeground(getHeaderForeground());
-            headerPanel.add(lbl);
+            headerLabel = new JLabel(getTitle(), SwingConstants.CENTER);
+            headerLabel.setFont(headerLabel.getFont().deriveFont(Font.BOLD, 18));
+            headerLabel.setForeground(getHeaderForeground());
+            headerPanel.add(headerLabel);
             getContentPane().add(headerPanel, BorderLayout.NORTH);
         }
     }
+
+    @Override
+    public void setTitle(String title) {
+        super.setTitle(title);
+        headerLabel.setText(title);
+    }
+    
+    
 
     protected void initSize() {
         Dimension d = Toolkit.getDefaultToolkit().getScreenSize();
