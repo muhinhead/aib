@@ -61,7 +61,7 @@ import javax.swing.SpinnerNumberModel;
  */
 public class AIBclient {
 
-    private static final String version = "0.13.g";
+    private static final String version = "0.14";
 //    private static Userprofile currentUser;
     private static Logger logger = null;
     private static FileHandler fh;
@@ -947,6 +947,7 @@ public class AIBclient {
 
     private static void removeRedundatnItms(Class cl, Integer id, String source, String target, String fld, String list) {
         try {
+            fld = fld.trim();
             DbObject[] recs = getExchanger().getDbObjects(cl,
                     source + "_id=" + id + " and " + target + "_id not in (select " + target + "_id from " + target + " where instr('" + list + "'," + fld + ")>0)", null);
             for (DbObject rec : recs) {
@@ -964,7 +965,7 @@ public class AIBclient {
             for (DbObject rec : recs) {
                 Loclink ll = (Loclink) rec;
                 Link lnk = (Link) getExchanger().loadDbObjectOnID(Link.class, ll.getLinkId());
-                sb.append(sb.length() > 0 ? "," : "");
+                sb.append(sb.length() > 0 ? ", " : "");
                 sb.append(lnk.getUrl());
             }
             return sb.toString();
@@ -981,7 +982,7 @@ public class AIBclient {
             for (DbObject rec : recs) {
                 Complink cl = (Complink) rec;
                 Link lnk = (Link) getExchanger().loadDbObjectOnID(Link.class, cl.getLinkId());
-                sb.append(sb.length() > 0 ? "," : "");
+                sb.append(sb.length() > 0 ? ", " : "");
                 sb.append(lnk.getUrl());
             }
             return sb.toString();
@@ -998,7 +999,7 @@ public class AIBclient {
             for (DbObject rec : recs) {
                 Peoplelink pl = (Peoplelink) rec;
                 Link lnk = (Link) getExchanger().loadDbObjectOnID(Link.class, pl.getLinkId());
-                sb.append(sb.length() > 0 ? "," : "");
+                sb.append(sb.length() > 0 ? ", " : "");
                 sb.append(lnk.getUrl());
             }
             return sb.toString();
@@ -1015,7 +1016,7 @@ public class AIBclient {
             for (DbObject rec : recs) {
                 Locindustry ci = (Locindustry) rec;
                 Industry ind = (Industry) getExchanger().loadDbObjectOnID(Industry.class, ci.getIndustryId());
-                sb.append(sb.length() > 0 ? "," : "");
+                sb.append(sb.length() > 0 ? ", " : "");
                 sb.append(ind.getDescr());
             }
             return sb.toString();
@@ -1032,7 +1033,7 @@ public class AIBclient {
             for (DbObject rec : recs) {
                 Compindustry ci = (Compindustry) rec;
                 Industry ind = (Industry) getExchanger().loadDbObjectOnID(Industry.class, ci.getIndustryId());
-                sb.append(sb.length() > 0 ? "," : "");
+                sb.append(sb.length() > 0 ? ", " : "");
                 sb.append(ind.getDescr());
             }
             return sb.toString();
@@ -1049,7 +1050,7 @@ public class AIBclient {
             for (DbObject rec : recs) {
                 Peopleindustry pi = (Peopleindustry) rec;
                 Industry ind = (Industry) getExchanger().loadDbObjectOnID(Industry.class, pi.getIndustryId());
-                sb.append(sb.length() > 0 ? "," : "");
+                sb.append(sb.length() > 0 ? ", " : "");
                 sb.append(ind.getDescr());
             }
             return sb.toString();
@@ -1066,7 +1067,7 @@ public class AIBclient {
             for (DbObject rec : recs) {
                 Peoplecompany pc = (Peoplecompany) rec;
                 Company comp = (Company) getExchanger().loadDbObjectOnID(Company.class, pc.getCompanyId());
-                sb.append(sb.length() > 0 ? "," : "");
+                sb.append(sb.length() > 0 ? ", " : "");
                 sb.append(comp.getFullName() + "(" + comp.getCompanyId() + ")");
             }
             return sb.toString();
@@ -1083,7 +1084,7 @@ public class AIBclient {
             for (DbObject rec : recs) {
                 Peopleaward pa = (Peopleaward) rec;
                 Aibaward aw = (Aibaward) getExchanger().loadDbObjectOnID(Aibaward.class, pa.getAibawardId());
-                sb.append(sb.length() > 0 ? "," : "");
+                sb.append(sb.length() > 0 ? ", " : "");
                 sb.append(aw.getAward()).append(" (").append(aw.getAwardDate()).append(")");
             }
             return sb.toString();
@@ -1100,7 +1101,7 @@ public class AIBclient {
             for (DbObject rec : recs) {
                 Comppublic cp = (Comppublic) rec;
                 Aibpublic pub = (Aibpublic) getExchanger().loadDbObjectOnID(Aibpublic.class, cp.getAibpublicId());
-                sb.append(sb.length() > 0 ? "," : "");
+                sb.append(sb.length() > 0 ? ", " : "");
                 sb.append(pub.getPublication()).append(" (").append(pub.getPubDate()).append(")");
             }
             return sb.toString();

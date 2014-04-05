@@ -162,7 +162,7 @@ public class ListInTextFieldDialog extends PopupDialog {
     protected void syncTextField() {
         StringBuilder sb = new StringBuilder();
         for (Object itm : selectedItems) {
-            sb.append(sb.length() > 0 ? "," : "");
+            sb.append(sb.length() > 0 ? ", " : "");
             sb.append(itm);
         }
         resultList = sb.toString();
@@ -204,7 +204,7 @@ public class ListInTextFieldDialog extends PopupDialog {
         if (oldList.length() > 0) {
             StringTokenizer st = new StringTokenizer(oldList,",");
             while (st.hasMoreTokens()) {
-                String token = st.nextToken();
+                String token = st.nextToken().trim();
                 for (Object url : linkList) {
                     if(((String) url).equals(token)) {
                         selectedItems.add(url);

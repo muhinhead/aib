@@ -9,6 +9,7 @@ import com.aib.EditAreaAction;
 import com.aib.EditPanelWithPhoto;
 import com.aib.GeneralFrame;
 import com.aib.ModalGridDialog;
+import static com.aib.RecordEditPanel.DD_MM_YYYY;
 import static com.aib.RecordEditPanel.getBorderPanel;
 import static com.aib.RecordEditPanel.getGridPanel;
 import static com.aib.RecordEditPanel.selectComboItem;
@@ -108,6 +109,9 @@ class EditPeoplePanel extends EditPanelWithPhoto {
     private JTextField extPassworTF;
     private SelectedDateSpinner timescaleSP;
     private PeopleCommentsGrid commentsGrid;
+    private JCheckBox aibCoordinatorCB;
+    private JCheckBox aibJudgeCB;
+    private JCheckBox aibEntrantCB;
 
     public EditPeoplePanel(DbObject dbObject) {
         super(dbObject);
@@ -129,7 +133,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             "Desk phone:", // "Desk fax:", "Mobile phone:"
             "PA:", // "PA phone:", //"PA email:"
             "Other contact info:",// "AIB actions/date:",
-            "",
+            "","",
             "Purchases:", // "Purchase interest:",
             "Sales contact:",//"Action date:", "External user name:", "External user password:"
             "Last verified" //"Last editor:" //"Last edited:
@@ -242,16 +246,24 @@ class EditPeoplePanel extends EditPanelWithPhoto {
                 channelSubscriberCB = new JCheckBox("Channel subscriber"),
                 marketingIntelDistCB = new JCheckBox("Market Intel dist."),
                 mediaBriefingDistCB = new JCheckBox("Industry briefing dist."),
-                sourceBookCB = new JCheckBox("Sourcebook")
+                new JPanel()
+            }),
+            getGridPanel(new JComponent[]{
+                sourceBookCB = new JCheckBox("Sourcebook"),
+                aibCoordinatorCB = new JCheckBox("AIBs Co-ordinator"),
+                aibJudgeCB = new JCheckBox("AIBs Judge"),
+                aibEntrantCB = new JCheckBox("AIBs Entrant"),
+                new JPanel()
             }),
             getGridPanel(new JComponent[]{
                 new JButton(showPurchasesAction("Purchases / Dates...")),
                 new JButton(showPurchaseInterestAction("Purchase Interest...")),
-                getBorderPanel(new JComponent[]{
-                    null,
+//                getBorderPanel(new JComponent[]{
+//                    null,
                     new JLabel("Purchase timescale:", SwingConstants.RIGHT),
                     timescaleSP = new SelectedDateSpinner()
-                }), //                new JPanel()
+//                    new JButton("ZZZ")
+//                }), 
             }),
             getBorderPanel(new JComponent[]{
                 comboPanelWithLookupBtn(salesContactCB = new JComboBox(salesContactCbModel), new UserLookupAction(salesContactCB)),
@@ -285,11 +297,11 @@ class EditPeoplePanel extends EditPanelWithPhoto {
 //        nextActionTA.setWrapStyleWord(true);
 //        nextActionTA.setLineWrap(true);
 
-        primaryContactCB.setHorizontalTextPosition(SwingConstants.LEFT);
-        channelSubscriberCB.setHorizontalTextPosition(SwingConstants.LEFT);
-        marketingIntelDistCB.setHorizontalTextPosition(SwingConstants.LEFT);
-        mediaBriefingDistCB.setHorizontalTextPosition(SwingConstants.LEFT);
-        sourceBookCB.setHorizontalTextPosition(SwingConstants.LEFT);
+//        primaryContactCB.setHorizontalTextPosition(SwingConstants.LEFT);
+//        channelSubscriberCB.setHorizontalTextPosition(SwingConstants.LEFT);
+//        marketingIntelDistCB.setHorizontalTextPosition(SwingConstants.LEFT);
+//        mediaBriefingDistCB.setHorizontalTextPosition(SwingConstants.LEFT);
+//        sourceBookCB.setHorizontalTextPosition(SwingConstants.LEFT);
 
         sp1.setPreferredSize(new Dimension(sp1.getPreferredSize().width, idField.getPreferredSize().height));
         idField.setEnabled(false);
@@ -362,7 +374,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
                 if (familyName.trim().length() > 0) {
                     People people = AIBclient.getPeopleOnValue("last_name", familyNameTF.getSelectedItem().toString());
                     if (people != null && (getDbObject() == null || people.getPeopleId().intValue() != getDbObject().getPK_ID().intValue())) {
-                        new PeopleLookupAction(familyNameTF, "last_name", familyNameTF.getSelectedItem().toString());
+                        new PeopleLookupAction(familyNameTF, "p.last_name", familyNameTF.getSelectedItem().toString());
                         if (LookupDialog.getChoosed() != null) {
                             try {
                                 people = (People) AIBclient.getExchanger().loadDbObjectOnID(People.class,
@@ -384,7 +396,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             public void focusLost(FocusEvent e) {
                 People people = AIBclient.getPeopleOnValue("main_email", mainEmailTF.getSelectedItem().toString());
                 if (people != null && (getDbObject() == null || people.getPeopleId().intValue() != getDbObject().getPK_ID().intValue())) {
-                    new PeopleLookupAction(mainEmailTF, "main_email", mainEmailTF.getSelectedItem().toString());
+                    new PeopleLookupAction(mainEmailTF, "p.main_email", mainEmailTF.getSelectedItem().toString());
                     if (LookupDialog.getChoosed() != null) {
                         try {
                             people = (People) AIBclient.getExchanger().loadDbObjectOnID(People.class,
@@ -447,6 +459,9 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             marketingIntelDistCB.setSelected(person.getIsMarketintl() != null && person.getIsMarketintl() == 1);
             mediaBriefingDistCB.setSelected(person.getIsMediabrief() != null && person.getIsMediabrief() == 1);
             sourceBookCB.setSelected(person.getIsInsourcebook() != null && person.getIsInsourcebook() == 1);
+            aibCoordinatorCB.setSelected(person.getIsAibCoordinator() != null && person.getIsAibCoordinator() == 1);
+            aibJudgeCB.setSelected(person.getIsAibJudge() != null && person.getIsAibJudge() == 1);
+            aibEntrantCB.setSelected(person.getIsAibEntrant() != null && person.getIsAibEntrant() == 1);
             nextActionTA.setText(person.getNextAction());
             extUserNameTF.setText(person.getExternalUser());
             extPassworTF.setText(person.getExternalPasswd());
@@ -507,6 +522,10 @@ class EditPeoplePanel extends EditPanelWithPhoto {
         person.setIsMarketintl(marketingIntelDistCB.isSelected() ? 1 : 0);
         person.setIsMediabrief(mediaBriefingDistCB.isSelected() ? 1 : 0);
         person.setIsInsourcebook(sourceBookCB.isSelected() ? 1 : 0);
+        person.setIsAibCoordinator(aibCoordinatorCB.isSelected() ? 1 : 0);
+        person.setIsAibJudge(aibJudgeCB.isSelected() ? 1 : 0);
+        person.setIsAibEntrant(aibEntrantCB.isSelected() ? 1 : 0);
+
         person.setLasteditedBy(AIBclient.getCurrentUser().getUserId());
         dt = Calendar.getInstance().getTime();
         person.setLasteditDate(new java.sql.Timestamp(dt.getTime()));
@@ -526,25 +545,25 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             person = (People) getDbObject();
             StringTokenizer tok = new StringTokenizer(linksListTF.getText(), ",");
             while (tok.hasMoreTokens()) {
-                AIBclient.saveOrInsertPeopleLink(person.getPeopleId(), tok.nextToken());
+                AIBclient.saveOrInsertPeopleLink(person.getPeopleId(), tok.nextToken().trim());
             }
             AIBclient.removeRedundantPeopleLinks(person.getPeopleId(), linksListTF.getText());
 
             tok = new StringTokenizer(industriesListTF.getText(), ",");
             while (tok.hasMoreTokens()) {
-                AIBclient.saveOrInsertPeopleIndustry(person.getPeopleId(), tok.nextToken());
+                AIBclient.saveOrInsertPeopleIndustry(person.getPeopleId(), tok.nextToken().trim());
             }
             AIBclient.removeRedundantPeopleIndustries(person.getPeopleId(), industriesListTF.getText());
 
             tok = new StringTokenizer(aibAwardsListTF.getText(), ",");
             while (tok.hasMoreTokens()) {
-                AIBclient.savePeopleAward(person.getPeopleId(), tok.nextToken());
+                AIBclient.savePeopleAward(person.getPeopleId(), tok.nextToken().trim());
             }
             AIBclient.removeRedundantAwards(person.getPeopleId(), aibAwardsListTF.getText());
 
             tok = new StringTokenizer(companiesListTF.getText(), ",");
             while (tok.hasMoreTokens()) {
-                AIBclient.savePeopleCompany(person.getPeopleId(), tok.nextToken());
+                AIBclient.savePeopleCompany(person.getPeopleId(), tok.nextToken().trim());
             }
             AIBclient.removeRedundantPeopleCompany(person.getPeopleId(), companiesListTF.getText());
         }
