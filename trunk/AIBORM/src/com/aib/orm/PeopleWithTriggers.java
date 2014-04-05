@@ -24,11 +24,11 @@ public class PeopleWithTriggers extends People {
         addTriggers();
     }
 
-    public PeopleWithTriggers(Connection connection, Integer peopleId, String source, String title, String firstName, String lastName, String suffix, String greeting, Integer locationId, Object photo, String level, String jobDiscip, String department, String specAddress, String mailaddress, String mailpostcode, String deskPhone, String deskFax, String mobilePhone, String mainEmail, String alterEmail, String pa, String paPhone, String paEmail, String otherContacts, Integer isPrimary, Integer isSubscriber, Integer isMarketintl, Integer isMediabrief, Integer isInsourcebook, Date verifyDate, Integer salesContactId, Date actionDate, String nextAction, String externalUser, String externalPasswd, Integer lasteditedBy, Timestamp lasteditDate, Integer isInvoiceCntct, Integer isDigitalChnl) {
+    public PeopleWithTriggers(Connection connection, Integer peopleId, String source, String title, String firstName, String lastName, String suffix, String greeting, Integer locationId, Object photo, String level, String jobDiscip, String department, String specAddress, String mailaddress, String mailpostcode, String deskPhone, String deskFax, String mobilePhone, String mainEmail, String alterEmail, String pa, String paPhone, String paEmail, String otherContacts, Integer isPrimary, Integer isSubscriber, Integer isMarketintl, Integer isMediabrief, Integer isInsourcebook, Integer isAibCoordinator, Integer isAibJudge, Integer isAibEntrant, Date verifyDate, Integer salesContactId, Date actionDate, String nextAction, String externalUser, String externalPasswd, Integer lasteditedBy, Timestamp lasteditDate, Integer isInvoiceCntct, Integer isDigitalChnl) {
         super(connection, peopleId, source, title, firstName, lastName, suffix, greeting, locationId, photo,
                 level, jobDiscip, department, specAddress, mailaddress, mailpostcode, deskPhone, deskFax,
                 mobilePhone, mainEmail, alterEmail, pa, paPhone, paEmail, otherContacts, isPrimary, isSubscriber,
-                isMarketintl, isMediabrief, isInsourcebook, verifyDate, salesContactId, actionDate, nextAction,
+                isMarketintl, isMediabrief, isInsourcebook, isAibCoordinator, isAibJudge, isAibEntrant, verifyDate, salesContactId, actionDate, nextAction,
                 externalUser, externalPasswd, lasteditedBy, lasteditDate, isInvoiceCntct, isDigitalChnl);
         addTriggers();
     }
@@ -37,7 +37,7 @@ public class PeopleWithTriggers extends People {
         super(papa.getConnection(), papa.getPeopleId(), papa.getSource(), papa.getTitle(), papa.getFirstName(), papa.getLastName(), papa.getSuffix(), papa.getGreeting(), papa.getLocationId(), papa.getPhoto(),
                 papa.getLevel(), papa.getJobDiscip(), papa.getDepartment(), papa.getSpecAddress(), papa.getMailaddress(), papa.getMailpostcode(), papa.getDeskPhone(), papa.getDeskFax(),
                 papa.getMobilePhone(), papa.getMainEmail(), papa.getAlterEmail(), papa.getPa(), papa.getPaPhone(), papa.getPaEmail(), papa.getOtherContacts(), papa.getIsPrimary(), papa.getIsSubscriber(),
-                papa.getIsMarketintl(), papa.getIsMediabrief(), papa.getIsInsourcebook(), papa.getVerifyDate(), papa.getSalesContactId(), papa.getActionDate(), papa.getNextAction(),
+                papa.getIsMarketintl(), papa.getIsMediabrief(), papa.getIsInsourcebook(), papa.getIsAibCoordinator(), papa.getIsAibJudge(), papa.getIsAibEntrant(), papa.getVerifyDate(), papa.getSalesContactId(), papa.getActionDate(), papa.getNextAction(),
                 papa.getExternalUser(), papa.getExternalPasswd(), papa.getLasteditedBy(), papa.getLasteditDate(), papa.getIsInvoiceCntct(), papa.getIsDigitalChnl());
         setNew(papa.isNew());
         addTriggers();
@@ -71,7 +71,7 @@ public class PeopleWithTriggers extends People {
                 People self = (People) dbObject;
                 if (oldDepartment != null && self.getDepartment() != oldDepartment) {
                     long tm = Calendar.getInstance().getTimeInMillis();
-                    Departmenthistory dh = new Departmenthistory(getConnection(), 
+                    Departmenthistory dh = new Departmenthistory(getConnection(),
                             0, getPeopleId(), oldDepartment, new Timestamp(tm));
                     dh.setNew(true);
                     try {
