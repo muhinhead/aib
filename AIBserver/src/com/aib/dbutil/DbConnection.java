@@ -76,8 +76,8 @@ public class DbConnection {
             }
         }
     }
-    private static final int DB_VERSION_ID = 2;
-    public static final String DB_VERSION = "0.2";
+    private static final int DB_VERSION_ID = 3;
+    public static final String DB_VERSION = "0.3";
     private static boolean isFirstTime = true;
     private static Properties props = new Properties();
     private static String[] createLocalDBsqls = loadDDLscript("crebas.sql", ";");
@@ -91,17 +91,20 @@ public class DbConnection {
         + "select compindustry_id from compindustry where industry_id=industry.industry_id) and not exists("
         + "select peopleindustry_id from peopleindustry where industry_id=industry.industry_id)",
         "delete from aibpublic where not exists(select comppublic_id from comppublic where aibpublic_id=aibpublic.aibpublic_id)",
-        "alter table worldregion add post_price decimal(6,2) null",
-        "alter table worldregion add post_status int default 1",
-        "alter table worldregion add post_number int",
-        "alter table country add status bit default 1",
-        "alter table company add parent_id int null",
-        "alter table company add constraint company_company_fk foreign key (parent_id) references company (company_id)",
-        "alter table people add source varchar(50)",
-        "alter table people modify greeting varchar(32) null",
-        "alter table people modify desk_phone varchar(80) null",
-        "alter table people modify desk_fax varchar(80) null",
-        "alter table people modify job_discip varchar(150) null"
+//        "alter table worldregion add post_price decimal(6,2) null",
+//        "alter table worldregion add post_status int default 1",
+//        "alter table worldregion add post_number int",
+//        "alter table country add status bit default 1",
+//        "alter table company add parent_id int null",
+//        "alter table company add constraint company_company_fk foreign key (parent_id) references company (company_id)",
+//        "alter table people add source varchar(50)",
+//        "alter table people modify greeting varchar(32) null",
+//        "alter table people modify desk_phone varchar(80) null",
+//        "alter table people modify desk_fax varchar(80) null",
+//        "alter table people modify job_discip varchar(150) null",
+        "alter table people add is_aib_coordinator bit default 0",
+        "alter table people add is_aib_judge     bit default 0",
+        "alter table people add is_aib_entrant   bit default 0"
     };
 
     public static String getLogin() {
@@ -178,7 +181,7 @@ public class DbConnection {
     }
 
     public static void fixLocalDB(Connection connection) {
-        sqlBatch(fixLocalDBsqls, connection, 
+        sqlBatch(fixLocalDBsqls, connection,
                 props.getProperty("LogDbFixes", "false").equalsIgnoreCase("true"));
     }
 
