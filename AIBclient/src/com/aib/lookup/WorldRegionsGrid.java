@@ -83,7 +83,7 @@ public class WorldRegionsGrid extends GeneralGridPanel {
                 int id = getSelectedID();
                 try {
                     Worldregion region = (Worldregion) exchanger.loadDbObjectOnID(Worldregion.class, id);
-                    if (region != null && GeneralFrame.yesNo("Attention!", "Do you want to delete record?") == JOptionPane.YES_OPTION) {
+                    if (region != null && GeneralFrame.yesNo("Attention!", "Do you want to delete this record?") == JOptionPane.YES_OPTION) {
                         AIBclient.clearRegionsAndCountries();
                         exchanger.deleteObject(region);
                         refresh();
