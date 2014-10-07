@@ -7,7 +7,6 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.rmi.RemoteException;
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -19,8 +18,6 @@ import java.util.List;
 import java.util.Properties;
 import java.util.Vector;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -41,8 +38,10 @@ public class DbClientDataSender implements IMessageSender {
             dbObjectMap.remove((String) synchList.get(0));
             synchList.remove(0);
         }
-        dbObjectMap.put(key, dbobj);
-        synchList.add(key);
+        if (dbobj != null) {
+            dbObjectMap.put(key, dbobj);
+            synchList.add(key);
+        }
     }
 
     private static DbObject getFromCache(String key) {

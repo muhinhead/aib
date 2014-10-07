@@ -61,7 +61,7 @@ import javax.swing.SpinnerNumberModel;
  */
 public class AIBclient {
 
-    private static final String version = "0.14";
+    private static final String version = "0.14.b";
 //    private static Userprofile currentUser;
     private static Logger logger = null;
     private static FileHandler fh;
@@ -100,7 +100,7 @@ public class AIBclient {
                     setExchanger(exc);
                 }
                 if (getExchanger() != null && matchVersions() && login(getExchanger())) {
-                    new DashBoard("AIBclient", exchanger);
+                    new DashBoard("AIBclient v." + version, exchanger);
                     break;
                 } else {
                     System.exit(1);
@@ -225,6 +225,16 @@ public class AIBclient {
         return im;
     }
 
+    public static int getDefaultPageLimit() {
+        int ps;
+        try {
+            ps = Integer.parseInt(readProperty("pageSize","500"));
+        } catch (NumberFormatException nfe) {
+            ps = 500;
+        }
+        return ps;
+    }
+    
     public static String readProperty(String key, String deflt) {
         if (null == props) {
             props = new Properties();
@@ -965,8 +975,10 @@ public class AIBclient {
             for (DbObject rec : recs) {
                 Loclink ll = (Loclink) rec;
                 Link lnk = (Link) getExchanger().loadDbObjectOnID(Link.class, ll.getLinkId());
-                sb.append(sb.length() > 0 ? ", " : "");
-                sb.append(lnk.getUrl());
+                if (lnk != null) {
+                    sb.append(sb.length() > 0 ? ", " : "");
+                    sb.append(lnk.getUrl());
+                }
             }
             return sb.toString();
         } catch (RemoteException ex) {
@@ -982,8 +994,10 @@ public class AIBclient {
             for (DbObject rec : recs) {
                 Complink cl = (Complink) rec;
                 Link lnk = (Link) getExchanger().loadDbObjectOnID(Link.class, cl.getLinkId());
-                sb.append(sb.length() > 0 ? ", " : "");
-                sb.append(lnk.getUrl());
+                if (lnk != null) {
+                    sb.append(sb.length() > 0 ? ", " : "");
+                    sb.append(lnk.getUrl());
+                }
             }
             return sb.toString();
         } catch (RemoteException ex) {
@@ -999,8 +1013,10 @@ public class AIBclient {
             for (DbObject rec : recs) {
                 Peoplelink pl = (Peoplelink) rec;
                 Link lnk = (Link) getExchanger().loadDbObjectOnID(Link.class, pl.getLinkId());
-                sb.append(sb.length() > 0 ? ", " : "");
-                sb.append(lnk.getUrl());
+                if (lnk != null) {
+                    sb.append(sb.length() > 0 ? ", " : "");
+                    sb.append(lnk.getUrl());
+                }
             }
             return sb.toString();
         } catch (RemoteException ex) {
@@ -1016,8 +1032,10 @@ public class AIBclient {
             for (DbObject rec : recs) {
                 Locindustry ci = (Locindustry) rec;
                 Industry ind = (Industry) getExchanger().loadDbObjectOnID(Industry.class, ci.getIndustryId());
-                sb.append(sb.length() > 0 ? ", " : "");
-                sb.append(ind.getDescr());
+                if (ind != null) {
+                    sb.append(sb.length() > 0 ? ", " : "");
+                    sb.append(ind.getDescr());
+                }
             }
             return sb.toString();
         } catch (RemoteException ex) {
@@ -1033,8 +1051,10 @@ public class AIBclient {
             for (DbObject rec : recs) {
                 Compindustry ci = (Compindustry) rec;
                 Industry ind = (Industry) getExchanger().loadDbObjectOnID(Industry.class, ci.getIndustryId());
-                sb.append(sb.length() > 0 ? ", " : "");
-                sb.append(ind.getDescr());
+                if (ind != null) {
+                    sb.append(sb.length() > 0 ? ", " : "");
+                    sb.append(ind.getDescr());
+                }
             }
             return sb.toString();
         } catch (RemoteException ex) {
@@ -1050,8 +1070,10 @@ public class AIBclient {
             for (DbObject rec : recs) {
                 Peopleindustry pi = (Peopleindustry) rec;
                 Industry ind = (Industry) getExchanger().loadDbObjectOnID(Industry.class, pi.getIndustryId());
-                sb.append(sb.length() > 0 ? ", " : "");
-                sb.append(ind.getDescr());
+                if (ind != null) {
+                    sb.append(sb.length() > 0 ? ", " : "");
+                    sb.append(ind.getDescr());
+                }
             }
             return sb.toString();
         } catch (RemoteException ex) {
@@ -1067,8 +1089,10 @@ public class AIBclient {
             for (DbObject rec : recs) {
                 Peoplecompany pc = (Peoplecompany) rec;
                 Company comp = (Company) getExchanger().loadDbObjectOnID(Company.class, pc.getCompanyId());
-                sb.append(sb.length() > 0 ? ", " : "");
-                sb.append(comp.getFullName() + "(" + comp.getCompanyId() + ")");
+                if (comp != null) {
+                    sb.append(sb.length() > 0 ? ", " : "");
+                    sb.append(comp.getFullName() + "(" + comp.getCompanyId() + ")");
+                }
             }
             return sb.toString();
         } catch (RemoteException ex) {
@@ -1084,8 +1108,10 @@ public class AIBclient {
             for (DbObject rec : recs) {
                 Peopleaward pa = (Peopleaward) rec;
                 Aibaward aw = (Aibaward) getExchanger().loadDbObjectOnID(Aibaward.class, pa.getAibawardId());
-                sb.append(sb.length() > 0 ? ", " : "");
-                sb.append(aw.getAward()).append(" (").append(aw.getAwardDate()).append(")");
+                if (aw != null) {
+                    sb.append(sb.length() > 0 ? ", " : "");
+                    sb.append(aw.getAward()).append(" (").append(aw.getAwardDate()).append(")");
+                }
             }
             return sb.toString();
         } catch (RemoteException ex) {
@@ -1101,8 +1127,10 @@ public class AIBclient {
             for (DbObject rec : recs) {
                 Comppublic cp = (Comppublic) rec;
                 Aibpublic pub = (Aibpublic) getExchanger().loadDbObjectOnID(Aibpublic.class, cp.getAibpublicId());
-                sb.append(sb.length() > 0 ? ", " : "");
-                sb.append(pub.getPublication()).append(" (").append(pub.getPubDate()).append(")");
+                if (pub != null) {
+                    sb.append(sb.length() > 0 ? ", " : "");
+                    sb.append(pub.getPublication()).append(" (").append(pub.getPubDate()).append(")");
+                }
             }
             return sb.toString();
         } catch (RemoteException ex) {
@@ -1276,7 +1304,7 @@ public class AIBclient {
         ComboItem[] fltrs = loadOnSelect(getExchanger(),
                 "select filter_id,name from filter where tablename='" + tableName + "'");
         ComboItem[] fltrs1 = new ComboItem[fltrs.length + 1];
-        fltrs1[0] = new ComboItem(-1, "300 last edited rows");
+        fltrs1[0] = new ComboItem(-1, ""+getDefaultPageLimit()+" last edited rows");
         for (int i = 1; i <= fltrs.length; i++) {
             fltrs1[i] = fltrs[i - 1];
         }

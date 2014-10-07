@@ -1,5 +1,6 @@
 package com.aib;
 
+import static com.aib.AIBclient.getDefaultPageLimit;
 import com.xlend.mvc.dbtable.DbTableGridPanel;
 import com.xlend.mvc.dbtable.DbTableView;
 import com.aib.remote.IMessageSender;
@@ -20,7 +21,7 @@ public abstract class GeneralGridPanel extends DbTableGridPanel {
     private String select;
     protected IMessageSender exchanger;
     public boolean isExternalView = false;
-    public static final String SELECTLIMIT = "LIMIT 0,300";
+    public static final String SELECTLIMIT = "LIMIT 0,"+AIBclient.getDefaultPageLimit();
 
     public GeneralGridPanel(IMessageSender exchanger, String select,
             HashMap<Integer, Integer> maxWidths, boolean readOnly, DbTableView tabView) throws RemoteException {

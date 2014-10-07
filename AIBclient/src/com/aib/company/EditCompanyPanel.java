@@ -279,7 +279,7 @@ class EditCompanyPanel extends EditPanelWithPhoto {
         MyJideTabbedPane downTabs = new MyJideTabbedPane();
 
         JScrollPane sp = new JScrollPane(commentsTA = new JTextArea());
-        sp.setPreferredSize(new Dimension(400, 150));
+        sp.setPreferredSize(new Dimension(250, 150));
         downTabs.add(sp, "Comments");
         try {
             Company comp = (Company) getDbObject();
