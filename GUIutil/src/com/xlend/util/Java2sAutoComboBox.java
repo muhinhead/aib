@@ -22,7 +22,9 @@ public class Java2sAutoComboBox extends JComboBox {
         }
 
         AutoTextFieldEditor(java.util.List list) {
-            editor = new Java2sAutoTextField(list, Java2sAutoComboBox.this);
+            Java2sAutoTextField autoeditor = new Java2sAutoTextField(list, Java2sAutoComboBox.this);
+            autoeditor.setCaseSensitive(true);
+            editor = autoeditor;
         }
     }
 

@@ -238,8 +238,8 @@ class EditLocationPanel extends EditPanelWithPhoto {
             mailingPostCodeTF.setText(loc.getMailpostcode());
             commentsTA.setText(loc.getComments());
             selectComboItem(companyCB, loc.getCompanyId());
-            selectComboItem(countryCB, loc.getCountryId());
             selectComboItem(regionWorldCb, AIBclient.getRegionOnCountry(loc.getCountryId()));
+            selectComboItem(countryCB, loc.getCountryId());
             mainPhoneTF.setText(loc.getMainPhone());
             mainFaxTF.setText(loc.getMainFax());
             if (loc.getLasteditDate() != null) {

@@ -10,6 +10,7 @@ import com.aib.orm.Country;
 import com.aib.orm.Filter;
 import com.aib.orm.Industry;
 import com.aib.orm.Link;
+import com.aib.orm.Location;
 import com.aib.orm.Locindustry;
 import com.aib.orm.Loclink;
 import com.aib.orm.People;
@@ -61,7 +62,7 @@ import javax.swing.SpinnerNumberModel;
  */
 public class AIBclient {
 
-    private static final String version = "0.14.b";
+    private static final String version = "0.14.d";
 //    private static Userprofile currentUser;
     private static Logger logger = null;
     private static FileHandler fh;
@@ -228,13 +229,13 @@ public class AIBclient {
     public static int getDefaultPageLimit() {
         int ps;
         try {
-            ps = Integer.parseInt(readProperty("pageSize","500"));
+            ps = Integer.parseInt(readProperty("pageSize", "500"));
         } catch (NumberFormatException nfe) {
             ps = 500;
         }
         return ps;
     }
-    
+
     public static String readProperty(String key, String deflt) {
         if (null == props) {
             props = new Properties();
@@ -1304,18 +1305,32 @@ public class AIBclient {
         ComboItem[] fltrs = loadOnSelect(getExchanger(),
                 "select filter_id,name from filter where tablename='" + tableName + "'");
         ComboItem[] fltrs1 = new ComboItem[fltrs.length + 1];
-        fltrs1[0] = new ComboItem(-1, ""+getDefaultPageLimit()+" last edited rows");
+        fltrs1[0] = new ComboItem(-1, "" + getDefaultPageLimit() + " last edited rows");
         for (int i = 1; i <= fltrs.length; i++) {
             fltrs1[i] = fltrs[i - 1];
         }
         return fltrs1;
     }
 
+    public static ComboItem getLocationForCombo(Integer locID) {
+        try {
+            if (locID != null && locID.intValue() > 0) {
+                Location loc = (Location) getExchanger().loadDbObjectOnID(Location.class, locID);
+                return new ComboItem(locID, loc.getName());
+            }
+        } catch (Exception ex) {
+            log(ex);
+        }
+        return new ComboItem(locID, "-- unknown location ID=" + locID + " --");
+    }
+
     public static DefaultComboBoxModel loadLocationsForCompanies(String compList, ComboItem startItem) {
         String sql = "select location_id, concat(l.name,' (',ifnull((Select abbreviation from company where company_id=l.company_id),''),')') "
-                + "from location l where company_id in (select company_id from company where instr('" + compList + "',concat(full_name,'(',company_id,')'))>0) "
-                + "order by l.name";
-        return new DefaultComboBoxModel(loadOnSelect(exchanger, sql, startItem));
+                + "from location l"
+                + " where company_id in (select company_id from company where instr('" + compList + "',concat(full_name,'(',company_id,')'))>0) "
+                + (startItem!=null?" or l.location_id="+startItem.getId():"")
+                + " order by l.name";
+        return new DefaultComboBoxModel(loadOnSelect(exchanger, sql, null));
     }
 
     public static Company getCompanyOnValue(String column, String value) {
