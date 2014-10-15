@@ -122,7 +122,8 @@ class EditPeoplePanel extends EditPanelWithPhoto {
     protected void fillContent() {
         String titles[] = new String[]{
             "ID:",//"Source:",
-            "First Name:", //"Family Name:", 
+            "First Name:", 
+            "Family Name:", 
             "Title:",//"Suffix:", //"Greeting:",
             "Main email:", // "Alternate email:"
             "Companies:",//"Location:"
@@ -151,11 +152,10 @@ class EditPeoplePanel extends EditPanelWithPhoto {
                     sourceCB = new Java2sAutoComboBox(AIBclient.loadDistinctSources())
                 })
             }),
-            getGridPanel(new JComponent[]{
-                getBorderPanel(new JComponent[]{null, firstNameTF = new Java2sAutoComboBox(AIBclient.loadDistinctPeopleData("first_name"))}),
-                getBorderPanel(new JComponent[]{new JLabel("Family Name:", SwingConstants.RIGHT),
-                    familyNameTF = new Java2sAutoComboBox(AIBclient.loadDistinctPeopleData("last_name"))})
-            }),
+            getBorderPanel(new JComponent[]{null, firstNameTF = new Java2sAutoComboBox(AIBclient.loadDistinctPeopleData("first_name"))}),
+//                getBorderPanel(new JComponent[]{new JLabel("Family Name:", SwingConstants.RIGHT),
+            getBorderPanel(new JComponent[]{
+                    familyNameTF = new Java2sAutoComboBox(AIBclient.loadDistinctPeopleData("last_name"))}),
             getGridPanel(new JComponent[]{
                 titleCB = new Java2sAutoComboBox(AIBclient.loadDistinctTitles()),//JTextField(),
                 new JLabel("Suffix:", SwingConstants.RIGHT),
@@ -163,7 +163,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
                 new JLabel("Greeting:", SwingConstants.RIGHT),
                 greetingCB = new Java2sAutoComboBox(AIBclient.loadDistinctGreetings())
             }),
-            getGridPanel(new JComponent[]{
+            getBorderPanel(new JComponent[]{
                 mainEmailTF = new Java2sAutoComboBox(AIBclient.loadDistinctPeopleData("main_email")),
                 alterEmailLBL = new JLabel("Alternate email:", SwingConstants.RIGHT),
                 alterEmailTF = new JTextField(12)
@@ -353,62 +353,62 @@ class EditPeoplePanel extends EditPanelWithPhoto {
         downTabs.setPreferredSize(new Dimension(downTabs.getPreferredSize().width, 150));
         add(downTabs);
 
-        titleCB.setPreferredSize(new Dimension(titleCB.getPreferredSize().width, idField.getPreferredSize().height));
-        linksListTF.setPreferredSize(new Dimension(linksListTF.getPreferredSize().width, idField.getPreferredSize().height));
-        jobDisciplineCB.setPreferredSize(new Dimension(jobDisciplineCB.getPreferredSize().width, idField.getPreferredSize().height));
-        departmentCB.setPreferredSize(new Dimension(departmentCB.getPreferredSize().width, idField.getPreferredSize().height));
-        suffixCB.setPreferredSize(new Dimension(suffixCB.getPreferredSize().width, idField.getPreferredSize().height));
-        greetingCB.setPreferredSize(new Dimension(greetingCB.getPreferredSize().width, idField.getPreferredSize().height));
-
-        paEmailTF.addFocusListener(new EmailFocusAdapter(paEmailLBL, paEmailTF));
-        alterEmailTF.addFocusListener(new EmailFocusAdapter(alterEmailLBL, alterEmailTF));
-        mainEmailTF.addFocusListener(new EmailFocusAdapter(labels[10], (JTextComponent) (mainEmailTF.getEditor().getEditorComponent())));
-
-        familyNameTF.setEditable(true);
-        familyNameTF.setStrict(false);
-        familyNameTF.getEditor().getEditorComponent().addFocusListener(new FocusAdapter() {
-            public void focusLost(FocusEvent e) {
+//        titleCB.setPreferredSize(new Dimension(titleCB.getPreferredSize().width, idField.getPreferredSize().height));
+//        linksListTF.setPreferredSize(new Dimension(linksListTF.getPreferredSize().width, idField.getPreferredSize().height));
+//        jobDisciplineCB.setPreferredSize(new Dimension(jobDisciplineCB.getPreferredSize().width, idField.getPreferredSize().height));
+//        departmentCB.setPreferredSize(new Dimension(departmentCB.getPreferredSize().width, idField.getPreferredSize().height));
+//        suffixCB.setPreferredSize(new Dimension(suffixCB.getPreferredSize().width, idField.getPreferredSize().height));
+//        greetingCB.setPreferredSize(new Dimension(greetingCB.getPreferredSize().width, idField.getPreferredSize().height));
+//
+//        paEmailTF.addFocusListener(new EmailFocusAdapter(paEmailLBL, paEmailTF));
+//        alterEmailTF.addFocusListener(new EmailFocusAdapter(alterEmailLBL, alterEmailTF));
+//        mainEmailTF.addFocusListener(new EmailFocusAdapter(labels[10], (JTextComponent) (mainEmailTF.getEditor().getEditorComponent())));
+//
+//        familyNameTF.setEditable(true);
+//        familyNameTF.setStrict(false);
+//        familyNameTF.getEditor().getEditorComponent().addFocusListener(new FocusAdapter() {
+//            public void focusLost(FocusEvent e) {
+////                People people = AIBclient.getPeopleOnValue("main_email", mainEmailTF.getSelectedItem().toString());
+////                reload(people);
+//                String familyName = familyNameTF.getSelectedItem().toString();
+//                if (familyName.trim().length() > 0) {
+//                    People people = AIBclient.getPeopleOnValue("last_name", familyNameTF.getSelectedItem().toString());
+//                    if (people != null && (getDbObject() == null || people.getPeopleId().intValue() != getDbObject().getPK_ID().intValue())) {
+//                        new PeopleLookupAction(familyNameTF, "p.last_name", familyNameTF.getSelectedItem().toString());
+//                        if (LookupDialog.getChoosed() != null) {
+//                            try {
+//                                people = (People) AIBclient.getExchanger().loadDbObjectOnID(People.class,
+//                                        LookupDialog.getChoosed().intValue());
+//                                reload(people);
+//                            } catch (RemoteException ex) {
+//                                AIBclient.logAndShowMessage(ex);
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        });
+//        firstNameTF.setEditable(true);
+//        firstNameTF.setStrict(false);
+//        mainEmailTF.setEditable(true);
+//        mainEmailTF.setStrict(false);
+//        mainEmailTF.getEditor().getEditorComponent().addFocusListener(new FocusAdapter() {
+//            public void focusLost(FocusEvent e) {
 //                People people = AIBclient.getPeopleOnValue("main_email", mainEmailTF.getSelectedItem().toString());
-//                reload(people);
-                String familyName = familyNameTF.getSelectedItem().toString();
-                if (familyName.trim().length() > 0) {
-                    People people = AIBclient.getPeopleOnValue("last_name", familyNameTF.getSelectedItem().toString());
-                    if (people != null && (getDbObject() == null || people.getPeopleId().intValue() != getDbObject().getPK_ID().intValue())) {
-                        new PeopleLookupAction(familyNameTF, "p.last_name", familyNameTF.getSelectedItem().toString());
-                        if (LookupDialog.getChoosed() != null) {
-                            try {
-                                people = (People) AIBclient.getExchanger().loadDbObjectOnID(People.class,
-                                        LookupDialog.getChoosed().intValue());
-                                reload(people);
-                            } catch (RemoteException ex) {
-                                AIBclient.logAndShowMessage(ex);
-                            }
-                        }
-                    }
-                }
-            }
-        });
-        firstNameTF.setEditable(true);
-        firstNameTF.setStrict(false);
-        mainEmailTF.setEditable(true);
-        mainEmailTF.setStrict(false);
-        mainEmailTF.getEditor().getEditorComponent().addFocusListener(new FocusAdapter() {
-            public void focusLost(FocusEvent e) {
-                People people = AIBclient.getPeopleOnValue("main_email", mainEmailTF.getSelectedItem().toString());
-                if (people != null && (getDbObject() == null || people.getPeopleId().intValue() != getDbObject().getPK_ID().intValue())) {
-                    new PeopleLookupAction(mainEmailTF, "p.main_email", mainEmailTF.getSelectedItem().toString());
-                    if (LookupDialog.getChoosed() != null) {
-                        try {
-                            people = (People) AIBclient.getExchanger().loadDbObjectOnID(People.class,
-                                    LookupDialog.getChoosed().intValue());
-                            reload(people);
-                        } catch (RemoteException ex) {
-                            AIBclient.logAndShowMessage(ex);
-                        }
-                    }
-                }
-            }
-        });
+//                if (people != null && (getDbObject() == null || people.getPeopleId().intValue() != getDbObject().getPK_ID().intValue())) {
+//                    new PeopleLookupAction(mainEmailTF, "p.main_email", mainEmailTF.getSelectedItem().toString());
+//                    if (LookupDialog.getChoosed() != null) {
+//                        try {
+//                            people = (People) AIBclient.getExchanger().loadDbObjectOnID(People.class,
+//                                    LookupDialog.getChoosed().intValue());
+//                            reload(people);
+//                        } catch (RemoteException ex) {
+//                            AIBclient.logAndShowMessage(ex);
+//                        }
+//                    }
+//                }
+//            }
+//        });
     }
 
     private void reload(People people) {
@@ -425,66 +425,66 @@ class EditPeoplePanel extends EditPanelWithPhoto {
         People person = (People) getDbObject();
         if (person != null) {
             idField.setText(person.getPeopleId().toString());
-            sourceCB.setSelectedItem(person.getSource());
-            titleCB.setSelectedItem(person.getTitle());
-            firstNameTF.setSelectedItem(person.getFirstName());
-            familyNameTF.setSelectedItem(person.getLastName());
-            suffixCB.setSelectedItem(person.getSuffix());
-            greetingCB.setSelectedItem(person.getGreeting());
-            jobDisciplineCB.setSelectedItem(person.getJobDiscip());
-
-            selectComboItem(salesContactCB, person.getSalesContactId());
-            departmentCB.setSelectedItem(person.getDepartment());
-            linksListTF.setText(AIBclient.getLinkListOnPeopleID(person.getPeopleId()));
-            industriesListTF.setText(AIBclient.getIndustryListOnPeopleID(person.getPeopleId()));
-            aibAwardsListTF.setText(AIBclient.getAwardsOnPeopleID(person.getPeopleId()));
-            String compList;
-            companiesListTF.setText(compList = AIBclient.getCompaniesOnPeopleID(person.getPeopleId()));
-            
-            locationCB.setModel(locationCbModel =
-                    AIBclient.loadLocationsForCompanies(compList, 
-                    AIBclient.getLocationForCombo(person.getLocationId())));
-            selectComboItem(locationCB, person.getLocationId());
-            specAddressTF.setText(person.getSpecAddress());
-            mailingAddressTA.setText(person.getMailaddress());
-            mailingPostCodeTF.setText(person.getMailpostcode());
-            deskPhoneTF.setText(person.getDeskPhone());
-            deskFaxTF.setText(person.getDeskFax());
-            mobilePhoneTF.setText(person.getMobilePhone());
-            mainEmailTF.setSelectedItem(person.getMainEmail());
-            alterEmailTF.setText(person.getAlterEmail());
-            paTF.setText(person.getPa());
-            paPhoneTF.setText(person.getPaPhone());
-            paEmailTF.setText(person.getPaEmail());
-            primaryContactCB.setSelected(person.getIsPrimary() != null && person.getIsPrimary() == 1);
-            channelSubscriberCB.setSelected(person.getIsSubscriber() != null && person.getIsSubscriber() == 1);
-            marketingIntelDistCB.setSelected(person.getIsMarketintl() != null && person.getIsMarketintl() == 1);
-            mediaBriefingDistCB.setSelected(person.getIsMediabrief() != null && person.getIsMediabrief() == 1);
-            sourceBookCB.setSelected(person.getIsInsourcebook() != null && person.getIsInsourcebook() == 1);
-            aibCoordinatorCB.setSelected(person.getIsAibCoordinator() != null && person.getIsAibCoordinator() == 1);
-            aibJudgeCB.setSelected(person.getIsAibJudge() != null && person.getIsAibJudge() == 1);
-            aibEntrantCB.setSelected(person.getIsAibEntrant() != null && person.getIsAibEntrant() == 1);
-            nextActionTA.setText(person.getNextAction());
-            extUserNameTF.setText(person.getExternalUser());
-            extPassworTF.setText(person.getExternalPasswd());
-            timescaleSP.setValue(AIBclient.getNearestPurchaseTimeScale(person.getPeopleId(), timescaleSP));
-            if (person.getActionDate() != null) {
-                actionDateSP.setValue(new java.util.Date(person.getActionDate().getTime()));
-            }
-            if (person.getLasteditDate() != null) {
-                Timestamp t = person.getLasteditDate();
-                lastEditedSP.setValue(new java.util.Date(t.getTime()));
-            }
-            Integer userID = person.getLasteditedBy();
-            if (userID != null) {
-                try {
-                    User user = (User) AIBclient.getExchanger().loadDbObjectOnID(User.class, userID);
-                    lastEditorTF.setText(user.getInitials());
-                } catch (RemoteException ex) {
-                    AIBclient.log(ex);
-                }
-            }
-            commentsGrid.setPeopleID(person.getPeopleId());//updateContent(person.getPeopleId());
+//            sourceCB.setSelectedItem(person.getSource());
+//            titleCB.setSelectedItem(person.getTitle());
+//            firstNameTF.setSelectedItem(person.getFirstName());
+//            familyNameTF.setSelectedItem(person.getLastName());
+//            suffixCB.setSelectedItem(person.getSuffix());
+//            greetingCB.setSelectedItem(person.getGreeting());
+//            jobDisciplineCB.setSelectedItem(person.getJobDiscip());
+//
+//            selectComboItem(salesContactCB, person.getSalesContactId());
+//            departmentCB.setSelectedItem(person.getDepartment());
+//            linksListTF.setText(AIBclient.getLinkListOnPeopleID(person.getPeopleId()));
+//            industriesListTF.setText(AIBclient.getIndustryListOnPeopleID(person.getPeopleId()));
+//            aibAwardsListTF.setText(AIBclient.getAwardsOnPeopleID(person.getPeopleId()));
+//            String compList;
+//            companiesListTF.setText(compList = AIBclient.getCompaniesOnPeopleID(person.getPeopleId()));
+//            
+//            locationCB.setModel(locationCbModel =
+//                    AIBclient.loadLocationsForCompanies(compList, 
+//                    AIBclient.getLocationForCombo(person.getLocationId())));
+//            selectComboItem(locationCB, person.getLocationId());
+//            specAddressTF.setText(person.getSpecAddress());
+//            mailingAddressTA.setText(person.getMailaddress());
+//            mailingPostCodeTF.setText(person.getMailpostcode());
+//            deskPhoneTF.setText(person.getDeskPhone());
+//            deskFaxTF.setText(person.getDeskFax());
+//            mobilePhoneTF.setText(person.getMobilePhone());
+//            mainEmailTF.setSelectedItem(person.getMainEmail());
+//            alterEmailTF.setText(person.getAlterEmail());
+//            paTF.setText(person.getPa());
+//            paPhoneTF.setText(person.getPaPhone());
+//            paEmailTF.setText(person.getPaEmail());
+//            primaryContactCB.setSelected(person.getIsPrimary() != null && person.getIsPrimary() == 1);
+//            channelSubscriberCB.setSelected(person.getIsSubscriber() != null && person.getIsSubscriber() == 1);
+//            marketingIntelDistCB.setSelected(person.getIsMarketintl() != null && person.getIsMarketintl() == 1);
+//            mediaBriefingDistCB.setSelected(person.getIsMediabrief() != null && person.getIsMediabrief() == 1);
+//            sourceBookCB.setSelected(person.getIsInsourcebook() != null && person.getIsInsourcebook() == 1);
+//            aibCoordinatorCB.setSelected(person.getIsAibCoordinator() != null && person.getIsAibCoordinator() == 1);
+//            aibJudgeCB.setSelected(person.getIsAibJudge() != null && person.getIsAibJudge() == 1);
+//            aibEntrantCB.setSelected(person.getIsAibEntrant() != null && person.getIsAibEntrant() == 1);
+//            nextActionTA.setText(person.getNextAction());
+//            extUserNameTF.setText(person.getExternalUser());
+//            extPassworTF.setText(person.getExternalPasswd());
+//            timescaleSP.setValue(AIBclient.getNearestPurchaseTimeScale(person.getPeopleId(), timescaleSP));
+//            if (person.getActionDate() != null) {
+//                actionDateSP.setValue(new java.util.Date(person.getActionDate().getTime()));
+//            }
+//            if (person.getLasteditDate() != null) {
+//                Timestamp t = person.getLasteditDate();
+//                lastEditedSP.setValue(new java.util.Date(t.getTime()));
+//            }
+//            Integer userID = person.getLasteditedBy();
+//            if (userID != null) {
+//                try {
+//                    User user = (User) AIBclient.getExchanger().loadDbObjectOnID(User.class, userID);
+//                    lastEditorTF.setText(user.getInitials());
+//                } catch (RemoteException ex) {
+//                    AIBclient.log(ex);
+//                }
+//            }
+//            commentsGrid.setPeopleID(person.getPeopleId());//updateContent(person.getPeopleId());
             imageData = (byte[]) person.getPhoto();
             setImage(imageData);
         }

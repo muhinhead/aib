@@ -13,7 +13,7 @@ import java.rmi.RemoteException;
 import javax.swing.JComponent;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
-
+import javax.swing.JTabbedPane;
 /**
  *
  * @author nick
@@ -25,7 +25,7 @@ class EditRegionPanel extends RecordEditPanel {
     private JSpinner postPriceSP;
     private JSpinner postStatusSP;
     private JSpinner postNumberSP;
-    private JideTabbedPane downTab;
+    private JTabbedPane downTab;
 
     public EditRegionPanel(DbObject dbObject) {
         super(dbObject);
@@ -50,7 +50,7 @@ class EditRegionPanel extends RecordEditPanel {
         idField.setEnabled(false);
         organizePanels(titles, edits, null);
 //        JideTabbedPane tab;
-        add(downTab = new JideTabbedPane());
+        add(downTab = new JTabbedPane());
 
     }
 

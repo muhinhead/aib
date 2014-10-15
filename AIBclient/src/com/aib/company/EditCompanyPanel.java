@@ -112,7 +112,8 @@ class EditCompanyPanel extends EditPanelWithPhoto {
     protected void fillContent() {
         String titles[] = new String[]{
             "ID:",
-            "Company Name:",//           "Alternative Name:", 
+            "Company Name:",//           
+            "Alternative Name:", 
             "Dummy Company:", // "Parent Company:"
             "Links:",
             "Industry:",
@@ -133,12 +134,12 @@ class EditCompanyPanel extends EditPanelWithPhoto {
         JScrollPane sp2;
         JComponent[] edits = new JComponent[]{
             getGridPanel(idField = new JTextField(), 6),
-            getGridPanel(new JComponent[]{
-                fullCompanyNameTF = new Java2sAutoComboBox(AIBclient.loadDistinctCompanyNames("full_name")),
-//                getGridPanel(new JComponent[]{
-                    new JLabel("Alternative Name:", SwingConstants.RIGHT),
+            getBorderPanel(new JComponent[]{
+                fullCompanyNameTF = new Java2sAutoComboBox(AIBclient.loadDistinctCompanyNames("full_name"))
+            }),
+//                    new JLabel("Alternative Name:", SwingConstants.RIGHT),
+            getBorderPanel(new JComponent[]{
                     abbreviationTF = new Java2sAutoComboBox(AIBclient.loadDistinctCompanyNames("abbreviation"))
-//                })
             }),
             getBorderPanel(new JComponent[]{
                 getGridPanel(new JComponent[]{
@@ -206,6 +207,7 @@ class EditCompanyPanel extends EditPanelWithPhoto {
                 })
             })
         };
+        
         fullCompanyNameTF.setEditable(true);
         fullCompanyNameTF.setStrict(false);
         fullCompanyNameTF.getEditor().getEditorComponent().addFocusListener(new FocusAdapter() {
@@ -311,41 +313,41 @@ class EditCompanyPanel extends EditPanelWithPhoto {
         if (comp != null) {
             idField.setText(comp.getCompanyId().toString());
             fullCompanyNameTF.setSelectedItem(comp.getFullName());
-            abbreviationTF.setSelectedItem(comp.getAbbreviation());
-            isDummyCB.setSelected(comp.getIsDummy() != null && comp.getIsDummy() == 1);
-            linksListTF.setText(AIBclient.getLinkListOnCompanyID(comp.getCompanyId()));
-            industriesListTF.setText(AIBclient.getIndustryListOnCompanyID(comp.getCompanyId()));
-            mentionsListTF.setText(AIBclient.getPublicationsOnCompanyID(comp.getCompanyId()));
-            turnoverSP.setValue(comp.getTurnover());
-            physicAddressTA.setText(comp.getAddress());
-            physicAddressTA.setCaretPosition(0);
-            physicalPostCodeTF.setText(comp.getPostCode());
-
-            mailingAddressTA.setText(comp.getMailaddress());
-            mailingAddressTA.setCaretPosition(0);
-            mailingPostCodeTF.setText(comp.getMailingPostCode());
-            selectComboItem(regionWorldCb, AIBclient.getRegionOnCountry(comp.getCountryId()));
-            selectComboItem(countryCB, comp.getCountryId());
-            mainPhoneTF.setText(comp.getMainPhone());
-            mainFaxTF.setText(comp.getMainFax());
-            membershipLevelTF.setText(comp.getMemberLevel());
-            selectComboItem(parentCompanyCB, comp.getParentId());
-            if (comp.getLasteditDate() != null) {
-                Timestamp t = comp.getLasteditDate();
-                lastVerifiedDateSP.setValue(new java.util.Date(t.getTime()));
-            }
-            Integer userID = comp.getLasteditedBy();
-            if (userID != null) {
-                try {
-                    User user = (User) AIBclient.getExchanger().loadDbObjectOnID(User.class, userID);
-                    if (user != null) {
-                        lastEditorTF.setText(user.getInitials());
-                    }
-                } catch (RemoteException ex) {
-                    AIBclient.log(ex);
-                }
-            }
-            commentsTA.setText(comp.getComments());
+//            abbreviationTF.setSelectedItem(comp.getAbbreviation());
+//            isDummyCB.setSelected(comp.getIsDummy() != null && comp.getIsDummy() == 1);
+//            linksListTF.setText(AIBclient.getLinkListOnCompanyID(comp.getCompanyId()));
+//            industriesListTF.setText(AIBclient.getIndustryListOnCompanyID(comp.getCompanyId()));
+//            mentionsListTF.setText(AIBclient.getPublicationsOnCompanyID(comp.getCompanyId()));
+//            turnoverSP.setValue(comp.getTurnover());
+//            physicAddressTA.setText(comp.getAddress());
+//            physicAddressTA.setCaretPosition(0);
+//            physicalPostCodeTF.setText(comp.getPostCode());
+//
+//            mailingAddressTA.setText(comp.getMailaddress());
+//            mailingAddressTA.setCaretPosition(0);
+//            mailingPostCodeTF.setText(comp.getMailingPostCode());
+//            selectComboItem(regionWorldCb, AIBclient.getRegionOnCountry(comp.getCountryId()));
+//            selectComboItem(countryCB, comp.getCountryId());
+//            mainPhoneTF.setText(comp.getMainPhone());
+//            mainFaxTF.setText(comp.getMainFax());
+//            membershipLevelTF.setText(comp.getMemberLevel());
+//            selectComboItem(parentCompanyCB, comp.getParentId());
+//            if (comp.getLasteditDate() != null) {
+//                Timestamp t = comp.getLasteditDate();
+//                lastVerifiedDateSP.setValue(new java.util.Date(t.getTime()));
+//            }
+//            Integer userID = comp.getLasteditedBy();
+//            if (userID != null) {
+//                try {
+//                    User user = (User) AIBclient.getExchanger().loadDbObjectOnID(User.class, userID);
+//                    if (user != null) {
+//                        lastEditorTF.setText(user.getInitials());
+//                    }
+//                } catch (RemoteException ex) {
+//                    AIBclient.log(ex);
+//                }
+//            }
+//            commentsTA.setText(comp.getComments());
             imageData = (byte[]) comp.getLogo();
             setImage(imageData);
         }
