@@ -4,6 +4,7 @@ import com.aib.AIBclient;
 import com.aib.EditAreaAction;
 //import com.aib.EditAreaAction;
 import com.aib.EditPanelWithPhoto;
+import com.aib.GeneralFrame;
 import com.aib.GeneralGridPanel;
 import com.aib.MyJideTabbedPane;
 import static com.aib.RecordEditPanel.comboPanelWithLookupBtn;
@@ -19,15 +20,19 @@ import com.aib.lookup.LookupDialog;
 import com.aib.lookup.PublicationsListInTextFieldDialog;
 import com.aib.lookup.WorldRegionLookupAction;
 import com.aib.orm.Company;
+import com.aib.orm.People;
+import com.aib.orm.Peoplecompany;
 import com.aib.orm.User;
 import com.aib.orm.dbobject.ComboItem;
 import com.aib.orm.dbobject.DbObject;
+import com.aib.people.EditPeopleDialog;
 import com.aib.people.PeopleGrid;
 import com.xlend.util.Java2sAutoComboBox;
 import com.xlend.util.SelectedDateSpinner;
 import com.xlend.util.SelectedNumberSpinner;
 import com.xlend.util.Util;
 import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
@@ -41,6 +46,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.Icon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -113,7 +119,7 @@ class EditCompanyPanel extends EditPanelWithPhoto {
         String titles[] = new String[]{
             "ID:",
             "Company Name:",//           
-            "Alternative Name:", 
+            "Alternative Name:",
             "Dummy Company:", // "Parent Company:"
             "Links:",
             "Industry:",
@@ -137,9 +143,9 @@ class EditCompanyPanel extends EditPanelWithPhoto {
             getBorderPanel(new JComponent[]{
                 fullCompanyNameTF = new Java2sAutoComboBox(AIBclient.loadDistinctCompanyNames("full_name"))
             }),
-//                    new JLabel("Alternative Name:", SwingConstants.RIGHT),
+            //                    new JLabel("Alternative Name:", SwingConstants.RIGHT),
             getBorderPanel(new JComponent[]{
-                    abbreviationTF = new Java2sAutoComboBox(AIBclient.loadDistinctCompanyNames("abbreviation"))
+                abbreviationTF = new Java2sAutoComboBox(AIBclient.loadDistinctCompanyNames("abbreviation"))
             }),
             getBorderPanel(new JComponent[]{
                 getGridPanel(new JComponent[]{
@@ -207,7 +213,7 @@ class EditCompanyPanel extends EditPanelWithPhoto {
                 })
             })
         };
-        
+
         fullCompanyNameTF.setEditable(true);
         fullCompanyNameTF.setStrict(false);
         fullCompanyNameTF.getEditor().getEditorComponent().addFocusListener(new FocusAdapter() {
@@ -288,11 +294,47 @@ class EditCompanyPanel extends EditPanelWithPhoto {
             Integer compID = comp == null ? new Integer(0) : comp.getCompanyId();
             downTabs.add(compLocationsGrid = new CompLocationsGrid(AIBclient.getExchanger(), compID), "Company Locations");
             downTabs.add(peopleGrid = new PeopleGrid(AIBclient.getExchanger(), PeopleGrid.SELECT.replace(GeneralGridPanel.SELECTLIMIT, "")
-                    + " where people_id in (select people_id from peoplecompany where company_id=" + compID + ")", false), "People");
+                    + " where people_id in (select people_id from peoplecompany where company_id=" + compID + ")", false) {
+                @Override
+                protected JPanel getRightPanel(JPanel btnPanel) {
+                    btnPanel.setLayout(new GridLayout(4, 1, 5, 5));
+                    btnPanel.add(new JButton(getDetachPeople()));
+                    return super.getRightPanel(btnPanel);
+                }
+
+                private AbstractAction getDetachPeople() {
+                    return new AbstractAction("Detach") {
+                        @Override
+                        public void actionPerformed(ActionEvent ae) {
+                            int id = getSelectedID();
+                            if (id != 0) {
+                                try {
+                                    People person = (People) exchanger.loadDbObjectOnID(People.class, id);
+                                    Company company = (Company) EditCompanyPanel.this.getDbObject();
+                                    if (company != null) {
+                                        DbObject[] recs = exchanger.getDbObjects(Peoplecompany.class,
+                                                "company_id=" + company.getCompanyId() + " and people_id=" + person.getPeopleId(), null);
+                                        if (recs.length > 0) {
+                                            Peoplecompany pc = (Peoplecompany) recs[0];
+                                            if (GeneralFrame.yesNo("Attention!",
+                                                    "Do you want to detach this person from the company?") == JOptionPane.YES_OPTION) {
+                                                exchanger.deleteObject(pc);
+                                                refresh();
+                                            }
+                                        }
+                                    }
+                                } catch (RemoteException ex) {
+                                    AIBclient.logAndShowMessage(ex);
+                                }
+                            }
+                        }
+                    };
+                }
+            }, "People");
         } catch (RemoteException ex) {
             AIBclient.logAndShowMessage(ex);
         }
-        
+
         downTabs.setPreferredSize(new Dimension(downTabs.getPreferredSize().width, 200));
         add(downTabs);
     }
@@ -313,41 +355,41 @@ class EditCompanyPanel extends EditPanelWithPhoto {
         if (comp != null) {
             idField.setText(comp.getCompanyId().toString());
             fullCompanyNameTF.setSelectedItem(comp.getFullName());
-//            abbreviationTF.setSelectedItem(comp.getAbbreviation());
-//            isDummyCB.setSelected(comp.getIsDummy() != null && comp.getIsDummy() == 1);
-//            linksListTF.setText(AIBclient.getLinkListOnCompanyID(comp.getCompanyId()));
-//            industriesListTF.setText(AIBclient.getIndustryListOnCompanyID(comp.getCompanyId()));
-//            mentionsListTF.setText(AIBclient.getPublicationsOnCompanyID(comp.getCompanyId()));
-//            turnoverSP.setValue(comp.getTurnover());
-//            physicAddressTA.setText(comp.getAddress());
-//            physicAddressTA.setCaretPosition(0);
-//            physicalPostCodeTF.setText(comp.getPostCode());
-//
-//            mailingAddressTA.setText(comp.getMailaddress());
-//            mailingAddressTA.setCaretPosition(0);
-//            mailingPostCodeTF.setText(comp.getMailingPostCode());
-//            selectComboItem(regionWorldCb, AIBclient.getRegionOnCountry(comp.getCountryId()));
-//            selectComboItem(countryCB, comp.getCountryId());
-//            mainPhoneTF.setText(comp.getMainPhone());
-//            mainFaxTF.setText(comp.getMainFax());
-//            membershipLevelTF.setText(comp.getMemberLevel());
-//            selectComboItem(parentCompanyCB, comp.getParentId());
-//            if (comp.getLasteditDate() != null) {
-//                Timestamp t = comp.getLasteditDate();
-//                lastVerifiedDateSP.setValue(new java.util.Date(t.getTime()));
-//            }
-//            Integer userID = comp.getLasteditedBy();
-//            if (userID != null) {
-//                try {
-//                    User user = (User) AIBclient.getExchanger().loadDbObjectOnID(User.class, userID);
-//                    if (user != null) {
-//                        lastEditorTF.setText(user.getInitials());
-//                    }
-//                } catch (RemoteException ex) {
-//                    AIBclient.log(ex);
-//                }
-//            }
-//            commentsTA.setText(comp.getComments());
+            abbreviationTF.setSelectedItem(comp.getAbbreviation());
+            isDummyCB.setSelected(comp.getIsDummy() != null && comp.getIsDummy() == 1);
+            linksListTF.setText(AIBclient.getLinkListOnCompanyID(comp.getCompanyId()));
+            industriesListTF.setText(AIBclient.getIndustryListOnCompanyID(comp.getCompanyId()));
+            mentionsListTF.setText(AIBclient.getPublicationsOnCompanyID(comp.getCompanyId()));
+            turnoverSP.setValue(comp.getTurnover());
+            physicAddressTA.setText(comp.getAddress());
+            physicAddressTA.setCaretPosition(0);
+            physicalPostCodeTF.setText(comp.getPostCode());
+
+            mailingAddressTA.setText(comp.getMailaddress());
+            mailingAddressTA.setCaretPosition(0);
+            mailingPostCodeTF.setText(comp.getMailingPostCode());
+            selectComboItem(regionWorldCb, AIBclient.getRegionOnCountry(comp.getCountryId()));
+            selectComboItem(countryCB, comp.getCountryId());
+            mainPhoneTF.setText(comp.getMainPhone());
+            mainFaxTF.setText(comp.getMainFax());
+            membershipLevelTF.setText(comp.getMemberLevel());
+            selectComboItem(parentCompanyCB, comp.getParentId());
+            if (comp.getLasteditDate() != null) {
+                Timestamp t = comp.getLasteditDate();
+                lastVerifiedDateSP.setValue(new java.util.Date(t.getTime()));
+            }
+            Integer userID = comp.getLasteditedBy();
+            if (userID != null) {
+                try {
+                    User user = (User) AIBclient.getExchanger().loadDbObjectOnID(User.class, userID);
+                    if (user != null) {
+                        lastEditorTF.setText(user.getInitials());
+                    }
+                } catch (RemoteException ex) {
+                    AIBclient.log(ex);
+                }
+            }
+            commentsTA.setText(comp.getComments());
             imageData = (byte[]) comp.getLogo();
             setImage(imageData);
         }

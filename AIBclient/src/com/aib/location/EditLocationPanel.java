@@ -34,7 +34,6 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
-import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JSpinner;
 import javax.swing.JTextArea;
@@ -100,7 +99,8 @@ class EditLocationPanel extends EditPanelWithPhoto {
         String titles[] = new String[]{
             "ID:",
             "Company:",
-            "Location Name:", //"Alternate Name:"
+            "Location Name:",
+            "Alternate Name:",
             "Links:",
             "Industry:",
             "Physical Address:",//            "Post Code:",
@@ -122,12 +122,15 @@ class EditLocationPanel extends EditPanelWithPhoto {
             getGridPanel(idField = new JTextField(), 6),
             comboPanelWithLookupBtn(companyCB = new JComboBox(companyCbModel),
             compLookupAction = new CompanyLookupAction(companyCB, false)),
-            getGridPanel(new JComponent[]{
-                locationNameTF = new JTextField(),
-                getGridPanel(new JComponent[]{
-                    new JLabel("Alternative Name:", SwingConstants.RIGHT),
-                    abbreviationTF = new JTextField()
-                })
+            getBorderPanel(new JComponent[]{
+                locationNameTF = new JTextField(80)
+            //getGridPanel(new JComponent[]{
+            //new JLabel("Alternative Name:", SwingConstants.RIGHT),
+            //abbreviationTF = new JTextField()
+            //})
+            }),
+            getBorderPanel(new JComponent[]{
+                abbreviationTF = new JTextField(80)
             }),
             getBorderPanel(new JComponent[]{null, linksListTF = new JTextField(),
                 new JButton(getLinkListAction("..."))}),

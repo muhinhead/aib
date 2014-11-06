@@ -55,10 +55,10 @@ public class DataExportSheet extends PopupDialog {
         final String tmpHtmlName = System.getProperty("user.home").replace("\\","/") + "/$tmp.html";
         Object[] params = (Object[]) getObject();
         generateOutputHTML(tmpHtmlName, (Integer) params[0], (String) params[1]);
-        HTMLapplet.SHOWURL = false;
-        HTMLapplet browser = new HTMLapplet("file:///" + tmpHtmlName);
-        browser.init();
-        getContentPane().add(browser, BorderLayout.CENTER);
+//        HTMLapplet.SHOWURL = false;
+//        HTMLapplet browser = new HTMLapplet("file:///" + tmpHtmlName);
+//        browser.init();
+//        getContentPane().add(browser, BorderLayout.CENTER);
         JPanel btnPanel = new JPanel(new FlowLayout());
         btnPanel.add(new JButton(new AbstractAction("Export as HTML") {
             @Override
@@ -134,7 +134,7 @@ public class DataExportSheet extends PopupDialog {
             }
         }));
         getContentPane().add(btnPanel, BorderLayout.SOUTH);
-        browser.start();
+//        browser.start();
     }
 
     private File chooseFileForExport(String extension) {

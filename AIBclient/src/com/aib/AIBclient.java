@@ -62,7 +62,7 @@ import javax.swing.SpinnerNumberModel;
  */
 public class AIBclient {
 
-    private static final String version = "0.14.e";
+    private static final String version = "0.14.h";
 //    private static Userprofile currentUser;
     private static Logger logger = null;
     private static FileHandler fh;
@@ -229,7 +229,7 @@ public class AIBclient {
     public static int getDefaultPageLimit() {
         int ps;
         try {
-            ps = Integer.parseInt(readProperty("pageSize", "500"));
+            ps = Integer.parseInt(readProperty("pageSize", "1000"));
         } catch (NumberFormatException nfe) {
             ps = 500;
         }

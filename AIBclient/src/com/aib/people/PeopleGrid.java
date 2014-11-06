@@ -111,7 +111,8 @@ public class PeopleGrid extends GeneralGridPanel {
                 if (id != 0) {
                     try {
                         People person = (People) exchanger.loadDbObjectOnID(People.class, id);
-                        if (person != null && GeneralFrame.yesNo("Attention!", "Do you want to delete this record?") == JOptionPane.YES_OPTION) {
+                        if (person != null && GeneralFrame.yesNo("Attention!", 
+                                "Do you want to delete record of this person?") == JOptionPane.YES_OPTION) {
                             exchanger.deleteObject(person);
                             refresh();
                         }
