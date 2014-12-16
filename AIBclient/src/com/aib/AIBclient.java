@@ -34,7 +34,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.rmi.Naming;
 import java.rmi.RemoteException;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +61,7 @@ import javax.swing.SpinnerNumberModel;
  */
 public class AIBclient {
 
-    private static final String version = "0.14.h";
+    private static final String version = "0.14.j";
 //    private static Userprofile currentUser;
     private static Logger logger = null;
     private static FileHandler fh;
@@ -660,7 +659,7 @@ public class AIBclient {
         try {
             Company comp = null;
             Peoplecompany pc = null;
-            int p = abbreviation.indexOf("(") + 1;
+            int p = abbreviation.lastIndexOf("(") + 1;
             //int pp = abbreviation.indexOf(")");
             String sid = abbreviation.substring(p);
             sid = sid.substring(0, sid.length() - 1);

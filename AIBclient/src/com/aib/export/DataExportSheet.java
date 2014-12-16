@@ -15,6 +15,7 @@ import com.xlend.util.PopupDialog;
 import com.xlend.util.Util;
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
@@ -52,7 +53,7 @@ public class DataExportSheet extends PopupDialog {
     @Override
     protected void fillContent() {
         super.fillContent();
-        final String tmpHtmlName = System.getProperty("user.home").replace("\\","/") + "/$tmp.html";
+        final String tmpHtmlName = System.getProperty("user.home").replace("\\", "/") + "/$tmp.html";
         Object[] params = (Object[]) getObject();
         generateOutputHTML(tmpHtmlName, (Integer) params[0], (String) params[1]);
 //        HTMLapplet.SHOWURL = false;
@@ -68,10 +69,19 @@ public class DataExportSheet extends PopupDialog {
                     if (expFile.exists()) {
                         expFile.delete();
                     }
-                    if (!new File(tmpHtmlName).renameTo(expFile)) {
-                        GeneralFrame.errMessageBox("Error", "Couldn't rename file " + tmpHtmlName + " to " + expFile);
-                    } else {
-                        GeneralFrame.infoMessageBox("Ok", "Data exported to " + expFile.getPath());
+                    try {
+                        if (!new File(tmpHtmlName).renameTo(expFile)) {
+                            GeneralFrame.errMessageBox("Error", "Couldn't rename file " + tmpHtmlName + " to " + expFile);
+                        } else {
+                            GeneralFrame.infoMessageBox("Ok", "Data exported to " + expFile.getPath());
+                            if (expFile != null) {
+                                Desktop desktop = Desktop.getDesktop();
+                                desktop.open(expFile);
+                                dispose();
+                            }
+                        }
+                    } catch (Exception ex) {
+                        AIBclient.logAndShowMessage(ex);
                     }
                 }
             }
@@ -92,7 +102,7 @@ public class DataExportSheet extends PopupDialog {
                             if (i > 0) {
                                 bufferedOutput.write(',');
                             }
-                            bufferedOutput.write(headers.get(i).toString().getBytes());
+                            bufferedOutput.write(headers.get(i).toString().replace("_"," ").replace("discip", "title").getBytes());
                         }
                         bufferedOutput.write('\n');
                         Vector lines = result[1];
@@ -113,6 +123,11 @@ public class DataExportSheet extends PopupDialog {
                             bufferedOutput.write('\n');
                         }
                         GeneralFrame.infoMessageBox("Ok", "Data exported to " + expFile.getPath());
+                        if (expFile != null) {
+                            Desktop desktop = Desktop.getDesktop();
+                            desktop.open(expFile);
+                            dispose();
+                        }
                     } catch (Exception ex) {
                         AIBclient.logAndShowMessage(ex);
                     } finally {
@@ -145,6 +160,9 @@ public class DataExportSheet extends PopupDialog {
         int retVal = chooser.showOpenDialog(null);
         if (retVal == JFileChooser.APPROVE_OPTION) {
             String name = chooser.getSelectedFile().getAbsolutePath();
+            if (!name.endsWith("."+extension)) {
+                name += "."+extension;
+            }
             return new File(name);
         } else {
             return null;
@@ -170,7 +188,6 @@ public class DataExportSheet extends PopupDialog {
 //        File fout = new File(System.getProperty("user.home") + "/" + fname);
 //        Util.writeFile(fout, imageData);
 //    }
-
     private void generateOutputHTML(String tmpHtmlName, Integer tmpID, String select) {
         StringBuffer sb = new StringBuffer(select);
         int braceLevel = 0;
@@ -215,7 +232,7 @@ public class DataExportSheet extends PopupDialog {
             bufferedOutput.write("<table class=\"mystyle\">\n".getBytes());
             bufferedOutput.write("<tr>\n".getBytes());
             for (Object td : tds) {
-                bufferedOutput.write(("<th>" + td.toString() + "</th>\n").getBytes());
+                bufferedOutput.write(("<th>" + td.toString().replace("_"," ").replace("discip", "title") + "</th>\n").getBytes());
             }
             bufferedOutput.write("</tr>\n".getBytes());
 //            int rownum = 0;
@@ -290,6 +307,13 @@ public class DataExportSheet extends PopupDialog {
                                 + "from locindustry join industry on "
                                 + "locindustry.industry_id=industry.industry_id "
                                 + "where location_id=location.location_id) as \"Industries\"");
+                    }
+                } else if (itm.getColumnname().equals("Companies")) {
+                    if (outerTable.equals("people")) {
+                        colsList.append("(select group_concat(full_name) "
+                                + "from peoplecompany join company on "
+                                + "peoplecompany.company_id=company.company_id "
+                                + "where people_id=people.people_id) as \"Companies\"");
                     }
                 } else if (itm.getColumnname().equals("company_id")) {
                     colsList.append("(select abbreviation from company where company_id="

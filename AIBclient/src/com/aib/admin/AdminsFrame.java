@@ -355,6 +355,9 @@ public class AdminsFrame extends GeneralFrame {
                 colNames.add("Countries");
                 colNames.add("Links");
                 colNames.add("Industries");
+                if (tableName.equalsIgnoreCase("people")) {
+                    colNames.add("Companies");
+                }
                 columnList = colNames.toArray();
                 tabCols.put(pathString, columnList);
             } catch (RemoteException ex) {
