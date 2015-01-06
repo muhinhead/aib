@@ -7,11 +7,15 @@ import static com.aib.GeneralFrame.adjustFilterQuery;
 import com.aib.filter.PeopleFilterPanel;
 import com.aib.orm.Filter;
 import com.aib.orm.dbobject.ComboItem;
+import com.aib.orm.dbobject.ForeignKeyViolationException;
 import com.aib.remote.IMessageSender;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
+import java.sql.SQLException;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.JPanel;
 
@@ -70,9 +74,30 @@ public class PeopleFrame extends FilteredListFrame {
             adjustFilterQuery(flt, "Industries",
                     "exists (select descr from industry,peopleindustry where industry.industry_id=peopleindustry.industry_id "
                     + "and peopleindustry.people_id=people.people_id and descr");
-            adjustFilterQuery(flt, "Awards", 
+            adjustFilterQuery(flt, "Awards",
                     "exists (select award from aibaward,peopleaward where aibaward.aibaward_id=peopleaward.aibaward_id "
                     + "and peopleaward.people_id=people.people_id and award");
+            String existPeopleCompany = "exists (select peoplecompany_id from peoplecompany where people_id=people.people_id and company_id";
+            adjustFilterQuery(flt, "Companies",existPeopleCompany);
+            int p = flt.getQuery().indexOf(existPeopleCompany + " IN (");
+            if (p >= 0) {
+                int shift = existPeopleCompany.length() + 5;
+                int pp = flt.getQuery().substring(p + shift).indexOf(")");
+                String sid = flt.getQuery().substring(p + shift, p + shift + pp);
+                int filter_id = Integer.parseInt(sid);
+                try {
+                    Filter subflt = (Filter) AIBclient.getExchanger().loadDbObjectOnID(Filter.class, filter_id);
+                    String newQry = flt.getQuery().substring(0, p + shift)
+                            + "select company_id from company where "
+                            + subflt.getQuery()
+                            + flt.getQuery().substring(p + shift + pp);
+                    flt.setQuery(newQry);
+                } catch (Exception ex) {
+                    AIBclient.logAndShowMessage(ex);
+                }
+            }
+//            adjustFilterQuery(flt, "Companies",
+//                    "exists (select company_id from company)");
             String newSelect = adjustSelect(flt, "from people ", PeopleGrid.SELECT);
             if (flt.getQuery() == null || flt.getQuery().trim().length() == 0) {
                 GeneralFrame.errMessageBox("Attention!", "The empty filter couldn't be applied");

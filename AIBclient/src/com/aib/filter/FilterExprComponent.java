@@ -7,13 +7,17 @@ package com.aib.filter;
 import com.aib.AIBclient;
 import com.aib.RecordEditPanel;
 import static com.aib.filter.FilterComponent.removeQuotes;
+import com.aib.orm.Filter;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
+import java.rmi.RemoteException;
 import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.Stack;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -236,7 +240,16 @@ public class FilterExprComponent extends FilterComponent {
                 String fld = (String) fldCB.getSelectedItem();
                 Integer tp = fldNamesTypes.get(fld);
                 sb.append(fld).append(" ").append(operatorCB.getSelectedItem()).append(" ");
-                if (fld.equals("lastedited_by")) {
+                if (fld.equals("Companies")) {
+//                    try {
+//                        Filter flt = (Filter) AIBclient.getExchanger().loadDbObjectOnID(
+//                                Filter.class, RecordEditPanel.getSelectedCbItem(companyFilterCB).intValue());
+//                        sb.append("(").append("select company_id from company where ").append(flt.getQuery()).append(")");
+//                    } catch (RemoteException ex) {
+//                        AIBclient.logAndShowMessage(ex);
+//                    }
+                    sb.append("(").append(RecordEditPanel.getSelectedCbItem(companyFilterCB).toString()).append(")");
+                } else if (fld.equals("lastedited_by")) {
                     sb.append(RecordEditPanel.getSelectedCbItem(userCB).toString());
                 } else if (fld.equals("country_id")) {
                     sb.append(RecordEditPanel.getSelectedCbItem(countryCB).toString());

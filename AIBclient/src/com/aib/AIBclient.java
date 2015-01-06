@@ -293,8 +293,8 @@ public class AIBclient {
                 vals.length > 1 ? new Integer(vals[1]) : 1099, 0, 65536, 1));
         JTextField dbConnectionField = new JTextField(getProperties()
                 .getProperty("JDBCconnection", "jdbc:mysql://"
-                + defaultServerIP
-                + "/aibcontact"));
+                        + defaultServerIP
+                        + "/aibcontact"));
         JTextField dbDriverField = new JTextField(getProperties()
                 .getProperty("dbDriverName", "com.mysql.jdbc.Driver"));
         JTextField dbUserField = new JTextField(getProperties()
@@ -498,6 +498,20 @@ public class AIBclient {
             regionsDictionary = loadOnSelect(exchanger, "select worldregion_id, descr from worldregion");
         }
         return regionsDictionary;
+    }
+
+    public static Filter[] loadCompanyFilters() {
+        Filter[] filters = null;
+        try {
+            DbObject[] compFltrs = getExchanger().getDbObjects(Filter.class, "tablename='company'", null);
+            filters = new Filter[compFltrs.length];
+            for (int i=0; i<compFltrs.length; i++) {
+                filters[i] = (Filter) compFltrs[i];
+            }
+        } catch (RemoteException ex) {
+            log(ex);
+        }
+        return filters;
     }
 
     public static Country[] loadAllCountries() {
@@ -1320,7 +1334,7 @@ public class AIBclient {
         } catch (Exception ex) {
             log(ex);
         }
-        locID = (locID==null?new Integer(0):locID);
+        locID = (locID == null ? new Integer(0) : locID);
         return new ComboItem(locID, "-- unknown location ID=" + locID + " --");
     }
 
@@ -1328,7 +1342,7 @@ public class AIBclient {
         String sql = "select location_id, concat(l.name,' (',ifnull((Select abbreviation from company where company_id=l.company_id),''),')') "
                 + "from location l"
                 + " where company_id in (select company_id from company where instr('" + compList + "',concat(full_name,'(',company_id,')'))>0) "
-                + (startItem!=null?" or l.location_id="+startItem.getId():"")
+                + (startItem != null ? " or l.location_id=" + startItem.getId() : "")
                 + " order by l.name";
         return new DefaultComboBoxModel(loadOnSelect(exchanger, sql, null));
     }

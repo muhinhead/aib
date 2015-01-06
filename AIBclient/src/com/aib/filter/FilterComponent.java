@@ -8,6 +8,7 @@ import com.aib.AIBclient;
 import com.aib.RecordEditPanel;
 import com.aib.lookup.CountryLookupAction;
 import com.aib.orm.Country;
+import com.aib.orm.Filter;
 import com.aib.orm.dbobject.ComboItem;
 import com.xlend.util.SelectedDateSpinner;
 import com.xlend.util.Util;
@@ -54,6 +55,7 @@ public abstract class FilterComponent extends JPanel {
     static final String TEXT_FLD = "textFieldPanel";
     static final String COUNTRY_ID = "countryIDpanel";
     static final String LASTEDITED_BY = "editedBYpanel";
+    static final String COMPANIES = "companiesPanel";
     static final SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
     protected CardLayout cl;
     protected SelectedDateSpinner fromDateSP;
@@ -66,11 +68,14 @@ public abstract class FilterComponent extends JPanel {
     protected JComboBox operatorCB;
     protected JComboBox countryCB;
     protected JComboBox userCB;
+    protected JComboBox companyFilterCB;
     private JLabel betwAndLabel;
     private boolean wasCountryIDselected = false;
     private boolean wasUserSelected = false;
+    private boolean wasCompaniesSelected = false;
     private static ComboItem[] countries;
     private static ComboItem[] users;
+    private static ComboItem[] companyFilters;
 
     static {
         Country[] countryList = AIBclient.loadAllCountries();
@@ -79,6 +84,12 @@ public abstract class FilterComponent extends JPanel {
         for (Country c : countryList) {
             countries[i++] = new ComboItem(c.getCountryId(),
                     c.getCountry() + " (" + c.getShortname() + ")");
+        }
+        Filter[] filters = AIBclient.loadCompanyFilters();
+        companyFilters = new ComboItem[filters.length];
+        for (i=0; i<filters.length; i++) {
+            companyFilters[i] = new ComboItem(filters[i].getFilterId(), 
+                    filters[i].getName());
         }
         users = AIBclient.loadAllUsersInitials();
     }
@@ -154,11 +165,14 @@ public abstract class FilterComponent extends JPanel {
             valuePanel.add(userCB = new JComboBox(
                     new DefaultComboBoxModel(users)),
                     LASTEDITED_BY);
+            valuePanel.add(companyFilterCB = new JComboBox(
+                    new DefaultComboBoxModel(companyFilters)),COMPANIES);
             valueTF.addKeyListener(getKeyAdapter());
             fromValueTF.addKeyListener(getKeyAdapter());
             toValueTF.addKeyListener(getKeyAdapter());
             countryCB.addActionListener(getCbListener());
             userCB.addActionListener(getCbListener());
+            companyFilterCB.addActionListener(getCbListener());
             fromDateSP.setEditor(new JSpinner.DateEditor(fromDateSP, RecordEditPanel.DD_MM_YYYY));
             Util.addFocusSelectAllAction(fromDateSP);
             toDateSP.setEditor(new JSpinner.DateEditor(toDateSP, RecordEditPanel.DD_MM_YYYY));
@@ -211,8 +225,16 @@ public abstract class FilterComponent extends JPanel {
                 wasUserSelected = true;
             }
             cl.show(valuePanel, LASTEDITED_BY);
+        } else if (fld.equals("Companies")) {
+            if (!wasCompaniesSelected) {
+                operatorCB.setModel(new DefaultComboBoxModel(new String[]{
+                    IN
+                }));
+                wasCompaniesSelected = true;
+            }
+            cl.show(valuePanel, COMPANIES);
         } else {
-            if (wasCountryIDselected || wasUserSelected) {
+            if (wasCountryIDselected || wasUserSelected || wasCompaniesSelected) {
                 setDefaultOperatorSet();
             }
             wasCountryIDselected = false;

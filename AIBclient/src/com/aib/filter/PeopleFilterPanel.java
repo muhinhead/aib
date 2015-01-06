@@ -28,5 +28,7 @@ public class PeopleFilterPanel extends AncestorFilterPanel {
 //        colNamesTypes.put("Industries", Types.VARCHAR);        
         colNames.add("Awards");
         colNamesTypes.put("Awards", Types.VARCHAR);
+        colNames.add("Companies");
+        colNamesTypes.put("Companies", Types.VARCHAR);
     }
 }
