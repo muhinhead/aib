@@ -357,6 +357,8 @@ public class AdminsFrame extends GeneralFrame {
                 colNames.add("Industries");
                 if (tableName.equalsIgnoreCase("people")) {
                     colNames.add("Companies");
+                    colNames.add("Company physical addr.");
+                    colNames.add("Company mailing addr.");
                 }
                 columnList = colNames.toArray();
                 tabCols.put(pathString, columnList);

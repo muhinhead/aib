@@ -315,6 +315,36 @@ public class DataExportSheet extends PopupDialog {
                                 + "peoplecompany.company_id=company.company_id "
                                 + "where people_id=people.people_id) as \"Companies\"");
                     }
+                } else if (itm.getColumnname().equals("Countries")) {
+                    if (outerTable.equals("people")) {
+                        colsList.append("(select group_concat(country) from peoplecompany join company on "
+                                + "peoplecompany.company_id=company.company_id, country "
+                                + "where company.country_id=country.country_id and people_id=people.people_id) as \"" + itm.getColumnname() + "\"");
+                    }
+                } else if (itm.getColumnname().equals("Company physical addr.")) {
+                    if (outerTable.equals("people")) {
+                        colsList.append("(select group_concat(address) from peoplecompany join company on "
+                                + "peoplecompany.company_id=company.company_id "
+                                + "where people_id=people.people_id) as \"" + itm.getColumnname() + "\"");
+                    }
+                } else if (itm.getColumnname().equals("Company physical addr.")) {
+                    if (outerTable.equals("people")) {
+                        colsList.append("(select group_concat(address) from peoplecompany join company on "
+                                + "peoplecompany.company_id=company.company_id "
+                                + "where people_id=people.people_id) as \"" + itm.getColumnname() + "\"");
+                    }
+                } else if (itm.getColumnname().equals("Company physical addr.")) {
+                    if (outerTable.equals("people")) {
+                        colsList.append("(select group_concat(address) from peoplecompany join company on "
+                                + "peoplecompany.company_id=company.company_id "
+                                + "where people_id=people.people_id) as \"" + itm.getColumnname() + "\"");
+                    }
+                } else if (itm.getColumnname().equals("Company mailing addr.")) {
+                    if (outerTable.equals("people")) {
+                        colsList.append("(select group_concat(mailaddress) from peoplecompany join company on "
+                                + "peoplecompany.company_id=company.company_id "
+                                + "where people_id=people.people_id) as \"" + itm.getColumnname() + "\"");
+                    }
                 } else if (itm.getColumnname().equals("company_id")) {
                     colsList.append("(select abbreviation from company where company_id="
                             + outerTable + ".company_id) as \"Company\"");

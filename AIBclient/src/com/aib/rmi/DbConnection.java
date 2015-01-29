@@ -148,7 +148,8 @@ public class DbConnection {
                     props.getProperty("dbDriverName",
                     "com.mysql.jdbc.Driver")).newInstance());
             String connectionString = props.getProperty("JDBCconnection",
-                    "jdbc:mysql://aibcontact.db.9298823.hostedresource.com/aibcontact?characterEncoding=UTF8");
+                    "jdbc:mysql://192.168.15.123/aibcontact?characterEncoding=UTF8");
+//                    "jdbc:mysql://aibcontact.db.9298823.hostedresource.com/aibcontact?characterEncoding=UTF8");
             String login = getLogin();
             String pwd = getPassword();
             connection = DriverManager.getConnection(
@@ -161,8 +162,8 @@ public class DbConnection {
             AIBclient.log(e);
         }
         if (isFirstTime) {
-            initLocalDB(connection);
-            fixLocalDB(connection);
+//            initLocalDB(connection);
+//            fixLocalDB(connection);
             Timer timer = new Timer();
             timer.schedule(new ConnectionTouchTask(false), 1000, 30 * 1000);
             isFirstTime = false;
@@ -171,6 +172,7 @@ public class DbConnection {
             connections.add(new ConnectionWithFlag(connection));
             return checkVersion(connection);
         } else {
+            AIBclient.logAndShowMessage(new Throwable("Can't establish the database connection"));
             return null;
         }
     }
