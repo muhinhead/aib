@@ -12,7 +12,6 @@ import com.aib.orm.Reportformitem;
 import com.aib.orm.dbobject.DbObject;
 import com.xlend.util.FileFilterOnExtension;
 import com.xlend.util.PopupDialog;
-import com.xlend.util.Util;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Desktop;
@@ -21,13 +20,10 @@ import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.io.BufferedOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.rmi.RemoteException;
 import java.util.Vector;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
@@ -201,7 +197,7 @@ public class DataExportSheet extends PopupDialog {
                 break;
             }
         }
-        StringBuilder newSelect = new StringBuilder("select ");
+        StringBuilder newSelect = new StringBuilder(select.startsWith("select distinct")?"select distinct ":"select ");
         newSelect.append(getColumnList(tmpID)).append(sb.substring(i).replaceAll(GeneralGridPanel.SELECTLIMIT, ""));
         BufferedOutputStream bufferedOutput = null;
         try {
@@ -242,7 +238,7 @@ public class DataExportSheet extends PopupDialog {
 //                int colnum = 0;
                 for (Object c : line) {
                     bufferedOutput.write("<td>\n".getBytes());
-                    bufferedOutput.write(c.toString().getBytes());
+                    bufferedOutput.write(c.toString().replace("\n","<p>").getBytes());
                     bufferedOutput.write("</td>\n".getBytes());
 //                    colnum++;
                 }
@@ -274,6 +270,10 @@ public class DataExportSheet extends PopupDialog {
             for (DbObject c : cols) {
                 Reportformitem itm = (Reportformitem) c;
                 colsList.append(colsList.length() > 0 ? "," : "");
+                if (itm.getColumnname().equals("mailaddress") || itm.getColumnname().equals("address")
+                        || itm.getColumnname().equals("mailpostcode") || itm.getColumnname().equals("postcode")) {
+                    colsList.append(outerTable+"."+itm.getColumnname());
+                } else 
                 if (itm.getColumnname().equals("Links")) {
                     if (outerTable.equals("company")) {
                         colsList.append("(select group_concat(url) "
@@ -323,25 +323,25 @@ public class DataExportSheet extends PopupDialog {
                     }
                 } else if (itm.getColumnname().equals("Company physical addr.")) {
                     if (outerTable.equals("people")) {
-                        colsList.append("(select group_concat(address) from peoplecompany join company on "
+                        colsList.append("(select replace(group_concat(address),',','<br/>') from peoplecompany join company on "
                                 + "peoplecompany.company_id=company.company_id "
                                 + "where people_id=people.people_id) as \"" + itm.getColumnname() + "\"");
                     }
-                } else if (itm.getColumnname().equals("Company physical addr.")) {
+                } else if (itm.getColumnname().equals("Company physical post code.")) {
                     if (outerTable.equals("people")) {
-                        colsList.append("(select group_concat(address) from peoplecompany join company on "
-                                + "peoplecompany.company_id=company.company_id "
-                                + "where people_id=people.people_id) as \"" + itm.getColumnname() + "\"");
-                    }
-                } else if (itm.getColumnname().equals("Company physical addr.")) {
-                    if (outerTable.equals("people")) {
-                        colsList.append("(select group_concat(address) from peoplecompany join company on "
+                        colsList.append("(select group_concat(post_code) from peoplecompany join company on "
                                 + "peoplecompany.company_id=company.company_id "
                                 + "where people_id=people.people_id) as \"" + itm.getColumnname() + "\"");
                     }
                 } else if (itm.getColumnname().equals("Company mailing addr.")) {
                     if (outerTable.equals("people")) {
-                        colsList.append("(select group_concat(mailaddress) from peoplecompany join company on "
+                        colsList.append("(select replace(group_concat(mailaddress),',','<br/>') from peoplecompany join company on "
+                                + "peoplecompany.company_id=company.company_id "
+                                + "where people_id=people.people_id) as \"" + itm.getColumnname() + "\"");
+                    }
+                } else if (itm.getColumnname().equals("Company mailing post code")) {
+                    if (outerTable.equals("people")) {
+                        colsList.append("(select group_concat(mailing_post_code) from peoplecompany join company on "
                                 + "peoplecompany.company_id=company.company_id "
                                 + "where people_id=people.people_id) as \"" + itm.getColumnname() + "\"");
                     }
