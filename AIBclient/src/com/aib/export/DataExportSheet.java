@@ -23,6 +23,7 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.rmi.RemoteException;
+import java.util.ArrayList;
 import java.util.Vector;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -85,6 +86,7 @@ public class DataExportSheet extends PopupDialog {
         btnPanel.add(new JButton(new AbstractAction("Export as CSV") {
             @Override
             public void actionPerformed(ActionEvent ae) {
+                int col;
                 File expFile = chooseFileForExport("csv");
                 if (expFile != null) {
                     if (expFile.exists()) {
@@ -94,29 +96,53 @@ public class DataExportSheet extends PopupDialog {
                     try {
                         bufferedOutput = new BufferedOutputStream(new FileOutputStream(expFile));
                         Vector headers = result[0];
-                        for (int i = 0; i < headers.size(); i++) {
-                            if (i > 0) {
+                        for (col = 0; col < headers.size(); col++) {
+                            if (col > 0) {
                                 bufferedOutput.write(',');
                             }
-                            bufferedOutput.write(headers.get(i).toString().replace("_"," ").replace("discip", "title").getBytes());
+                            if (headers.get(col).toString().endsWith("address") || headers.get(col).toString().endsWith("addr.")) {
+                                for (int n = 1; n <= 3; n++) {
+                                    bufferedOutput.write((headers.get(col).toString().replace("_", " ") + n + (n < 3 ? "," : "")).getBytes());
+                                }
+                            } else {
+                                bufferedOutput.write(headers.get(col).toString().replace("_", " ").replace("discip", "title").getBytes());
+                            }
                         }
                         bufferedOutput.write('\n');
                         Vector lines = result[1];
                         for (Object l : lines) {
-                            int col = 0;
+                            String buff = "";
+                            col = 0;
                             Vector line = (Vector) l;
                             for (Object c : line) {
                                 if (col > 0) {
                                     bufferedOutput.write(',');
+                                    buff += ',';
                                 }
-                                if (c.toString().indexOf(",") > 0) {
-                                    bufferedOutput.write(("\"" + c.toString() + "\"").getBytes());
+                                if (headers.get(col).toString().endsWith("address") || headers.get(col).toString().endsWith("addr.")) {
+                                    String[] addrArray = c.toString().split("\n", 3);
+                                    for (int i = 0; i < 3; i++) {
+                                        if (i < addrArray.length && addrArray[i].indexOf(",") > 0) {
+                                            bufferedOutput.write(("\"" + addrArray[i].replaceAll("\n", " ") + "\"" + (i < 2 ? "," : "")).getBytes());
+                                        } else {
+                                            bufferedOutput.write(((i < addrArray.length ? addrArray[i].replaceAll("\n", " ") : "") + (i < 2 ? "," : "")).getBytes());
+                                        }
+                                        buff += (i < addrArray.length ? addrArray[i].replaceAll("\n", "") : "") + (i < 2 ? "," : "");
+                                    }
+
                                 } else {
-                                    bufferedOutput.write(c.toString().getBytes());
+                                    if (c.toString().indexOf(",") > 0) {
+                                        bufferedOutput.write(("\"" + c.toString() + "\"").getBytes());
+                                        buff += ("\"" + c.toString() + "\"");
+                                    } else {
+                                        bufferedOutput.write(c.toString().getBytes());
+                                        buff += c.toString();
+                                    }
                                 }
                                 col++;
                             }
                             bufferedOutput.write('\n');
+                            buff += '\n';
                         }
                         GeneralFrame.infoMessageBox("Ok", "Data exported to " + expFile.getPath());
                         if (expFile != null) {
@@ -137,6 +163,7 @@ public class DataExportSheet extends PopupDialog {
                     }
                 }
             }
+
         }));
         btnPanel.add(new JButton(new AbstractAction("Cancel") {
             @Override
@@ -156,8 +183,8 @@ public class DataExportSheet extends PopupDialog {
         int retVal = chooser.showOpenDialog(null);
         if (retVal == JFileChooser.APPROVE_OPTION) {
             String name = chooser.getSelectedFile().getAbsolutePath();
-            if (!name.endsWith("."+extension)) {
-                name += "."+extension;
+            if (!name.endsWith("." + extension)) {
+                name += "." + extension;
             }
             return new File(name);
         } else {
@@ -197,7 +224,7 @@ public class DataExportSheet extends PopupDialog {
                 break;
             }
         }
-        StringBuilder newSelect = new StringBuilder(select.startsWith("select distinct")?"select distinct ":"select ");
+        StringBuilder newSelect = new StringBuilder(select.startsWith("select distinct") ? "select distinct " : "select ");
         newSelect.append(getColumnList(tmpID)).append(sb.substring(i).replaceAll(GeneralGridPanel.SELECTLIMIT, ""));
         BufferedOutputStream bufferedOutput = null;
         try {
@@ -228,7 +255,7 @@ public class DataExportSheet extends PopupDialog {
             bufferedOutput.write("<table class=\"mystyle\">\n".getBytes());
             bufferedOutput.write("<tr>\n".getBytes());
             for (Object td : tds) {
-                bufferedOutput.write(("<th>" + td.toString().replace("_"," ").replace("discip", "title") + "</th>\n").getBytes());
+                bufferedOutput.write(("<th>" + td.toString().replace("_", " ").replace("discip", "title") + "</th>\n").getBytes());
             }
             bufferedOutput.write("</tr>\n".getBytes());
 //            int rownum = 0;
@@ -238,7 +265,7 @@ public class DataExportSheet extends PopupDialog {
 //                int colnum = 0;
                 for (Object c : line) {
                     bufferedOutput.write("<td>\n".getBytes());
-                    bufferedOutput.write(c.toString().replace("\n","<p>").getBytes());
+                    bufferedOutput.write(c.toString().replace("\n", "<p>").getBytes());
                     bufferedOutput.write("</td>\n".getBytes());
 //                    colnum++;
                 }
@@ -272,9 +299,8 @@ public class DataExportSheet extends PopupDialog {
                 colsList.append(colsList.length() > 0 ? "," : "");
                 if (itm.getColumnname().equals("mailaddress") || itm.getColumnname().equals("address")
                         || itm.getColumnname().equals("mailpostcode") || itm.getColumnname().equals("postcode")) {
-                    colsList.append(outerTable+"."+itm.getColumnname());
-                } else 
-                if (itm.getColumnname().equals("Links")) {
+                    colsList.append(outerTable + "." + itm.getColumnname());
+                } else if (itm.getColumnname().equals("Links")) {
                     if (outerTable.equals("company")) {
                         colsList.append("(select group_concat(url) "
                                 + "from complink join link on "
@@ -323,7 +349,7 @@ public class DataExportSheet extends PopupDialog {
                     }
                 } else if (itm.getColumnname().equals("Company physical addr.")) {
                     if (outerTable.equals("people")) {
-                        colsList.append("(select replace(group_concat(address),',','<br/>') from peoplecompany join company on "
+                        colsList.append("(select replace(group_concat(address),',',char(10)) from peoplecompany join company on "
                                 + "peoplecompany.company_id=company.company_id "
                                 + "where people_id=people.people_id) as \"" + itm.getColumnname() + "\"");
                     }
@@ -335,7 +361,7 @@ public class DataExportSheet extends PopupDialog {
                     }
                 } else if (itm.getColumnname().equals("Company mailing addr.")) {
                     if (outerTable.equals("people")) {
-                        colsList.append("(select replace(group_concat(mailaddress),',','<br/>') from peoplecompany join company on "
+                        colsList.append("(select replace(group_concat(mailaddress),',',char(10)) from peoplecompany join company on "
                                 + "peoplecompany.company_id=company.company_id "
                                 + "where people_id=people.people_id) as \"" + itm.getColumnname() + "\"");
                     }
