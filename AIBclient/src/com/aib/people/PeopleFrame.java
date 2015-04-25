@@ -24,6 +24,7 @@ import javax.swing.JPanel;
  * @author Nick Mukhin
  */
 public class PeopleFrame extends FilteredListFrame {
+    static final String LIKE = " LIKE "; 
 
     private static String[] sheetList = new String[]{
         "List", "Filter"
@@ -77,8 +78,12 @@ public class PeopleFrame extends FilteredListFrame {
             adjustFilterQuery(flt, "Awards",
                     "exists (select award from aibaward,peopleaward where aibaward.aibaward_id=peopleaward.aibaward_id "
                     + "and peopleaward.people_id=people.people_id and award");
+            adjustFilterQuery(flt, "Location.address", "exists (select location_id from location where location_id=people.location_id and address");
+            adjustFilterQuery(flt, "Location.postcode", "exists (select location_id from location where location_id=people.location_id and postcode");
+            adjustFilterQuery(flt, "Location.mailaddress", "exists (select location_id from location where location_id=people.location_id and mailaddress");
+            adjustFilterQuery(flt, "Location.mailpostcode", "exists (select location_id from location where location_id=people.location_id and mailpostcode");
             String existPeopleCompany = "exists (select peoplecompany_id from peoplecompany where people_id=people.people_id and company_id";
-            adjustFilterQuery(flt, "Companies",existPeopleCompany);
+            adjustFilterQuery(flt, "Companies", existPeopleCompany);
             int p = flt.getQuery().indexOf(existPeopleCompany + " IN (");
             if (p >= 0) {
                 int shift = existPeopleCompany.length() + 5;
@@ -102,6 +107,8 @@ public class PeopleFrame extends FilteredListFrame {
             if (flt.getQuery() == null || flt.getQuery().trim().length() == 0) {
                 GeneralFrame.errMessageBox("Attention!", "The empty filter couldn't be applied");
             } else {
+                newSelect = adjustLikeExpression(newSelect);
+                System.out.println("!!!newSelect:" + newSelect);
                 peoplePanel.setSelect(newSelect);
                 peoplePanel.refresh();
                 gotoFilterApplied(flt.getFilterId().intValue());
@@ -138,5 +145,22 @@ public class PeopleFrame extends FilteredListFrame {
                 peoplePanel.refresh();
             }
         };
+    }
+
+    private String adjustLikeExpression(String newSelect) {
+        int p = newSelect.indexOf(LIKE);
+        int c;
+        while (p >= 0) {
+            c = newSelect.indexOf("'", p);
+            if (c >= 0) {
+                c = newSelect.indexOf("'", c + 1);
+                if (c >= 0 && newSelect.charAt(c-1) != '%') {
+                    String rest = newSelect.substring(c);
+                    newSelect = newSelect.substring(0, c) + '%' + rest;
+                }
+            }
+            p = newSelect.indexOf(LIKE, p + 1);
+        }
+        return newSelect;
     }
 }

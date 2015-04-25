@@ -23,6 +23,7 @@ import javax.swing.JOptionPane;
 public class PeopleGrid extends GeneralGridPanel {    
     
     public static final String SELECT = "select people_id \"ID\","
+            + "job_discip \"Job Title\","
             + "title \"Title\",first_name \"First Name\", "
             + "last_name \"Last Name\",main_email \"E-mail\","
 //            + "suffix \"Suffix\", greeting \"Greeting\", "
@@ -34,7 +35,7 @@ public class PeopleGrid extends GeneralGridPanel {
 
     static {
         maxWidths.put(0, 40);
-//        maxWidths.put(1, 80);
+        maxWidths.put(2, 45);
 //        maxWidths.put(4, 80);
 //        maxWidths.put(5, 80);
 //        maxWidths.put(9, 40);

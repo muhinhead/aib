@@ -61,7 +61,7 @@ import javax.swing.SpinnerNumberModel;
  */
 public class AIBclient {
 
-    private static final String version = "0.14.o";
+    private static final String version = "0.14.s";
 //    private static Userprofile currentUser;
     private static Logger logger = null;
     private static FileHandler fh;

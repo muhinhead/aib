@@ -22,6 +22,18 @@ public class PeopleFilterPanel extends AncestorFilterPanel {
      @Override
     protected void loadColNamesTypes() throws RemoteException {
         super.loadColNamesTypes();
+        int idx = colNames.indexOf("location_id");
+        if (idx>=0) {
+            colNames.remove("location_id");
+            colNames.add(idx, "Location.postcode");
+            colNames.add(idx, "Location.address");
+            colNames.add(idx, "Location.mailaddress");
+            colNames.add(idx, "Location.mailpostcode");
+            colNamesTypes.put("Location.postcode", Types.VARCHAR);
+            colNamesTypes.put("Location.address", Types.VARCHAR);
+            colNamesTypes.put("Location.mailpostcode", Types.VARCHAR);
+            colNamesTypes.put("Location.mailaddress", Types.VARCHAR);
+        }
 //        colNames.add("Links");
 //        colNamesTypes.put("Links", Types.VARCHAR);
 //        colNames.add("Industries");

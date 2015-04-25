@@ -276,9 +276,9 @@ class EditLocationPanel extends EditPanelWithPhoto {
         loc.setName(locationNameTF.getText());
         loc.setAbbreviation(abbreviationTF.getText());
         loc.setAddress(physicAddressTA.getText());
-//        loc.setPostcode(postCodeTF.getText());
+        loc.setPostcode(postCodeTF.getText());
         loc.setMailaddress(mailingAddressTA.getText());
-//        loc.setMailpostcode(mailingPostCodeTF.getText());
+        loc.setMailpostcode(mailingPostCodeTF.getText());
         loc.setComments(commentsTA.getText());
         loc.setCountryId(getSelectedCbItem(countryCB));
         loc.setCompanyId(getSelectedCbItem(companyCB));

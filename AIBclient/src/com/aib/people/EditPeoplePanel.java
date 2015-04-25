@@ -342,7 +342,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
 
         if (EditPeopleDialog.locationID != null) {
             selectComboItem(locationCB, EditPeopleDialog.locationID);
-            locationCB.setEnabled(false);
+//            locationCB.setEnabled(false);
         }
 
         JScrollPane spNextActions = new JScrollPane(nextActionTA = new JTextArea(),
