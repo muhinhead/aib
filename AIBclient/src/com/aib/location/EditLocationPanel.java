@@ -30,6 +30,7 @@ import java.util.Date;
 import java.util.StringTokenizer;
 import javax.swing.AbstractAction;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JComponent;
@@ -133,15 +134,15 @@ class EditLocationPanel extends EditPanelWithPhoto {
                 abbreviationTF = new JTextField(80)
             }),
             getBorderPanel(new JComponent[]{null, linksListTF = new JTextField(),
-                new JButton(getLinkListAction("..."))}),
+                new JButton(getLinkListAction(null,new ImageIcon(AIBclient.loadImage("lookup.png", EditLocationPanel.class))))}),
             getBorderPanel(new JComponent[]{null, industriesListTF = new JTextField(),
-                new JButton(getIndustryListAction("..."))}),
+                new JButton(getIndustryListAction(null,new ImageIcon(AIBclient.loadImage("lookup.png", EditLocationPanel.class))))}),
             getGridPanel(new JComponent[]{
                 getBorderPanel(new JComponent[]{
                     null,
                     sp1 = new JScrollPane(physicAddressTA = new JTextArea(1, 20),
                     JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER),
-                    new JButton(new EditAreaAction("...", physicAddressTA))
+                    new JButton(new EditAreaAction(new ImageIcon(AIBclient.loadImage("lookup.png", EditLocationPanel.class)), physicAddressTA))
                 }),
                 //                new JPanel()
                 getGridPanel(new JComponent[]{
@@ -154,7 +155,7 @@ class EditLocationPanel extends EditPanelWithPhoto {
                     null,
                     sp2 = new JScrollPane(mailingAddressTA = new JTextArea(1, 20),
                     JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER),
-                    new JButton(new EditAreaAction("...", mailingAddressTA))
+                    new JButton(new EditAreaAction(new ImageIcon(AIBclient.loadImage("lookup.png", EditLocationPanel.class)), mailingAddressTA))
                 }),
                 //                new JPanel()
                 getGridPanel(new JComponent[]{
@@ -326,8 +327,8 @@ class EditLocationPanel extends EditPanelWithPhoto {
         };
     }
 
-    private AbstractAction getLinkListAction(String lbl) {
-        return new AbstractAction(lbl) {
+    private AbstractAction getLinkListAction(String lbl, ImageIcon img) {
+        return new AbstractAction(lbl, img) {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 new ListInTextFieldDialog("Links List",
@@ -337,8 +338,8 @@ class EditLocationPanel extends EditPanelWithPhoto {
         };
     }
 
-    private AbstractAction getIndustryListAction(String lbl) {
-        return new AbstractAction(lbl) {
+    private AbstractAction getIndustryListAction(String lbl, ImageIcon img) {
+        return new AbstractAction(lbl, img) {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 new ListInTextFieldDialog("Industry List",

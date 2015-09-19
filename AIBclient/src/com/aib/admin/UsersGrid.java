@@ -13,6 +13,7 @@ import com.aib.remote.IMessageSender;
 import java.awt.event.ActionEvent;
 import java.rmi.RemoteException;
 import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
 /**
@@ -32,7 +33,7 @@ public class UsersGrid extends GeneralGridPanel {
     @Override
     protected AbstractAction addAction() {
         if (AIBclient.getCurrentUser().getIsAdmin() != null && AIBclient.getCurrentUser().getIsAdmin().intValue() == 1) {
-            return new AbstractAction("Add User") {
+            return new AbstractAction("Add ",new ImageIcon(AIBclient.loadImage("newuser.png", GeneralGridPanel.class))) {
                 @Override
                 public void actionPerformed(ActionEvent e) {
                     EditUserDialog ed = new EditUserDialog("New User", null);
@@ -49,7 +50,7 @@ public class UsersGrid extends GeneralGridPanel {
 
     @Override
     protected AbstractAction editAction() {
-        return new AbstractAction("Edit") {
+        return new AbstractAction("Edit",new ImageIcon(AIBclient.loadImage("edituser.png", GeneralGridPanel.class))) {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 int id = getSelectedID();
@@ -71,7 +72,7 @@ public class UsersGrid extends GeneralGridPanel {
     @Override
     protected AbstractAction delAction() {
         if (AIBclient.getCurrentUser().getIsAdmin() != null && AIBclient.getCurrentUser().getIsAdmin().intValue() == 1) {
-            return new AbstractAction("Delete") {
+            return new AbstractAction("Delete",new ImageIcon(AIBclient.loadImage("deluser.png", GeneralGridPanel.class))) {
                 @Override
                 public void actionPerformed(ActionEvent ae) {
                     int id = getSelectedID();

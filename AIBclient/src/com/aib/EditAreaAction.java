@@ -6,6 +6,7 @@ package com.aib;
 
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
 import javax.swing.text.JTextComponent;
 
 /**
@@ -16,8 +17,8 @@ public class EditAreaAction extends AbstractAction {
 
     private final JTextComponent textField;
 
-    public EditAreaAction(String label, JTextComponent textField) {
-        super(label);
+    public EditAreaAction(ImageIcon img, JTextComponent textField) {
+        super(null, img);
         this.textField = textField;
     }
 

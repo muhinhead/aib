@@ -10,6 +10,7 @@ import com.aib.orm.dbobject.ComboItem;
 import java.awt.event.ActionEvent;
 import java.rmi.RemoteException;
 import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 
 /**
@@ -26,7 +27,7 @@ public class WorldRegionLookupAction extends AbstractAction {
     }
 
     public WorldRegionLookupAction(JComboBox cb, String select) {
-        super("...");
+        super(null,new ImageIcon(AIBclient.loadImage("lookup.png", WorldRegionLookupAction.class)));
         this.regionCB = cb;
         this.select = select;
     }

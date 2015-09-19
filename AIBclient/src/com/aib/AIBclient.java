@@ -61,12 +61,13 @@ import javax.swing.SpinnerNumberModel;
  */
 public class AIBclient {
 
-    private static final String version = "0.14.s";
+    private static final String version = "0.15";
 //    private static Userprofile currentUser;
     private static Logger logger = null;
     private static FileHandler fh;
     private static Properties props;
-    private static final String PROPERTYFILENAME = "AIBclient.config";
+    private static final String AIBCLIENT_CONFIG = "AIBclient.config";
+    private static final String PROPERTYFILENAME = System.getProperty("user.home") + File.separatorChar + AIBCLIENT_CONFIG;
     private static User currentUser;
     private static IMessageSender exchanger;
     private static ComboItem[] regionsDictionary;
@@ -76,8 +77,18 @@ public class AIBclient {
     private static List prospLevelList;
     public static String protocol = "unknown";
     public static final String defaultServerIP = "localhost";
-    private static ConcurrentHashMap listsCached = new ConcurrentHashMap();
+    //private static ConcurrentHashMap listsCached = new ConcurrentHashMap();
 
+    public static int getDefaultPageLimit() {
+        int ps;
+        try {
+            ps = Integer.parseInt(readProperty("pageSize", "10000"));
+        } catch (NumberFormatException nfe) {
+            ps = 500;
+        }
+        return ps;
+    }
+    
     /**
      * @param args the command line arguments
      */
@@ -164,6 +175,11 @@ public class AIBclient {
         log(ne);
     }
 
+    public static void logAndShowMessage(String msg) {
+        JOptionPane.showMessageDialog(null, msg, "Error:", JOptionPane.ERROR_MESSAGE);
+        log(msg);
+    }
+
     public static boolean login(IMessageSender exchanger) {
         try {
             new LoginImagedDialog(exchanger);//new Object[]{loginField, pwdField, exchanger});
@@ -206,6 +222,10 @@ public class AIBclient {
     }
 
     public static Image loadImage(String iconName, Window w) {
+        return loadImage(iconName, w.getClass());
+    }
+    
+    public static Image loadImage(String iconName, Class cls) {
         Image im = null;
         File f = new File("images/" + iconName);
         if (f.exists()) {
@@ -217,22 +237,12 @@ public class AIBclient {
             }
         } else {
             try {
-                im = ImageIO.read(w.getClass().getResourceAsStream("/" + iconName));
+                im = ImageIO.read(cls.getResourceAsStream("/" + iconName));
             } catch (Exception ie) {
                 log(ie);
             }
         }
         return im;
-    }
-
-    public static int getDefaultPageLimit() {
-        int ps;
-        try {
-            ps = Integer.parseInt(readProperty("pageSize", "1000"));
-        } catch (NumberFormatException nfe) {
-            ps = 500;
-        }
-        return ps;
     }
 
     public static String readProperty(String key, String deflt) {
@@ -273,12 +283,14 @@ public class AIBclient {
     public static void saveProperties() {
         try {
             if (props != null) {
+                
                 props.store(new FileOutputStream(PROPERTYFILENAME),
                         "-----------------------");
             }
         } catch (IOException e) {
             //e.printStackTrace();
-            logAndShowMessage(e);
+//            logAndShowMessage(e);
+            logAndShowMessage(e.getMessage() + new File(PROPERTYFILENAME).getAbsolutePath());
         }
     }
 
@@ -447,7 +459,7 @@ public class AIBclient {
 
     private static List loadStringsOnSelect(IMessageSender exchanger, String select, String begin) {
         int pos = select.indexOf("select distinct ");
-        List answerArray = (List) listsCached.get(select);
+        List answerArray = null;//(List) listsCached.get(select);
         if (answerArray == null) {
             answerArray = new ArrayList();
             String slct = pos == 0 ? select.replaceAll("select distinct ", "select distinct 0,")
@@ -460,7 +472,7 @@ public class AIBclient {
                 answerArray.add(//i, 
                         itms[i].getValue());
             }
-            listsCached.put(select, answerArray);
+//            listsCached.put(select, answerArray);
         }
         return answerArray;
     }
@@ -505,7 +517,7 @@ public class AIBclient {
         try {
             DbObject[] compFltrs = getExchanger().getDbObjects(Filter.class, "tablename='company'", null);
             filters = new Filter[compFltrs.length];
-            for (int i=0; i<compFltrs.length; i++) {
+            for (int i = 0; i < compFltrs.length; i++) {
                 filters[i] = (Filter) compFltrs[i];
             }
         } catch (RemoteException ex) {

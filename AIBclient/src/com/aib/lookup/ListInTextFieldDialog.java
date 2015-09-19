@@ -5,6 +5,7 @@
 package com.aib.lookup;
 
 import com.aib.AIBclient;
+import com.aib.GeneralGridPanel;
 import com.aib.RecordEditPanel;
 import com.xlend.util.Java2sAutoComboBox;
 import com.xlend.util.PopupDialog;
@@ -19,6 +20,7 @@ import java.util.List;
 import java.util.StringTokenizer;
 import javax.swing.AbstractAction;
 import javax.swing.AbstractListModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JComponent;
 import javax.swing.JLabel;
@@ -63,14 +65,16 @@ public class ListInTextFieldDialog extends PopupDialog {
         super.fillContent();
         getContentPane().add(getCentralPanel());
         JPanel okCancelBtnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        okCancelBtnPanel.add(okButton = new JButton(new AbstractAction("Ok") {
+        okCancelBtnPanel.add(okButton = new JButton(
+                new AbstractAction("Ok",new ImageIcon(AIBclient.loadImage("ok.png", ListInTextFieldDialog.class))) {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 syncTextField();
                 dispose();
             }
         }));
-        okCancelBtnPanel.add(cancelButton = new JButton(new AbstractAction("Cancel") {
+        okCancelBtnPanel.add(cancelButton = new JButton(
+                new AbstractAction("Cancel",new ImageIcon(AIBclient.loadImage("cancel.png", ListInTextFieldDialog.class))) {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 resultList = oldList;
@@ -137,7 +141,7 @@ public class ListInTextFieldDialog extends PopupDialog {
     }
 
     private AbstractAction getAddAction() {
-        return new AbstractAction("Add") {
+        return new AbstractAction("Add",new ImageIcon(AIBclient.loadImage("plus.png", ListInTextFieldDialog.class))) {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 boolean toAdd = true;
@@ -174,7 +178,7 @@ public class ListInTextFieldDialog extends PopupDialog {
     }
 
     private AbstractAction getClearAllAction() {
-        return new AbstractAction("Clear") {
+        return new AbstractAction("Clear",new ImageIcon(AIBclient.loadImage("clear.png", ListInTextFieldDialog.class))) {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 selectedItems.clear();
@@ -184,7 +188,7 @@ public class ListInTextFieldDialog extends PopupDialog {
     }
 
     private AbstractAction getRemoveAction() {
-        return new AbstractAction("Remove") {
+        return new AbstractAction("Remove",new ImageIcon(AIBclient.loadImage("minus.png", ListInTextFieldDialog.class))) {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 int inds[] = urlJList.getSelectedIndices();

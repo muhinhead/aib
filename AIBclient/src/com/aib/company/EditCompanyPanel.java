@@ -33,6 +33,7 @@ import com.xlend.util.SelectedNumberSpinner;
 import com.xlend.util.Util;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
@@ -47,6 +48,7 @@ import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -156,16 +158,16 @@ class EditCompanyPanel extends EditPanelWithPhoto {
                 new CompanyLookupAction(parentCompanyCB, true))
             }),
             getBorderPanel(new JComponent[]{null, linksListTF = new JTextField(),
-                new JButton(getLinkListAction("..."))}),
+                new JButton(getLinkListAction(null,new ImageIcon(AIBclient.loadImage("lookup.png", EditCompanyPanel.class))))}),
             getBorderPanel(new JComponent[]{null, industriesListTF = new JTextField(),
-                new JButton(getIndustryListAction("..."))}),
+                new JButton(getIndustryListAction(null,new ImageIcon(AIBclient.loadImage("lookup.png", EditCompanyPanel.class))))}),
             getBorderPanel(new JComponent[]{turnoverSP = new SelectedNumberSpinner(.0, .0, 999999999.0, 100.0)}),
             getGridPanel(new JComponent[]{
                 getBorderPanel(new JComponent[]{
                     null,
                     sp1 = new JScrollPane(physicAddressTA = new JTextArea(1, 20),
                     JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER),
-                    new JButton(new EditAreaAction("...", physicAddressTA))
+                    new JButton(new EditAreaAction(new ImageIcon(AIBclient.loadImage("editmemo.png", EditCompanyPanel.class)), physicAddressTA))
                 }),
                 //                new JPanel()
                 getGridPanel(new JComponent[]{
@@ -178,7 +180,8 @@ class EditCompanyPanel extends EditPanelWithPhoto {
                     null,
                     sp2 = new JScrollPane(mailingAddressTA = new JTextArea(1, 20),
                     JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER),
-                    new JButton(new EditAreaAction("...", mailingAddressTA))
+                    new JButton(new EditAreaAction(new ImageIcon(AIBclient.loadImage("editmemo.png", 
+                            EditCompanyPanel.class)), mailingAddressTA))
                 }),
                 //                new JPanel()
                 getGridPanel(new JComponent[]{
@@ -197,7 +200,8 @@ class EditCompanyPanel extends EditPanelWithPhoto {
             }),
             getGridPanel(membershipLevelTF = new JTextField(), 6),
             getBorderPanel(new JComponent[]{null, mentionsListTF = new JTextField(),
-                new JButton(getMentionsListAction("..."))}),
+                new JButton(getMentionsListAction(null,new ImageIcon(AIBclient.loadImage("lookup.png", 
+                        EditCompanyPanel.class))))}),
             getBorderPanel(new JComponent[]{
                 lastVerifiedDateSP = new SelectedDateSpinner(),
                 null,
@@ -456,8 +460,8 @@ class EditCompanyPanel extends EditPanelWithPhoto {
         return "Logo";
     }
 
-    private AbstractAction getLinkListAction(String lbl) {
-        return new AbstractAction(lbl) {
+    private AbstractAction getLinkListAction(String lbl, ImageIcon img) {
+        return new AbstractAction(lbl, img) {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 new ListInTextFieldDialog("Links List",
@@ -467,8 +471,8 @@ class EditCompanyPanel extends EditPanelWithPhoto {
         };
     }
 
-    private AbstractAction getIndustryListAction(String lbl) {
-        return new AbstractAction(lbl) {
+    private AbstractAction getIndustryListAction(String lbl, ImageIcon img) {
+        return new AbstractAction(lbl, img) {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 new ListInTextFieldDialog("Industry List",
@@ -479,8 +483,8 @@ class EditCompanyPanel extends EditPanelWithPhoto {
         };
     }
 
-    private AbstractAction getMentionsListAction(String lbl) {
-        return new AbstractAction(lbl) {
+    private AbstractAction getMentionsListAction(String lbl, ImageIcon img) {
+        return new AbstractAction(lbl, img) {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 new PublicationsListInTextFieldDialog("AIB Mentions / Dates",

@@ -14,6 +14,7 @@ import java.awt.event.ActionEvent;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
 /**
@@ -68,7 +69,7 @@ public class PeopleGrid extends GeneralGridPanel {
 
     @Override
     protected AbstractAction addAction() {
-        return new AbstractAction("Add") {
+        return new AbstractAction("Add",new ImageIcon(AIBclient.loadImage("newcontact.png", GeneralGridPanel.class))) {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 additionalSettings();
@@ -83,7 +84,7 @@ public class PeopleGrid extends GeneralGridPanel {
 
     @Override
     protected AbstractAction editAction() {
-        return new AbstractAction("Edit") {
+        return new AbstractAction("Edit",new ImageIcon(AIBclient.loadImage("editcontact.png", GeneralGridPanel.class))) {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 int id = getSelectedID();
@@ -105,7 +106,7 @@ public class PeopleGrid extends GeneralGridPanel {
 
     @Override
     protected AbstractAction delAction() {
-        return new AbstractAction("Delete") {
+        return new AbstractAction("Delete",new ImageIcon(AIBclient.loadImage("delcontact.png", GeneralGridPanel.class))) {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 int id = getSelectedID();

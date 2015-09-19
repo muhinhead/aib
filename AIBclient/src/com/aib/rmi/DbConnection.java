@@ -99,7 +99,11 @@ public class DbConnection {
         //        "alter table people modify job_discip varchar(150) null,"
         "alter table people add is_aib_coordinator bit default 0",
         "alter table people add is_aib_judge     bit default 0",
-        "alter table people add is_aib_entrant   bit default 0"
+        "alter table people add is_aib_entrant   bit default 0",
+        "alter table location drop foreign key location_company_fk",
+        "alter table location add constraint location_company_fk foreign key (company_id) references company (company_id) on delete cascade",
+        "alter table people drop foreign key people_location_fk",
+        "alter table people add constraint people_location_fk foreign key (location_id) references location (location_id) on delete cascade"
     };
 
     public static String getLogin() {

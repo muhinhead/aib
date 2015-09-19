@@ -12,6 +12,7 @@ import java.awt.event.ActionEvent;
 import java.rmi.RemoteException;
 import java.text.SimpleDateFormat;
 import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
 
 /**
  *
@@ -43,7 +44,7 @@ public class AIBawardsListInTextFieldDialog extends ListInTextFieldDialog {
 
     @Override
     protected AbstractAction getEditAction() {
-        return new AbstractAction("Edit") {
+        return new AbstractAction("Edit",new ImageIcon(AIBclient.loadImage("edit16.png", ListInTextFieldDialog.class))) {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 String itm = (String) urlJList.getSelectedValue();

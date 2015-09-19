@@ -1,5 +1,6 @@
 package com.aib;
 
+import com.aib.lookup.LookupDialog;
 import com.aib.remote.IMessageSender;
 import com.xlend.util.PopupDialog;
 import java.awt.BorderLayout;
@@ -30,6 +31,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
 import com.aib.rmi.ExchangeFactory;
+import javax.swing.ImageIcon;
 
 /**
  *
@@ -176,7 +178,8 @@ public class ConfigEditor extends PopupDialog {
 
         JPanel imageFolderPanel = new JPanel(new BorderLayout(5, 5));
         imageFolderPanel.add(imageDirField, BorderLayout.CENTER);
-        imageFolderPanel.add(chooseFldrBtn = new JButton(chooseFldrAct = new AbstractAction("...") {
+        imageFolderPanel.add(chooseFldrBtn = new JButton(
+                chooseFldrAct = new AbstractAction(null,new ImageIcon(AIBclient.loadImage("lookup.png", LookupDialog.class))) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 chooseFolder();

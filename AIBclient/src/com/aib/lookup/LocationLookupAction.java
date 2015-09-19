@@ -11,6 +11,7 @@ import com.aib.orm.dbobject.ComboItem;
 import java.awt.event.ActionEvent;
 import java.rmi.RemoteException;
 import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 
 /**
@@ -22,7 +23,7 @@ public class LocationLookupAction extends AbstractAction {
     private final JComboBox locationCB;
 
     public LocationLookupAction(JComboBox cb) {
-        super("...");
+        super(null,new ImageIcon(AIBclient.loadImage("lookup.png", LocationLookupAction.class)));
         this.locationCB = cb;
     }
 

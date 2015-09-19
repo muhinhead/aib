@@ -43,6 +43,7 @@ import java.util.StringTokenizer;
 import javax.swing.AbstractAction;
 import javax.swing.BorderFactory;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
@@ -172,7 +173,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
                 getBorderPanel(new JComponent[]{
                     null,
                     companiesListTF = new JTextField(16),
-                    new JButton(getCompaniesListAction("..."))
+                    new JButton(getCompaniesListAction(new ImageIcon(AIBclient.loadImage("lookup.png", EditPeoplePanel.class))))
                 }),
                 getBorderPanel(new JComponent[]{
                     new JLabel("Location:", SwingConstants.RIGHT),
@@ -184,7 +185,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
                 getBorderPanel(new JComponent[]{
                     null,
                     linksListTF = new JTextField(16),
-                    new JButton(getLinkListAction("..."))
+                    new JButton(getLinkListAction(new ImageIcon(AIBclient.loadImage("lookup.png", EditPeoplePanel.class))))
                 }),
                 getBorderPanel(new JComponent[]{
                     new JLabel("Job title:", SwingConstants.RIGHT),
@@ -194,10 +195,10 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             getGridPanel(new JComponent[]{
                 getBorderPanel(new JComponent[]{null,
                     departmentCB = new Java2sAutoComboBox(AIBclient.loadDistinctDepartaments()),
-                    new JButton(getHistoryAction("History"))}),
+                    new JButton(getHistoryAction("History",new ImageIcon(AIBclient.loadImage("history.png", EditPeoplePanel.class))))}),
                 getBorderPanel(new JComponent[]{new JLabel("Industry:", SwingConstants.RIGHT),
                     industriesListTF = new JTextField(16),
-                    new JButton(getIndustryListAction("..."))})
+                    new JButton(getIndustryListAction(new ImageIcon(AIBclient.loadImage("lookup.png", EditPeoplePanel.class))))})
             }),
             getGridPanel(specAddressTF = new JTextField(), 2),
             getGridPanel(new JComponent[]{
@@ -205,7 +206,8 @@ class EditPeoplePanel extends EditPanelWithPhoto {
                     null,
                     sp1 = new JScrollPane(mailingAddressTA = new JTextArea(1, 20),
                     JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER),
-                    new JButton(new EditAreaAction("...", mailingAddressTA))
+                    new JButton(new EditAreaAction(
+                            new ImageIcon(AIBclient.loadImage("lookup.png", EditPeoplePanel.class)), mailingAddressTA))
                 }),
                 //                new JPanel()
                 getGridPanel(new JComponent[]{
@@ -238,7 +240,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
                 getBorderPanel(new JComponent[]{
                     new JLabel("AIB actions:", SwingConstants.RIGHT),
                     aibAwardsListTF = new JTextField(12),
-                    new JButton(getAwardsListAction("..."))
+                    new JButton(getAwardsListAction(new ImageIcon(AIBclient.loadImage("lookup.png", EditPeoplePanel.class))))
                 })
             }),
             getGridPanel(new JComponent[]{
@@ -572,8 +574,8 @@ class EditPeoplePanel extends EditPanelWithPhoto {
         return ok;
     }
 
-    private AbstractAction getLinkListAction(String lbl) {
-        return new AbstractAction(lbl) {
+    private AbstractAction getLinkListAction(ImageIcon img) {
+        return new AbstractAction(null, img) {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 new ListInTextFieldDialog("Links List", new Object[]{linksListTF.getText(), AIBclient.loadAllLinks(), "Enter URL here:"});
@@ -582,8 +584,8 @@ class EditPeoplePanel extends EditPanelWithPhoto {
         };
     }
 
-    private AbstractAction getIndustryListAction(String lbl) {
-        return new AbstractAction(lbl) {
+    private AbstractAction getIndustryListAction(ImageIcon img) {
+        return new AbstractAction(null, img) {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 new ListInTextFieldDialog("Industry List",
@@ -594,8 +596,8 @@ class EditPeoplePanel extends EditPanelWithPhoto {
         };
     }
 
-    private AbstractAction getHistoryAction(String lbl) {
-        return new AbstractAction(lbl) {
+    private AbstractAction getHistoryAction(String lbl, ImageIcon img) {
+        return new AbstractAction(lbl, img) {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 People person = (People) getDbObject();
@@ -604,8 +606,8 @@ class EditPeoplePanel extends EditPanelWithPhoto {
         };
     }
 
-    private AbstractAction getAwardsListAction(String lbl) {
-        return new AbstractAction(lbl) {
+    private AbstractAction getAwardsListAction(ImageIcon img) {
+        return new AbstractAction(null, img) {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 new AIBawardsListInTextFieldDialog("AIB actions / Dates",
@@ -616,8 +618,8 @@ class EditPeoplePanel extends EditPanelWithPhoto {
         };
     }
 
-    private AbstractAction getCompaniesListAction(String lbl) {
-        return new AbstractAction(lbl) {
+    private AbstractAction getCompaniesListAction(ImageIcon img) {
+        return new AbstractAction(null, img) {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 new CompanyListInTextFieldDialog("Companies List",

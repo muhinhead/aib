@@ -12,6 +12,7 @@ import com.xlend.util.Java2sAutoComboBox;
 import java.awt.event.ActionEvent;
 import java.rmi.RemoteException;
 import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 
 /**
@@ -30,7 +31,7 @@ public class PeopleLookupAction extends AbstractAction {
      * @param cb
      */
     public PeopleLookupAction(JComboBox cb, boolean readOnly) {
-        super("...");
+        super(null,new ImageIcon(AIBclient.loadImage("lookup.png", PeopleLookupAction.class)));
         this.locationCB = cb;
         this.readOnly = readOnly;
         this.column = this.value = null;
@@ -41,7 +42,7 @@ public class PeopleLookupAction extends AbstractAction {
     }
 
     public PeopleLookupAction(Java2sAutoComboBox cb, String column, String value) {
-        super("...");
+        super(null,new ImageIcon(AIBclient.loadImage("lookup.png", PeopleLookupAction.class)));
         this.locationCB = cb;
         this.readOnly = true;
         this.column = column;

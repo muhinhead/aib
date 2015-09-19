@@ -11,6 +11,7 @@ import com.aib.product.ProductGrid;
 import java.awt.event.ActionEvent;
 import java.rmi.RemoteException;
 import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 
 /**
@@ -22,7 +23,7 @@ public class ProductLookupAction extends AbstractAction {
     private final JComboBox productCB;
 
     public ProductLookupAction(JComboBox cb) {
-        super("...");
+        super(null,new ImageIcon(AIBclient.loadImage("lookup.png", ProductLookupAction.class)));
         this.productCB = cb;
     }
 

@@ -14,6 +14,7 @@ import java.awt.Point;
 import java.awt.Toolkit;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -58,6 +59,7 @@ public class EditAreaDialog extends PopupDialog {
     protected void fillContent() {
         super.fillContent();
         setUndecorated(true);
+        setAlwaysOnTop(true);
         final JTextComponent tf = (JTextComponent) getObject();
         JScrollPane sp = new JScrollPane(textArea = new JTextArea(tf.getText()),
                 JScrollPane.VERTICAL_SCROLLBAR_ALWAYS,
@@ -67,8 +69,8 @@ public class EditAreaDialog extends PopupDialog {
         sp.setPreferredSize(new Dimension(tf.getWidth(), 200));
         add(sp, BorderLayout.CENTER);
         JPanel btnPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-        btnPanel.add(okButton = new JButton(okAction = new AbstractAction("Ok") {
-
+        btnPanel.add(okButton = new JButton(
+                okAction = new AbstractAction("Ok",new ImageIcon(AIBclient.loadImage("ok.png", GeneralGridPanel.class))) {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 tf.setText(textArea.getText());
@@ -76,8 +78,8 @@ public class EditAreaDialog extends PopupDialog {
                 dispose();
             }
         }));
-        btnPanel.add(cancelButton = new JButton(cancelAction = new AbstractAction("Cancel") {
-
+        btnPanel.add(cancelButton = new JButton(
+            cancelAction = new AbstractAction("Cancel",new ImageIcon(AIBclient.loadImage("cancel.png", GeneralGridPanel.class))) {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 dispose();

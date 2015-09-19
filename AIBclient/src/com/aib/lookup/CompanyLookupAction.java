@@ -11,6 +11,7 @@ import com.xlend.util.Java2sAutoComboBox;
 import java.awt.event.ActionEvent;
 import java.rmi.RemoteException;
 import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
 import javax.swing.JComboBox;
 
 /**
@@ -30,14 +31,14 @@ public class CompanyLookupAction extends AbstractAction {
      * @param readOnly
      */
     public CompanyLookupAction(JComboBox cb, boolean readOnly) {
-        super("...");
+        super(null,new ImageIcon(AIBclient.loadImage("lookup.png", CompanyLookupAction.class)));
         this.companyCB = cb;
         this.readOnly = readOnly;
         this.column = this.value = null;
     }
 
     public CompanyLookupAction(Java2sAutoComboBox cb, String column, String value) {
-        super("...");
+        super(null,new ImageIcon(AIBclient.loadImage("lookup.png", CompanyLookupAction.class)));
         this.companyCB = cb;
         this.readOnly = true;
         this.column = column;

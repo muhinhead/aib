@@ -11,7 +11,7 @@ import com.aib.orm.dbobject.DbObject;
 public class EditCompanyDialog extends EditRecordDialog {
 
     public static boolean okPressed;
-     public EditCompanyDialog(String title, Object obj) {
+    public EditCompanyDialog(String title, Object obj) {
         super(title, obj);
     }
     

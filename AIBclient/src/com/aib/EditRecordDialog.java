@@ -5,6 +5,7 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.event.ActionEvent;
 import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
@@ -96,7 +97,7 @@ public abstract class EditRecordDialog extends PopupDialog {
 //        };
 //    }
     protected AbstractAction getSaveAction() {
-        return new AbstractAction("Save") {
+        return new AbstractAction("Save",new ImageIcon(AIBclient.loadImage("ok.png", EditRecordDialog.class))) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 try {
@@ -115,7 +116,7 @@ public abstract class EditRecordDialog extends PopupDialog {
     }
 
     protected AbstractAction getCancelAction() {
-        return new AbstractAction("Cancel") {
+        return new AbstractAction("Cancel",new ImageIcon(AIBclient.loadImage("cancel.png", EditRecordDialog.class))) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 dispose();

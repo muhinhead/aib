@@ -10,6 +10,7 @@ import java.awt.event.ActionEvent;
 import java.rmi.RemoteException;
 import java.util.HashMap;
 import javax.swing.AbstractAction;
+import javax.swing.ImageIcon;
 import javax.swing.JOptionPane;
 
 /**
@@ -45,7 +46,7 @@ public class CountryGrid extends GeneralGridPanel {
 
     @Override
     protected AbstractAction addAction() {
-        return new AbstractAction("Add") {
+        return new AbstractAction("Add",new ImageIcon(AIBclient.loadImage("newdocument.png", GeneralGridPanel.class))) {
             @Override
             public void actionPerformed(ActionEvent ae) {
 //                try {
@@ -68,7 +69,7 @@ public class CountryGrid extends GeneralGridPanel {
 
     @Override
     protected AbstractAction editAction() {
-        return new AbstractAction("Edit") {
+        return new AbstractAction("Edit",new ImageIcon(AIBclient.loadImage("edit.png", GeneralGridPanel.class))) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int id = getSelectedID();
@@ -93,7 +94,7 @@ public class CountryGrid extends GeneralGridPanel {
 
     @Override
     protected AbstractAction delAction() {
-        return new AbstractAction("Delete") {
+        return new AbstractAction("Delete",new ImageIcon(AIBclient.loadImage("trash.png", GeneralGridPanel.class))) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 int id = getSelectedID();
