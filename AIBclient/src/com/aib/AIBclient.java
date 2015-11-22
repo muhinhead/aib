@@ -61,7 +61,7 @@ import javax.swing.SpinnerNumberModel;
  */
 public class AIBclient {
 
-    private static final String version = "0.15.a";
+    private static final String version = "0.15.d";
 //    private static Userprofile currentUser;
     private static Logger logger = null;
     private static FileHandler fh;
@@ -484,7 +484,7 @@ public class AIBclient {
 
     public static ComboItem[] loadAllCompanies() {
         return loadOnSelect(exchanger,
-                "select 0 as company_id, sUbstr('--uknnown--',1,60) as fullname union "
+                "select 0 as company_id, sUbstr('--Unknown--',1,60) as fullname union "
                 + "select company_id,"
                 + "substr(full_name,1,60) "
                 //                + "substr(concat(abbreviation,' (',full_name,')'),1,60) "

@@ -105,6 +105,8 @@ public class LookupDialog extends PopupDialog {
             buttonPanel.add(okBtn);
         }
 
+        fillAdditionalButtons(buttonPanel);
+        
         cancelBtn = new JButton(cancelAction = new AbstractAction("Cancel",new ImageIcon(AIBclient.loadImage("cancel.png", LookupDialog.class))) {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -195,5 +197,9 @@ public class LookupDialog extends PopupDialog {
             cancelBtn.removeActionListener(cancelAction);
         }
         cancelAction = null;
+    }
+
+    protected void fillAdditionalButtons(JPanel buttonPanel) {
+        //to be implemented in descendants
     }
 }

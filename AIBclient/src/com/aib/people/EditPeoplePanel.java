@@ -62,8 +62,9 @@ import javax.swing.text.JTextComponent;
  *
  * @author Nick Mukhin
  */
-class EditPeoplePanel extends EditPanelWithPhoto {
+public class EditPeoplePanel extends EditPanelWithPhoto {
 
+    public static EditPeoplePanel instance;
     private JTextField idField;
     private Java2sAutoComboBox titleCB;
     private Java2sAutoComboBox sourceCB;
@@ -121,6 +122,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
 
     @Override
     protected void fillContent() {
+        instance = this;
         String titles[] = new String[]{
             "ID:",//"Source:",
             "First Name:", 
@@ -207,7 +209,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
                     sp1 = new JScrollPane(mailingAddressTA = new JTextArea(1, 20),
                     JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER),
                     new JButton(new EditAreaAction(
-                            new ImageIcon(AIBclient.loadImage("lookup.png", EditPeoplePanel.class)), mailingAddressTA))
+                            new ImageIcon(AIBclient.loadImage("lookup.png", EditPeoplePanel.class)), getMailingAddressTA()))
                 }),
                 //                new JPanel()
                 getGridPanel(new JComponent[]{
@@ -294,8 +296,8 @@ class EditPeoplePanel extends EditPanelWithPhoto {
                 })
             })
         };
-        mailingAddressTA.setWrapStyleWord(true);
-        mailingAddressTA.setLineWrap(true);
+        getMailingAddressTA().setWrapStyleWord(true);
+        getMailingAddressTA().setLineWrap(true);
 //        nextActionTA.setWrapStyleWord(true);
 //        nextActionTA.setLineWrap(true);
 
@@ -307,7 +309,7 @@ class EditPeoplePanel extends EditPanelWithPhoto {
 
         sp1.setPreferredSize(new Dimension(sp1.getPreferredSize().width, idField.getPreferredSize().height));
         idField.setEnabled(false);
-        mailingAddressTA.setEditable(false);
+        getMailingAddressTA().setEditable(false);
 
         for (Java2sAutoComboBox cb : new Java2sAutoComboBox[]{
             jobDisciplineCB, sourceCB, departmentCB, titleCB, greetingCB, suffixCB}) {
@@ -447,11 +449,11 @@ class EditPeoplePanel extends EditPanelWithPhoto {
                     AIBclient.loadLocationsForCompanies(compList, 
                     AIBclient.getLocationForCombo(person.getLocationId())));
             selectComboItem(locationCB, person.getLocationId());
-            specAddressTF.setText(person.getSpecAddress());
-            mailingAddressTA.setText(person.getMailaddress());
-            mailingPostCodeTF.setText(person.getMailpostcode());
-            deskPhoneTF.setText(person.getDeskPhone());
-            deskFaxTF.setText(person.getDeskFax());
+            getSpecAddressTF().setText(person.getSpecAddress());
+            getMailingAddressTA().setText(person.getMailaddress());
+            getMailingPostCodeTF().setText(person.getMailpostcode());
+            getDeskPhoneTF().setText(person.getDeskPhone());
+            getDeskFaxTF().setText(person.getDeskFax());
             mobilePhoneTF.setText(person.getMobilePhone());
             mainEmailTF.setSelectedItem(person.getMainEmail());
             alterEmailTF.setText(person.getAlterEmail());
@@ -511,12 +513,12 @@ class EditPeoplePanel extends EditPanelWithPhoto {
         person.setGreeting((String) greetingCB.getSelectedItem());
         person.setJobDiscip((String) jobDisciplineCB.getSelectedItem());
         person.setDepartment((String) departmentCB.getSelectedItem());
-        person.setDeskPhone(deskPhoneTF.getText());
-        person.setDeskFax(deskFaxTF.getText());
+        person.setDeskPhone(getDeskPhoneTF().getText());
+        person.setDeskFax(getDeskFaxTF().getText());
         person.setMobilePhone(mobilePhoneTF.getText());
-        person.setMainEmail(mainEmailTF.getSelectedItem().toString());
-        person.setMailaddress(mailingAddressTA.getText());
-        person.setMailpostcode(mailingPostCodeTF.getText());
+        person.setMainEmail((String)mainEmailTF.getSelectedItem());
+        person.setMailaddress(getMailingAddressTA().getText());
+        person.setMailpostcode(getMailingPostCodeTF().getText());
         person.setAlterEmail(alterEmailTF.getText());
         person.setPa(paTF.getText());
         person.setPaEmail(paEmailTF.getText());
@@ -684,5 +686,40 @@ class EditPeoplePanel extends EditPanelWithPhoto {
             }
         }
         return peopleID;
+    }
+
+    /**
+     * @return the specAddressTF
+     */
+    public JTextField getSpecAddressTF() {
+        return specAddressTF;
+    }
+
+    /**
+     * @return the mailingAddressTA
+     */
+    public JTextArea getMailingAddressTA() {
+        return mailingAddressTA;
+    }
+
+    /**
+     * @return the mailingPostCodeTF
+     */
+    public JTextField getMailingPostCodeTF() {
+        return mailingPostCodeTF;
+    }
+
+    /**
+     * @return the deskPhoneTF
+     */
+    public JTextField getDeskPhoneTF() {
+        return deskPhoneTF;
+    }
+
+    /**
+     * @return the deskFaxTF
+     */
+    public JTextField getDeskFaxTF() {
+        return deskFaxTF;
     }
 }

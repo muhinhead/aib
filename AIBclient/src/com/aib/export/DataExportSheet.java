@@ -10,6 +10,9 @@ import com.aib.GeneralGridPanel;
 import com.aib.orm.Reportform;
 import com.aib.orm.Reportformitem;
 import com.aib.orm.dbobject.DbObject;
+import com.itextpdf.text.Document;
+import com.itextpdf.text.pdf.PdfWriter;
+import com.itextpdf.tool.xml.XMLWorkerHelper;
 import com.xlend.util.FileFilterOnExtension;
 import com.xlend.util.PopupDialog;
 import java.awt.BorderLayout;
@@ -20,6 +23,7 @@ import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.rmi.RemoteException;
@@ -28,6 +32,7 @@ import java.util.Vector;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
 import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 /**
@@ -53,10 +58,6 @@ public class DataExportSheet extends PopupDialog {
         final String tmpHtmlName = System.getProperty("user.home").replace("\\", "/") + "/$tmp.html";
         Object[] params = (Object[]) getObject();
         generateOutputHTML(tmpHtmlName, (Integer) params[0], (String) params[1]);
-//        HTMLapplet.SHOWURL = false;
-//        HTMLapplet browser = new HTMLapplet("file:///" + tmpHtmlName);
-//        browser.init();
-//        getContentPane().add(browser, BorderLayout.CENTER);
         JPanel btnPanel = new JPanel(new FlowLayout());
         btnPanel.add(new JButton(new AbstractAction("Export as HTML") {
             @Override
@@ -82,6 +83,41 @@ public class DataExportSheet extends PopupDialog {
                     }
                 }
             }
+        }));
+        btnPanel.add(new JButton(new AbstractAction("Export as PDF") {
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                File pdfFile = chooseFileForExport("pdf");
+                if (pdfFile != null && !tmpHtmlName.equals(pdfFile.getPath())) {
+                    if (pdfFile.exists()) {
+                        pdfFile.delete();
+                    }
+                    try {
+                        Document document = new Document();
+                        PdfWriter writer = PdfWriter.getInstance(document, new FileOutputStream(pdfFile));
+                        document.open();
+                        XMLWorkerHelper.getInstance().parseXHtml(writer, document,
+                                new FileInputStream(tmpHtmlName));
+                        document.close();
+
+                        if (pdfFile != null) {
+                            GeneralFrame.infoMessageBox("Ok", "Data exported to " + pdfFile.getPath());
+                            Desktop desktop = Desktop.getDesktop();
+                            desktop.open(pdfFile);
+                            dispose();
+                        } else {
+                            JOptionPane.showMessageDialog(rootPane,
+                                    "Can't create file " + pdfFile.getAbsolutePath()
+                                    + "! Check the target folder permissions", "Error!",
+                                    JOptionPane.ERROR_MESSAGE);
+                        }
+                    } catch (Exception ex) {
+                        AIBclient.logAndShowMessage(ex);
+                    }
+                }
+            }
+
         }));
         btnPanel.add(new JButton(new AbstractAction("Export as CSV") {
             @Override
@@ -233,6 +269,7 @@ public class DataExportSheet extends PopupDialog {
             Vector lines = result[1];
             bufferedOutput = new BufferedOutputStream(new FileOutputStream(tmpHtmlName));
             bufferedOutput.write("<html>\n".getBytes());
+            bufferedOutput.write("<meta http-equiv=\"Content-Type\" content=\"text/html;charset=UTF-8\"/>\n".getBytes());
             bufferedOutput.write("<head>\n".getBytes());
             bufferedOutput.write("</head>\n".getBytes());
             bufferedOutput.write(("<style type=\"text/css\">"
@@ -265,7 +302,7 @@ public class DataExportSheet extends PopupDialog {
 //                int colnum = 0;
                 for (Object c : line) {
                     bufferedOutput.write("<td>\n".getBytes());
-                    bufferedOutput.write(c.toString().replace("\n", "<p>").getBytes());
+                    bufferedOutput.write(c.toString().replace("\n", "<p/>").getBytes());
                     bufferedOutput.write("</td>\n".getBytes());
 //                    colnum++;
                 }
