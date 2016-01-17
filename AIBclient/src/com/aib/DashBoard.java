@@ -5,9 +5,12 @@
 package com.aib;
 
 import com.aib.admin.AdminsFrame;
+import com.aib.company.CompaniesGrid;
 import com.aib.company.CompanyFrame;
 import com.aib.location.LocationsFrame;
+import com.aib.location.LocationsGrid;
 import com.aib.people.PeopleFrame;
+import com.aib.people.PeopleGrid;
 import com.aib.remote.IMessageSender;
 import com.xlend.util.ImagePanel;
 import com.xlend.util.TexturedPanel;
@@ -30,6 +33,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
@@ -54,6 +58,19 @@ public class DashBoard extends JFrame {//extends AbstractDashBoard {
     private PeopleFrame peopleFrame;
     private LocationsFrame locationsFrame;
     private AdminsFrame adminsFrame;
+    private ToolBarButton textSearchButton;
+    private JTextField searchTextField;
+    private static final String matchedCompanyColumns = "full_name,abbreviation,"
+            + "address,post_code,mailaddress,mailing_post_code,"
+            + "main_phone,main_fax";
+    private static final String matchedLocationColumns = "name,abbreviation,address,"
+            + "postcode,mailaddress,mailpostcode,"
+            + "main_phone,main_fax,comments";
+    private static final String matchedPeopleColumns = "source,first_name,"
+            + "last_name,suffix,job_discip,department,spec_address,"
+            + "mailaddress,desk_phone,desk_fax,mobile_phone,main_email,"
+            + "alter_email,pa,pa_phone,pa_email";
+    private ToolBarButton cleanButton;
 
     protected class WinListener extends WindowAdapter {
 
@@ -139,68 +156,124 @@ public class DashBoard extends JFrame {//extends AbstractDashBoard {
 
         int step = 120;
         int shift = 80;
-        int yshift = 38;
+        int yshift = 55;
 
         ImagePanel img = new ImagePanel(AIBclient.loadImage(imgName, this));
-        compsButton.setBounds(shift, 38, img.getWidth(), img.getHeight());
+        compsButton.setBounds(shift, yshift, img.getWidth(), img.getHeight());
         main.add(compsButton);
 
-        locationsButton.setBounds(shift + step, 38, img.getWidth(), img.getHeight());
+        locationsButton.setBounds(shift + step, yshift, img.getWidth(), img.getHeight());
         main.add(locationsButton);
         shift += step;
 
-        peopleButton.setBounds(shift + step, 38, img.getWidth(), img.getHeight());
+        peopleButton.setBounds(shift + step, yshift, img.getWidth(), img.getHeight());
         main.add(peopleButton);
         shift += step;
 
-        setupButton.setBounds(shift + step, 38, img.getWidth(), img.getHeight());
+        setupButton.setBounds(shift + step, yshift, img.getWidth(), img.getHeight());
         main.add(setupButton);
+
+        final String lookup_png = "lookup.png";
+        img = new ImagePanel(AIBclient.loadImage(lookup_png, this));
+        textSearchButton = new ToolBarButton(lookup_png, true);
+        textSearchButton.setBounds(setupButton.getX() + setupButton.getWidth() + 2, 10, img.getWidth() + 2, img.getHeight() + 2);
+        searchTextField = new JTextField();
+        JLabel searchLbl = new JLabel("Quick search:");
+        searchLbl.setBounds(compsButton.getX() - searchLbl.getPreferredSize().width, 10, searchLbl.getPreferredSize().width, searchLbl.getPreferredSize().height);
+        searchTextField.setBounds(compsButton.getX(), 10, setupButton.getX() + setupButton.getWidth() - compsButton.getX(), searchTextField.getPreferredSize().height);
+        
+        cleanButton = new ToolBarButton("clear.png", true);
+        cleanButton.setBounds(textSearchButton.getX() + textSearchButton.getWidth() + 2, 10, img.getWidth() + 2, img.getHeight() + 2);
+        
+        main.add(searchLbl);
+        main.add(searchTextField);
+        main.add(textSearchButton);
+        main.add(cleanButton);
+
+        getRootPane().setDefaultButton(textSearchButton);
+        
+        cleanButton.addActionListener(new AbstractAction(){
+
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                searchTextField.setText("");
+            }
+        });
+        textSearchButton.addActionListener(new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                for (GeneralFrame frame : new GeneralFrame[]{
+                    companyFrame,
+                    peopleFrame,
+                    locationsFrame,
+                    adminsFrame}) {
+                    if (frame != null) {
+                        frame.setVisible(false);
+                    }
+                }
+                boolean companiesExist = AIBclient.isThereRecords(exchanger,
+                        "select 1 from company where match(" + matchedCompanyColumns + ") against ('" + searchTextField.getText() + "')");
+                boolean locationsExist = AIBclient.isThereRecords(exchanger,
+                        "select 1 from location where match(" + matchedLocationColumns + ") against ('" + searchTextField.getText() + "')");
+                boolean peopleExist = AIBclient.isThereRecords(exchanger,
+                        "select 1 from people where match(" + matchedPeopleColumns + ") against ('" + searchTextField.getText() + "')");
+                if (searchTextField.getText().isEmpty() || companiesExist) {
+                    showCompanyFrame(searchTextField.getText());
+                }
+                if (searchTextField.getText().isEmpty() || locationsExist) {
+                    showLocationFrame(searchTextField.getText());
+                }
+                if (searchTextField.getText().isEmpty() || peopleExist) {
+                    showPeopleFrame(searchTextField.getText());
+                }
+                if (!searchTextField.getText().isEmpty()) {
+                    if (!companiesExist && !locationsExist && !peopleExist) {
+                        GeneralFrame.infoMessageBox("Warning:", "The search term was not found");
+                    } else {
+                        StringBuilder sb = new StringBuilder("The search term was found among: ");
+                        if (companiesExist) {
+                            sb.append("companies");
+                        }
+                        if (locationsExist) {
+                            if (companiesExist) {
+                                if (peopleExist) {
+                                    sb.append(",");
+                                } else {
+                                    sb.append(" and ");
+                                }
+                            }
+                            sb.append("locations");
+                        }
+                        if (peopleExist) {
+                            if (companiesExist || locationsExist) {
+                                sb.append(" and ");
+                            }
+                            sb.append("people");
+                        }
+                        GeneralFrame.infoMessageBox("FYI:", sb.toString());
+                    }
+                }
+            }
+        });
 
         compsButton.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                if (companyFrame == null) {
-                    companyFrame = new CompanyFrame(AIBclient.getExchanger());
-                } else {
-                    try {
-                        companyFrame.setLookAndFeel(AIBclient.readProperty("LookAndFeel",
-                                UIManager.getSystemLookAndFeelClassName()));
-                    } catch (Exception ex) {
-                    }
-                    companyFrame.setVisible(true);
-                }
+                showCompanyFrame(null);
             }
         });
 
         peopleButton.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                if (peopleFrame == null) {
-                    peopleFrame = new PeopleFrame(AIBclient.getExchanger());
-                } else {
-                    try {
-                        peopleFrame.setLookAndFeel(AIBclient.readProperty("LookAndFeel",
-                                UIManager.getSystemLookAndFeelClassName()));
-                    } catch (Exception ex) {
-                    }
-                    peopleFrame.setVisible(true);
-                }
+                showPeopleFrame(null);
             }
         });
 
         locationsButton.addActionListener(new AbstractAction() {
             @Override
             public void actionPerformed(ActionEvent ae) {
-                if (locationsFrame == null) {
-                    locationsFrame = new LocationsFrame(AIBclient.getExchanger());
-                } else {
-                    try {
-                        locationsFrame.setLookAndFeel(AIBclient.readProperty("LookAndFeel",
-                                UIManager.getSystemLookAndFeelClassName()));
-                    } catch (Exception ex) {
-                    }
-                    locationsFrame.setVisible(true);
-                }
+                showLocationFrame(null);
             }
         });
 
@@ -222,6 +295,88 @@ public class DashBoard extends JFrame {//extends AbstractDashBoard {
 
         centerOnScreen();
         setResizable(false);
+    }
+
+    private void showCompanyFrame(String matchCond) {
+        boolean wasnull = (companyFrame == null);
+        if (wasnull) {
+            companyFrame = new CompanyFrame(AIBclient.getExchanger());
+        } else {
+            try {
+                companyFrame.setLookAndFeel(AIBclient.readProperty("LookAndFeel",
+                        UIManager.getSystemLookAndFeelClassName()));
+            } catch (Exception ex) {
+            }
+            companyFrame.setVisible(true);
+        }
+        if (matchCond != null) {
+            for (GeneralGridPanel grid : companyFrame.getGrids()) {
+                if (grid instanceof CompaniesGrid) {
+                    if (matchCond.isEmpty()) {
+                        grid.setSelect(CompaniesGrid.SELECT);
+                    } else {
+                        grid.setSelect(GeneralFrame.adjustSelect("match("
+                                + matchedCompanyColumns + ") against ('"
+                                + matchCond + "')", "from company ", CompaniesGrid.SELECT));
+                    }
+                    grid.refresh();
+                }
+            }
+        }
+    }
+
+    private void showPeopleFrame(String matchCond) {
+        if (peopleFrame == null) {
+            peopleFrame = new PeopleFrame(AIBclient.getExchanger());
+        } else {
+            try {
+                peopleFrame.setLookAndFeel(AIBclient.readProperty("LookAndFeel",
+                        UIManager.getSystemLookAndFeelClassName()));
+            } catch (Exception ex) {
+            }
+            peopleFrame.setVisible(true);
+        }
+        if (matchCond != null) {
+            for (GeneralGridPanel grid : peopleFrame.getGrids()) {
+                if (grid instanceof PeopleGrid) {
+                    if (matchCond.isEmpty()) {
+                        grid.setSelect(PeopleGrid.SELECT);
+                    } else {
+                        grid.setSelect(GeneralFrame.adjustSelect("match("
+                                + matchedPeopleColumns + ") against ('"
+                                + matchCond + "')", "from people ", PeopleGrid.SELECT));
+                    }
+                    grid.refresh();
+                }
+            }
+        }
+    }
+
+    private void showLocationFrame(String matchCond) {
+        if (locationsFrame == null) {
+            locationsFrame = new LocationsFrame(AIBclient.getExchanger());
+        } else {
+            try {
+                locationsFrame.setLookAndFeel(AIBclient.readProperty("LookAndFeel",
+                        UIManager.getSystemLookAndFeelClassName()));
+            } catch (Exception ex) {
+            }
+            locationsFrame.setVisible(true);
+        }
+        if (matchCond != null) {
+            for (GeneralGridPanel grid : locationsFrame.getGrids()) {
+                if (grid instanceof LocationsGrid) {
+                    if (matchCond.isEmpty()) {
+                        grid.setSelect(LocationsGrid.SELECT);
+                    } else {
+                        grid.setSelect(GeneralFrame.adjustSelect("match("
+                                + matchedLocationColumns + ") against ('"
+                                + matchCond + "')", "from location ", LocationsGrid.SELECT));
+                    }
+                    grid.refresh();
+                }
+            }
+        }
     }
 
     public void centerOnScreen() {

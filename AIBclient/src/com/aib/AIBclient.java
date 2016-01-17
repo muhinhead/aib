@@ -61,7 +61,7 @@ import javax.swing.SpinnerNumberModel;
  */
 public class AIBclient {
 
-    private static final String version = "0.15.d";
+    private static final String version = "0.16";
 //    private static Userprofile currentUser;
     private static Logger logger = null;
     private static FileHandler fh;
@@ -88,7 +88,7 @@ public class AIBclient {
         }
         return ps;
     }
-    
+
     /**
      * @param args the command line arguments
      */
@@ -224,7 +224,7 @@ public class AIBclient {
     public static Image loadImage(String iconName, Window w) {
         return loadImage(iconName, w.getClass());
     }
-    
+
     public static Image loadImage(String iconName, Class cls) {
         Image im = null;
         File f = new File("images/" + iconName);
@@ -283,7 +283,7 @@ public class AIBclient {
     public static void saveProperties() {
         try {
             if (props != null) {
-                
+
                 props.store(new FileOutputStream(PROPERTYFILENAME),
                         "-----------------------");
             }
@@ -430,6 +430,18 @@ public class AIBclient {
 //        }
 //        return null;
 //    }
+    public static boolean isThereRecords(IMessageSender exchanger, String select) {
+        boolean ok = false;
+        try {
+            Vector[] tab = exchanger.getTableBody(select);
+            Vector rows = tab[1];
+            ok = rows.size() > 0;
+        } catch (RemoteException ex) {
+            log(ex);
+        }
+        return ok;
+    }
+
     private static ComboItem[] loadOnSelect(IMessageSender exchanger, String select) {
         return loadOnSelect(exchanger, select, null);
     }

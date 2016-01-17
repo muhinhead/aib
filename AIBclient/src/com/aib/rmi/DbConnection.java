@@ -71,8 +71,8 @@ public class DbConnection {
             }
         }
     }
-    private static final int DB_VERSION_ID = 51;
-    public static final String DB_VERSION = "0.51";
+    private static final int DB_VERSION_ID = 52;
+    public static final String DB_VERSION = "0.52";
     private static boolean isFirstTime = true;
     private static Properties props = new Properties();
     private static String[] createLocalDBsqls = loadDDLscript("crebas.sql", ";");
@@ -103,7 +103,13 @@ public class DbConnection {
         "alter table location drop foreign key location_company_fk",
         "alter table location add constraint location_company_fk foreign key (company_id) references company (company_id) on delete cascade",
         "alter table people drop foreign key people_location_fk",
-        "alter table people add constraint people_location_fk foreign key (location_id) references location (location_id) on delete cascade"
+        "alter table people add constraint people_location_fk foreign key (location_id) references location (location_id) on delete cascade",
+        //51->52
+        "alter table people add fulltext "
+            + "(source,first_name,last_name,suffix,job_discip,department,spec_address,"
+            + "mailaddress,desk_phone,desk_fax,mobile_phone,main_email,alter_email,pa,pa_phone,pa_email)",
+        "alter table location add fulltext(name,abbreviation,address,postcode,mailaddress,mailpostcode,main_phone,main_fax,comments)",
+        "alter table company add fulltext(full_name,abbreviation,address,post_code,mailaddress,mailing_post_code,main_phone,main_fax)"
     };
 
     public static String getLogin() {

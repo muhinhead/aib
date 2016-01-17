@@ -20,6 +20,7 @@ import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.rmi.RemoteException;
 import java.util.HashMap;
+import java.util.Set;
 import javax.swing.*;
 import javax.swing.event.ChangeEvent;
 import javax.swing.event.ChangeListener;
@@ -475,6 +476,20 @@ public abstract class GeneralFrame extends JFrame implements WindowListener {
     }
 
     protected static String adjustSelect(Filter flt, String from, String select) {
+//        String newSelect = null;
+//        int p = select.indexOf(from);
+//        boolean includeWhere = (select.lastIndexOf(from + " where ") > 0);
+//        if (includeWhere) {
+//            from = from + "where ";
+//        }
+//        String restOfStatement = select.substring(p + from.length());
+//        newSelect = select.substring(0, p + from.length()) + (includeWhere ? " and " : " where ")
+//                + flt.getQuery() + restOfStatement;
+//        return newSelect.replace(GeneralGridPanel.SELECTLIMIT, "");
+        return adjustSelect(flt.getQuery(), from, select);
+    }
+
+    protected static String adjustSelect(String additionCondition, String from, String select) {
         String newSelect = null;
         int p = select.indexOf(from);
         boolean includeWhere = (select.lastIndexOf(from + " where ") > 0);
@@ -483,10 +498,17 @@ public abstract class GeneralFrame extends JFrame implements WindowListener {
         }
         String restOfStatement = select.substring(p + from.length());
         newSelect = select.substring(0, p + from.length()) + (includeWhere ? " and " : " where ")
-                + flt.getQuery() + restOfStatement;
+                + additionCondition + restOfStatement;
         return newSelect.replace(GeneralGridPanel.SELECTLIMIT, "");
     }
-
+    
     protected void addAfterPrint() {
+    }
+
+    /**
+     * @return the grids
+     */
+    public Set<GeneralGridPanel> getGrids() {
+        return grids.keySet();
     }
 }
