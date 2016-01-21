@@ -138,7 +138,7 @@ public class DashBoard extends JFrame {//extends AbstractDashBoard {
 
     private static String getCondition(String columnList, String searchString) {
         StringBuilder sb = new StringBuilder();
-        StringTokenizer st = new StringTokenizer(searchString, ".,;:\t\n ");
+        StringTokenizer st = new StringTokenizer(searchString, ".,;:\t\n");
         while (st.hasMoreTokens()) {
             if (!sb.toString().isEmpty()) {
                 sb.append(" or ");
@@ -191,7 +191,7 @@ public class DashBoard extends JFrame {//extends AbstractDashBoard {
         textSearchButton = new ToolBarButton(lookup_png, true);
         textSearchButton.setBounds(setupButton.getX() + setupButton.getWidth() + 2, 10, img.getWidth() + 2, img.getHeight() + 2);
         searchTextField = new JTextField();
-        searchTextField.setToolTipText("enter here list of tokens to search");
+        searchTextField.setToolTipText("enter here comma-delimited list of tokens to search");
         JLabel searchLbl = new JLabel("Quick search:");
         searchLbl.setBounds(compsButton.getX() - searchLbl.getPreferredSize().width, 10, searchLbl.getPreferredSize().width, searchLbl.getPreferredSize().height);
         searchTextField.setBounds(compsButton.getX(), 10, setupButton.getX() + setupButton.getWidth() - compsButton.getX(), searchTextField.getPreferredSize().height);
