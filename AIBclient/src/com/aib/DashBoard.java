@@ -28,6 +28,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.util.StringTokenizer;
 import javax.swing.AbstractAction;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -135,6 +136,18 @@ public class DashBoard extends JFrame {//extends AbstractDashBoard {
         AIBclient.readProperty("junk", ""); // just to init properties
     }
 
+    private static String getCondition(String columnList, String searchString) {
+        StringBuilder sb = new StringBuilder();
+        StringTokenizer st = new StringTokenizer(searchString, ".,;:\t\n ");
+        while (st.hasMoreTokens()) {
+            if (!sb.toString().isEmpty()) {
+                sb.append(" or ");
+            }
+            sb.append("upper(concat(ifnull("+columnList.replaceAll(",", ",''),ifnull(")+",''))) like '%"+st.nextToken().toUpperCase()+"%'");
+        }
+        return sb.toString();
+    }
+
     protected void fillControlsPanel() throws HeadlessException {
 //        getContentPane().setLayout(new BorderLayout(10, 10));
 //        SceneApplet sa = new DashBoardApplet();
@@ -178,21 +191,22 @@ public class DashBoard extends JFrame {//extends AbstractDashBoard {
         textSearchButton = new ToolBarButton(lookup_png, true);
         textSearchButton.setBounds(setupButton.getX() + setupButton.getWidth() + 2, 10, img.getWidth() + 2, img.getHeight() + 2);
         searchTextField = new JTextField();
+        searchTextField.setToolTipText("enter here list of tokens to search");
         JLabel searchLbl = new JLabel("Quick search:");
         searchLbl.setBounds(compsButton.getX() - searchLbl.getPreferredSize().width, 10, searchLbl.getPreferredSize().width, searchLbl.getPreferredSize().height);
         searchTextField.setBounds(compsButton.getX(), 10, setupButton.getX() + setupButton.getWidth() - compsButton.getX(), searchTextField.getPreferredSize().height);
-        
+
         cleanButton = new ToolBarButton("clear.png", true);
         cleanButton.setBounds(textSearchButton.getX() + textSearchButton.getWidth() + 2, 10, img.getWidth() + 2, img.getHeight() + 2);
-        
+
         main.add(searchLbl);
         main.add(searchTextField);
         main.add(textSearchButton);
         main.add(cleanButton);
 
         getRootPane().setDefaultButton(textSearchButton);
-        
-        cleanButton.addActionListener(new AbstractAction(){
+
+        cleanButton.addActionListener(new AbstractAction() {
 
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -212,11 +226,17 @@ public class DashBoard extends JFrame {//extends AbstractDashBoard {
                     }
                 }
                 boolean companiesExist = AIBclient.isThereRecords(exchanger,
-                        "select 1 from company where match(" + matchedCompanyColumns + ") against ('" + searchTextField.getText() + "')");
+                        "select 1 from company where "
+                                + getCondition(matchedCompanyColumns, searchTextField.getText()));
+                                //+ "match(" + matchedCompanyColumns + ") against ('" + searchTextField.getText() + "')");
                 boolean locationsExist = AIBclient.isThereRecords(exchanger,
-                        "select 1 from location where match(" + matchedLocationColumns + ") against ('" + searchTextField.getText() + "')");
+                        "select 1 from location where "
+                                + getCondition(matchedLocationColumns, searchTextField.getText()));
+                                //+ "match(" + matchedLocationColumns + ") against ('" + searchTextField.getText() + "')");
                 boolean peopleExist = AIBclient.isThereRecords(exchanger,
-                        "select 1 from people where match(" + matchedPeopleColumns + ") against ('" + searchTextField.getText() + "')");
+                        "select 1 from people where "
+                                + getCondition(matchedPeopleColumns, searchTextField.getText()));
+                                //+ "match(" + matchedPeopleColumns + ") against ('" + searchTextField.getText() + "')");
                 if (searchTextField.getText().isEmpty() || companiesExist) {
                     showCompanyFrame(searchTextField.getText());
                 }
@@ -315,9 +335,10 @@ public class DashBoard extends JFrame {//extends AbstractDashBoard {
                     if (matchCond.isEmpty()) {
                         grid.setSelect(CompaniesGrid.SELECT);
                     } else {
-                        grid.setSelect(GeneralFrame.adjustSelect("match("
-                                + matchedCompanyColumns + ") against ('"
-                                + matchCond + "')", "from company ", CompaniesGrid.SELECT));
+                        grid.setSelect(GeneralFrame.adjustSelect(
+                                //"match(" + matchedCompanyColumns + ") against ('" + matchCond + "')", "from company ",
+                                getCondition(matchedCompanyColumns, matchCond), "from company ",
+                                CompaniesGrid.SELECT));
                     }
                     grid.refresh();
                 }
@@ -342,9 +363,10 @@ public class DashBoard extends JFrame {//extends AbstractDashBoard {
                     if (matchCond.isEmpty()) {
                         grid.setSelect(PeopleGrid.SELECT);
                     } else {
-                        grid.setSelect(GeneralFrame.adjustSelect("match("
-                                + matchedPeopleColumns + ") against ('"
-                                + matchCond + "')", "from people ", PeopleGrid.SELECT));
+                        grid.setSelect(GeneralFrame.adjustSelect(
+                                //"match(" + matchedPeopleColumns + ") against ('" + matchCond + "')", "from people ", 
+                                getCondition(matchedPeopleColumns, matchCond), "from people ",
+                                PeopleGrid.SELECT));
                     }
                     grid.refresh();
                 }
@@ -369,9 +391,10 @@ public class DashBoard extends JFrame {//extends AbstractDashBoard {
                     if (matchCond.isEmpty()) {
                         grid.setSelect(LocationsGrid.SELECT);
                     } else {
-                        grid.setSelect(GeneralFrame.adjustSelect("match("
-                                + matchedLocationColumns + ") against ('"
-                                + matchCond + "')", "from location ", LocationsGrid.SELECT));
+                        grid.setSelect(GeneralFrame.adjustSelect(
+                                //"match(" + matchedLocationColumns + ") against ('" + matchCond + "')", "from location ", 
+                                getCondition(matchedLocationColumns, matchCond), "from location ",
+                                LocationsGrid.SELECT));
                     }
                     grid.refresh();
                 }
