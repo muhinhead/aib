@@ -10,6 +10,7 @@ import com.aib.EditPanelWithPhoto;
 import com.aib.GeneralFrame;
 import com.aib.ModalGridDialog;
 import static com.aib.RecordEditPanel.DD_MM_YYYY;
+import static com.aib.RecordEditPanel.comboPanelWithLookupBtn;
 import static com.aib.RecordEditPanel.getBorderPanel;
 import static com.aib.RecordEditPanel.getGridPanel;
 import static com.aib.RecordEditPanel.selectComboItem;
@@ -20,6 +21,7 @@ import com.aib.lookup.LocationLookupAction;
 import com.aib.lookup.LookupDialog;
 import com.aib.lookup.PeopleLookupAction;
 import com.aib.lookup.UserLookupAction;
+import com.aib.lookup.WorldRegionLookupAction;
 import com.aib.orm.People;
 import com.aib.orm.User;
 import com.aib.orm.dbobject.ComboItem;
@@ -33,6 +35,7 @@ import com.xlend.util.Util;
 import java.awt.Dimension;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.awt.event.FocusAdapter;
 import java.awt.event.FocusEvent;
 import java.rmi.RemoteException;
@@ -114,6 +117,23 @@ public class EditPeoplePanel extends EditPanelWithPhoto {
     private JCheckBox aibCoordinatorCB;
     private JCheckBox aibJudgeCB;
     private JCheckBox aibEntrantCB;
+    private DefaultComboBoxModel regionWorldCbModel;
+    private DefaultComboBoxModel countryCbModel;
+    private JComboBox regionWorldCb;
+    private JComboBox countryCB;
+
+    private class RegionsLookupAction extends WorldRegionLookupAction {
+
+        RegionsLookupAction(JComboBox cb) {
+            super(cb);
+        }
+
+        @Override
+        public void actionPerformed(ActionEvent ae) {
+            super.actionPerformed(ae);
+            syncCountries();
+        }
+    }
 
     public EditPeoplePanel(DbObject dbObject) {
         super(dbObject);
@@ -125,9 +145,9 @@ public class EditPeoplePanel extends EditPanelWithPhoto {
         instance = this;
         String titles[] = new String[]{
             "ID:",//"Source:",
-            "First Name:", 
-            "Family Name:", 
+            "First Name:", //"Family Name:", 
             "Title:",//"Suffix:", //"Greeting:",
+            "Region of World:", //,"Country:"
             "Main email:", // "Alternate email:"
             "Companies:",//"Location:"
             "Links:",// "Job discipline:",
@@ -137,7 +157,7 @@ public class EditPeoplePanel extends EditPanelWithPhoto {
             "Desk phone:", // "Desk fax:", "Mobile phone:"
             "PA:", // "PA phone:", //"PA email:"
             "Other contact info:",// "AIB actions/date:",
-            "","",
+            "", "",
             "Purchases:", // "Purchase interest:",
             "Sales contact:",//"Action date:", "External user name:", "External user password:"
             "Last verified" //"Last editor:" //"Last edited:
@@ -145,6 +165,8 @@ public class EditPeoplePanel extends EditPanelWithPhoto {
         ComboItem emptyItem = new ComboItem(0, "");
         locationCbModel = new DefaultComboBoxModel();//AIBclient.loadAllLocations(emptyItem));
         salesContactCbModel = new DefaultComboBoxModel(AIBclient.loadAllUsersInitials());
+        regionWorldCbModel = new DefaultComboBoxModel(AIBclient.loadAllRegions());
+        countryCbModel = new DefaultComboBoxModel();
         JLabel paEmailLBL;
         JLabel alterEmailLBL;
         JComponent[] edits = new JComponent[]{
@@ -155,16 +177,23 @@ public class EditPeoplePanel extends EditPanelWithPhoto {
                     sourceCB = new Java2sAutoComboBox(AIBclient.loadDistinctSources())
                 })
             }),
-            getBorderPanel(new JComponent[]{null, firstNameTF = new Java2sAutoComboBox(AIBclient.loadDistinctPeopleData("first_name"))}),
-//                getBorderPanel(new JComponent[]{new JLabel("Family Name:", SwingConstants.RIGHT),
-            getBorderPanel(new JComponent[]{
-                    familyNameTF = new Java2sAutoComboBox(AIBclient.loadDistinctPeopleData("last_name"))}),
+            getGridPanel(new JComponent[]{
+                firstNameTF = new Java2sAutoComboBox(AIBclient.loadDistinctPeopleData("first_name")),
+                new JLabel("Family Name:", SwingConstants.RIGHT),
+                familyNameTF = new Java2sAutoComboBox(AIBclient.loadDistinctPeopleData("last_name"))
+            }),
             getGridPanel(new JComponent[]{
                 titleCB = new Java2sAutoComboBox(AIBclient.loadDistinctTitles()),//JTextField(),
                 new JLabel("Suffix:", SwingConstants.RIGHT),
                 suffixCB = new Java2sAutoComboBox(AIBclient.loadDistinctSuffixes()),
                 new JLabel("Greeting:", SwingConstants.RIGHT),
                 greetingCB = new Java2sAutoComboBox(AIBclient.loadDistinctGreetings())
+            }),
+            getGridPanel(new JComponent[]{
+                comboPanelWithLookupBtn(regionWorldCb = new JComboBox(regionWorldCbModel),
+                new RegionsLookupAction(regionWorldCb)),
+                new JLabel("Country:", SwingConstants.RIGHT),
+                countryCB = new JComboBox(countryCbModel)
             }),
             getBorderPanel(new JComponent[]{
                 mainEmailTF = new Java2sAutoComboBox(AIBclient.loadDistinctPeopleData("main_email")),
@@ -197,7 +226,7 @@ public class EditPeoplePanel extends EditPanelWithPhoto {
             getGridPanel(new JComponent[]{
                 getBorderPanel(new JComponent[]{null,
                     departmentCB = new Java2sAutoComboBox(AIBclient.loadDistinctDepartaments()),
-                    new JButton(getHistoryAction("History",new ImageIcon(AIBclient.loadImage("history.png", EditPeoplePanel.class))))}),
+                    new JButton(getHistoryAction("History", new ImageIcon(AIBclient.loadImage("history.png", EditPeoplePanel.class))))}),
                 getBorderPanel(new JComponent[]{new JLabel("Industry:", SwingConstants.RIGHT),
                     industriesListTF = new JTextField(16),
                     new JButton(getIndustryListAction(new ImageIcon(AIBclient.loadImage("lookup.png", EditPeoplePanel.class))))})
@@ -209,7 +238,7 @@ public class EditPeoplePanel extends EditPanelWithPhoto {
                     sp1 = new JScrollPane(mailingAddressTA = new JTextArea(1, 20),
                     JScrollPane.VERTICAL_SCROLLBAR_NEVER, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER),
                     new JButton(new EditAreaAction(
-                            new ImageIcon(AIBclient.loadImage("lookup.png", EditPeoplePanel.class)), getMailingAddressTA()))
+                    new ImageIcon(AIBclient.loadImage("lookup.png", EditPeoplePanel.class)), getMailingAddressTA()))
                 }),
                 //                new JPanel()
                 getGridPanel(new JComponent[]{
@@ -262,10 +291,10 @@ public class EditPeoplePanel extends EditPanelWithPhoto {
             getGridPanel(new JComponent[]{
                 new JButton(showPurchasesAction("Purchases / Dates...")),
                 new JButton(showPurchaseInterestAction("Purchase Interest...")),
-//                getBorderPanel(new JComponent[]{
-//                    null,
-                    new JLabel("Purchase timescale:", SwingConstants.RIGHT),
-                    timescaleSP = new SelectedDateSpinner()
+                //                getBorderPanel(new JComponent[]{
+                //                    null,
+                new JLabel("Purchase timescale:", SwingConstants.RIGHT),
+                timescaleSP = new SelectedDateSpinner()
 //                    new JButton("ZZZ")
 //                }), 
             }),
@@ -306,7 +335,6 @@ public class EditPeoplePanel extends EditPanelWithPhoto {
 //        marketingIntelDistCB.setHorizontalTextPosition(SwingConstants.LEFT);
 //        mediaBriefingDistCB.setHorizontalTextPosition(SwingConstants.LEFT);
 //        sourceBookCB.setHorizontalTextPosition(SwingConstants.LEFT);
-
         sp1.setPreferredSize(new Dimension(sp1.getPreferredSize().width, idField.getPreferredSize().height));
         idField.setEnabled(false);
         getMailingAddressTA().setEditable(false);
@@ -331,7 +359,11 @@ public class EditPeoplePanel extends EditPanelWithPhoto {
         lastEditorTF.setEnabled(false);
         lastEditedSP.setEnabled(false);
         timescaleSP.setEnabled(false);
-
+        regionWorldCb.addActionListener(countryCBreloadAction());
+        try {
+            regionWorldCb.setSelectedIndex(0);
+        } catch (Exception e) {
+        }
         organizePanels(titles, edits, null);
 
         JPanel downTabs = new JPanel(new GridLayout(1, 2, 5, 5));
@@ -415,6 +447,25 @@ public class EditPeoplePanel extends EditPanelWithPhoto {
         });
     }
 
+    private ActionListener countryCBreloadAction() {
+        return new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                syncCountries();
+            }
+        };
+    }
+
+    private void syncCountries() {
+        ComboItem wr = (ComboItem) regionWorldCb.getSelectedItem();
+        countryCbModel.removeAllElements();
+        if (wr != null) {
+            for (Object itm : AIBclient.loadRegionCountries(wr.getId())) {
+                countryCbModel.addElement(itm);
+            }
+        }
+    }
+
     private void reload(People people) {
         if (people != getDbObject()) {
             getOwnerDialog().setTitle("Edit Person");
@@ -436,7 +487,8 @@ public class EditPeoplePanel extends EditPanelWithPhoto {
             suffixCB.setSelectedItem(person.getSuffix());
             greetingCB.setSelectedItem(person.getGreeting());
             jobDisciplineCB.setSelectedItem(person.getJobDiscip());
-
+            selectComboItem(regionWorldCb, AIBclient.getRegionOnCountry(person.getCountryId()));
+            selectComboItem(countryCB, person.getCountryId());
             selectComboItem(salesContactCB, person.getSalesContactId());
             departmentCB.setSelectedItem(person.getDepartment());
             linksListTF.setText(AIBclient.getLinkListOnPeopleID(person.getPeopleId()));
@@ -444,10 +496,10 @@ public class EditPeoplePanel extends EditPanelWithPhoto {
             aibAwardsListTF.setText(AIBclient.getAwardsOnPeopleID(person.getPeopleId()));
             String compList;
             companiesListTF.setText(compList = AIBclient.getCompaniesOnPeopleID(person.getPeopleId()));
-            
-            locationCB.setModel(locationCbModel =
-                    AIBclient.loadLocationsForCompanies(compList, 
-                    AIBclient.getLocationForCombo(person.getLocationId())));
+
+            locationCB.setModel(locationCbModel
+                    = AIBclient.loadLocationsForCompanies(compList,
+                            AIBclient.getLocationForCombo(person.getLocationId())));
             selectComboItem(locationCB, person.getLocationId());
             getSpecAddressTF().setText(person.getSpecAddress());
             getMailingAddressTA().setText(person.getMailaddress());
@@ -509,6 +561,7 @@ public class EditPeoplePanel extends EditPanelWithPhoto {
         person.setFirstName(firstNameTF.getSelectedItem().toString());
         person.setLastName(familyNameTF.getSelectedItem().toString());
         person.setLocationId(getSelectedCbItem(locationCB));
+        person.setCountryId(getSelectedCbItem(countryCB));
         person.setSuffix((String) suffixCB.getSelectedItem());
         person.setGreeting((String) greetingCB.getSelectedItem());
         person.setJobDiscip((String) jobDisciplineCB.getSelectedItem());
@@ -516,7 +569,7 @@ public class EditPeoplePanel extends EditPanelWithPhoto {
         person.setDeskPhone(getDeskPhoneTF().getText());
         person.setDeskFax(getDeskFaxTF().getText());
         person.setMobilePhone(mobilePhoneTF.getText());
-        person.setMainEmail((String)mainEmailTF.getSelectedItem());
+        person.setMainEmail((String) mainEmailTF.getSelectedItem());
         person.setMailaddress(getMailingAddressTA().getText());
         person.setMailpostcode(getMailingPostCodeTF().getText());
         person.setAlterEmail(alterEmailTF.getText());
@@ -592,7 +645,7 @@ public class EditPeoplePanel extends EditPanelWithPhoto {
             public void actionPerformed(ActionEvent ae) {
                 new ListInTextFieldDialog("Industry List",
                         new Object[]{industriesListTF.getText(), AIBclient.loadAllIndustries(),
-                    "Enter industry here:"});
+                            "Enter industry here:"});
                 industriesListTF.setText(ListInTextFieldDialog.getResultList());
             }
         };
@@ -614,7 +667,7 @@ public class EditPeoplePanel extends EditPanelWithPhoto {
             public void actionPerformed(ActionEvent ae) {
                 new AIBawardsListInTextFieldDialog("AIB actions / Dates",
                         new Object[]{aibAwardsListTF.getText(), AIBclient.loadAllAwards(),
-                    "Enter action here:"});
+                            "Enter action here:"});
                 aibAwardsListTF.setText(AIBawardsListInTextFieldDialog.getResultList());
             }
         };
@@ -626,11 +679,11 @@ public class EditPeoplePanel extends EditPanelWithPhoto {
             public void actionPerformed(ActionEvent ae) {
                 new CompanyListInTextFieldDialog("Companies List",
                         new Object[]{companiesListTF.getText(), AIBclient.loadAllCompaniesNames(),
-                    "Company name:"});
+                            "Company name:"});
                 String compList = ListInTextFieldDialog.getResultList();
                 companiesListTF.setText(compList);
-                locationCB.setModel(locationCbModel =
-                        AIBclient.loadLocationsForCompanies(compList, new ComboItem(0, "")));
+                locationCB.setModel(locationCbModel
+                        = AIBclient.loadLocationsForCompanies(compList, new ComboItem(0, "")));
                 if (getDbObject() != null) {
                     People person = (People) getDbObject();
                     selectComboItem(locationCB, person.getLocationId());
