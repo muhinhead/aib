@@ -371,43 +371,39 @@ public class DataExportSheet extends PopupDialog {
                                 + "locindustry.industry_id=industry.industry_id "
                                 + "where location_id=location.location_id) as \"Industries\"");
                     }
-                } else if (itm.getColumnname().equals("Companies")) {
-                    if (outerTable.equals("people")) {
+                } else if (itm.getColumnname().equals("Companies") && outerTable.equals("people")) {
                         colsList.append("(select group_concat(full_name) "
                                 + "from peoplecompany join company on "
                                 + "peoplecompany.company_id=company.company_id "
                                 + "where people_id=people.people_id) as \"Companies\"");
-                    }
-                } else if (itm.getColumnname().equals("Countries")) {
-                    if (outerTable.equals("people")) {
+                } else if (itm.getColumnname().equals("Countries") && outerTable.equals("people")) {
                         colsList.append("(select group_concat(country) from peoplecompany join company on "
                                 + "peoplecompany.company_id=company.company_id, country "
                                 + "where company.country_id=country.country_id and people_id=people.people_id) as \"" + itm.getColumnname() + "\"");
-                    }
-                } else if (itm.getColumnname().equals("Company physical addr.")) {
-                    if (outerTable.equals("people")) {
+                } else if (itm.getColumnname().equals("Company physical addr.") && outerTable.equals("people")) {
                         colsList.append("(select replace(group_concat(address),',',char(10)) from peoplecompany join company on "
                                 + "peoplecompany.company_id=company.company_id "
                                 + "where people_id=people.people_id) as \"" + itm.getColumnname() + "\"");
-                    }
-                } else if (itm.getColumnname().equals("Company physical post code.")) {
-                    if (outerTable.equals("people")) {
+                } else if (itm.getColumnname().equals("Company physical post code.") && outerTable.equals("people")) {
                         colsList.append("(select group_concat(post_code) from peoplecompany join company on "
                                 + "peoplecompany.company_id=company.company_id "
                                 + "where people_id=people.people_id) as \"" + itm.getColumnname() + "\"");
-                    }
-                } else if (itm.getColumnname().equals("Company mailing addr.")) {
-                    if (outerTable.equals("people")) {
-                        colsList.append("(select replace(group_concat(mailaddress),',',char(10)) from peoplecompany join company on "
-                                + "peoplecompany.company_id=company.company_id "
-                                + "where people_id=people.people_id) as \"" + itm.getColumnname() + "\"");
-                    }
-                } else if (itm.getColumnname().equals("Company mailing post code")) {
-                    if (outerTable.equals("people")) {
-                        colsList.append("(select group_concat(mailing_post_code) from peoplecompany join company on "
-                                + "peoplecompany.company_id=company.company_id "
-                                + "where people_id=people.people_id) as \"" + itm.getColumnname() + "\"");
-                    }
+                } else if (itm.getColumnname().equals("Company mailing addr.") && outerTable.equals("people")) {
+                    colsList.append("(select replace(group_concat(mailaddress),',',char(10)) from peoplecompany join company on "
+                            + "peoplecompany.company_id=company.company_id "
+                            + "where people_id=people.people_id) as \"" + itm.getColumnname() + "\"");
+                } else if (itm.getColumnname().equals("Company mailing post code") && outerTable.equals("people")) {
+                    colsList.append("(select group_concat(mailing_post_code) from peoplecompany join company on "
+                            + "peoplecompany.company_id=company.company_id "
+                            + "where people_id=people.people_id) as \"" + itm.getColumnname() + "\"");
+                } else if (itm.getColumnname().equals("Location physical addr.") && outerTable.equals("people")) {
+                    colsList.append("(select address from location where location_id=people.location_id) as \"" + itm.getColumnname() + "\"");
+                } else if (itm.getColumnname().equals("Location physical post code.") && outerTable.equals("people")) {
+                    colsList.append("(select postcode from location where location_id=people.location_id) as \"" + itm.getColumnname() + "\"");
+                } else if (itm.getColumnname().equals("Location mailing addr.") && outerTable.equals("people")) {
+                    colsList.append("(select mailaddress from location where location_id=people.location_id) as \"" + itm.getColumnname() + "\"");
+                } else if (itm.getColumnname().equals("Location mailing post code") && outerTable.equals("people")) {
+                    colsList.append("(select mailpostcode from location where location_id=people.location_id) as \"" + itm.getColumnname() + "\"");
                 } else if (itm.getColumnname().equals("company_id")) {
                     colsList.append("(select abbreviation from company where company_id="
                             + outerTable + ".company_id) as \"Company\"");

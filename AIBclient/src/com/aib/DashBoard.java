@@ -109,7 +109,7 @@ public class DashBoard extends JFrame {//extends AbstractDashBoard {
 
     protected void initBackground() {
         AIBclient.setWindowIcon(this, "aib.png");
-        addWindowListener(new DashBoard.WinListener(this));
+        //addWindowListener(new DashBoard.WinListener(this));
         controlsPanel = new JPanel(new BorderLayout());
 
         setLayout(new BorderLayout());

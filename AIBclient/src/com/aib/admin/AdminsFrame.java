@@ -361,6 +361,10 @@ public class AdminsFrame extends GeneralFrame {
                     colNames.add("Company physical post code.");
                     colNames.add("Company mailing addr.");
                     colNames.add("Company mailing post code");
+                    colNames.add("Location physical addr.");
+                    colNames.add("Location physical post code.");
+                    colNames.add("Location mailing addr.");
+                    colNames.add("Location mailing post code");
                 }
                 columnList = colNames.toArray();
                 tabCols.put(pathString, columnList);

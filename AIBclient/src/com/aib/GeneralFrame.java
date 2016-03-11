@@ -301,7 +301,7 @@ public abstract class GeneralFrame extends JFrame implements WindowListener {
         int row = view.getSelectedRow();
         try {
             if (select != null) {
-                ((JComponent) view).setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));;
+                ((JComponent) view).setCursor(Cursor.getPredefinedCursor(Cursor.WAIT_CURSOR));
                 if (page >= 0) {
                     doc.setBody(exchanger.getTableBody(select, page, GeneralGridPanel.PAGESIZE));
                 } else {
