@@ -108,7 +108,7 @@ public class PeopleFrame extends FilteredListFrame {
                 GeneralFrame.errMessageBox("Attention!", "The empty filter couldn't be applied");
             } else {
                 newSelect = adjustLikeExpression(newSelect);
-                System.out.println("!!!newSelect:" + newSelect);
+//                System.out.println("!!!newSelect:" + newSelect);
                 peoplePanel.setSelect(newSelect);
                 peoplePanel.refresh();
                 gotoFilterApplied(flt.getFilterId().intValue());
