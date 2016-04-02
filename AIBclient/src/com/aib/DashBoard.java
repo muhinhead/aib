@@ -13,12 +13,11 @@ import com.aib.people.PeopleFrame;
 import com.aib.people.PeopleGrid;
 import com.aib.remote.IMessageSender;
 import com.xlend.util.ImagePanel;
+import com.xlend.util.PopupDialog;
 import com.xlend.util.TexturedPanel;
 import com.xlend.util.ToolBarButton;
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.Frame;
 import java.awt.HeadlessException;
 import java.awt.Insets;
@@ -27,7 +26,6 @@ import java.awt.Window;
 import java.awt.event.ActionEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.awt.event.WindowListener;
 import java.util.StringTokenizer;
 import javax.swing.AbstractAction;
 import javax.swing.JFrame;
@@ -35,7 +33,6 @@ import javax.swing.JLabel;
 import javax.swing.JLayeredPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
-import javax.swing.SwingConstants;
 import javax.swing.UIManager;
 
 /**
@@ -104,6 +101,7 @@ public class DashBoard extends JFrame {//extends AbstractDashBoard {
         lowLevelInit();
         initBackground();
         fillControlsPanel();
+        PopupDialog.setCopyPasteMenues(getRootPane());
         setVisible(true);
     }
 

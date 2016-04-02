@@ -7,15 +7,11 @@ import static com.aib.GeneralFrame.adjustFilterQuery;
 import com.aib.filter.PeopleFilterPanel;
 import com.aib.orm.Filter;
 import com.aib.orm.dbobject.ComboItem;
-import com.aib.orm.dbobject.ForeignKeyViolationException;
 import com.aib.remote.IMessageSender;
 import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.rmi.RemoteException;
-import java.sql.SQLException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import javax.swing.AbstractAction;
 import javax.swing.JPanel;
 

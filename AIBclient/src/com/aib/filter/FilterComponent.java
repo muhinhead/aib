@@ -10,6 +10,7 @@ import com.aib.lookup.CountryLookupAction;
 import com.aib.orm.Country;
 import com.aib.orm.Filter;
 import com.aib.orm.dbobject.ComboItem;
+import com.xlend.util.PopupDialog;
 import com.xlend.util.SelectedDateSpinner;
 import com.xlend.util.Util;
 import java.awt.BorderLayout;
@@ -178,6 +179,7 @@ public abstract class FilterComponent extends JPanel {
             toDateSP.setEditor(new JSpinner.DateEditor(toDateSP, RecordEditPanel.DD_MM_YYYY));
             Util.addFocusSelectAllAction(toDateSP);
             valuePanel.add(new JPanel(), IS_NULL);
+            PopupDialog.setCopyPasteMenues(valuePanel);
         }
         return valuePanel;
     }

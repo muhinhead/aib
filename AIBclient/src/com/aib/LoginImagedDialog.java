@@ -5,16 +5,13 @@ import com.jtattoo.plaf.aero.AeroLookAndFeel;
 import com.jtattoo.plaf.bernstein.BernsteinLookAndFeel;
 import com.jtattoo.plaf.hifi.HiFiLookAndFeel;
 import com.jtattoo.plaf.noire.NoireLookAndFeel;
-//import com.aib.orm.Userprofile;
 import com.aib.orm.dbobject.DbObject;
-import com.aib.remote.IMessageSender;
 import com.xlend.util.*;
 import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.rmi.Naming;
 import java.util.prefs.Preferences;
 import javax.swing.AbstractAction;
 import javax.swing.JButton;
@@ -36,7 +33,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 public class LoginImagedDialog extends PopupDialog {
 
     private static final String BACKGROUNDIMAGE = "Login.png";
-    private final String NMSOFTWARE = "Nick Mukhin (c)2013";
+    private final String NMSOFTWARE = "Nick Mukhin (c)2013-2016";
 
     /**
      * @return the okPressed

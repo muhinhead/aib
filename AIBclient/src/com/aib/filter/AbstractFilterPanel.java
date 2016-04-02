@@ -11,6 +11,7 @@ import com.aib.RecordEditPanel;
 import com.aib.orm.Filter;
 import com.aib.orm.dbobject.ComboItem;
 import com.xlend.mvc.dbtable.DbTableView;
+import com.xlend.util.PopupDialog;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
@@ -331,6 +332,7 @@ public abstract class AbstractFilterPanel extends JPanel implements IFilterPanel
         upperPanel.add(edComplexComponentPanel, BorderLayout.CENTER);
         upPerCenterPanel = new JPanel(new BorderLayout());
         upPerCenterPanel.add(upperPanel, BorderLayout.NORTH);
+        PopupDialog.setCopyPasteMenues(upPerCenterPanel);
         papa.add(new JScrollPane(upPerCenterPanel), BorderLayout.CENTER);
     }
 

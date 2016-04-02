@@ -7,6 +7,7 @@ import com.xlend.mvc.dbtable.DbTableGridPanel;
 import com.xlend.mvc.dbtable.DbTableView.MyTableModel;
 import com.xlend.mvc.dbtable.ITableView;
 import com.aib.remote.IMessageSender;
+import com.xlend.util.PopupDialog;
 import com.xlend.util.ToolBarButton;
 import com.xlend.util.Util;
 import java.awt.BorderLayout;
@@ -68,6 +69,7 @@ public abstract class GeneralFrame extends JFrame implements WindowListener {
         if (maximize) {
             setExtendedState(getExtendedState() | JFrame.MAXIMIZED_BOTH);
         }
+        PopupDialog.setCopyPasteMenues(getRootPane());
         setVisible(true);
     }
 
