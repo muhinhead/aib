@@ -25,7 +25,7 @@ public class MyColorRenderer extends JLabel implements TableCellRenderer {
         super();
 
         Font font = getFont();
-        Font newFont = new Font(font.getName(), font.getStyle(), 10);
+        Font newFont = new Font(font.getName(), font.getStyle(), 14);
         setFont(newFont);
         this.tv = tv;
     }

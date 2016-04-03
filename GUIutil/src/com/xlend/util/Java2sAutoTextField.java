@@ -1,6 +1,9 @@
 package com.xlend.util;
 
+import java.awt.event.ActionEvent;
 import java.util.List;
+import javax.swing.AbstractAction;
+import javax.swing.JPopupMenu;
 import javax.swing.JTextField;
 import javax.swing.text.AttributeSet;
 import javax.swing.text.BadLocationException;
@@ -100,8 +103,34 @@ public class Java2sAutoTextField extends JTextField {
         if (isStrict && dataList.size() > 0) {
             setText(dataList.get(0).toString());
         }
+        addMouseListener(new PopupListener(getCopyPasteMenu()));
     }
 
+    private JPopupMenu getCopyPasteMenu() {
+        JPopupMenu copyPasteMenu = new JPopupMenu();
+        copyPasteMenu.add(new AbstractAction("Cut") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                cut();
+            }
+        });
+        copyPasteMenu.add(new AbstractAction("Copy") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                copy();
+            }
+        });
+        copyPasteMenu.add(new AbstractAction("Paste") {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                paste();
+            }
+        });
+        
+        return copyPasteMenu;
+    }
+    
+    
     private String getMatch(String s) {
         for (int i = 0; i < dataList.size(); i++) {
             String s1 = dataList.get(i).toString();

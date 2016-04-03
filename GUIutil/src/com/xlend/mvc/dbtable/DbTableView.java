@@ -3,6 +3,7 @@ package com.xlend.mvc.dbtable;
 import com.xlend.mvc.Controller;
 import com.xlend.mvc.Document;
 import com.xlend.mvc.IView;
+import java.awt.Font;
 import java.awt.Rectangle;
 import java.util.HashMap;
 import java.util.Vector;
@@ -105,6 +106,7 @@ public class DbTableView extends JTable implements ITableView {
 
     public DbTableView() {
         super();
+
         ListSelectionModel rowSM = getSelectionModel();
         rowSM.addListSelectionListener(new ListSelectionListener() {
 
