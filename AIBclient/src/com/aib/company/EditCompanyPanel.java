@@ -297,8 +297,9 @@ class EditCompanyPanel extends EditPanelWithPhoto {
             Company comp = (Company) getDbObject();
             Integer compID = comp == null ? new Integer(0) : comp.getCompanyId();
             downTabs.add(compLocationsGrid = new CompLocationsGrid(AIBclient.getExchanger(), compID), "Company Locations");
-            downTabs.add(peopleGrid = new PeopleGrid(AIBclient.getExchanger(), PeopleGrid.SELECT.replace(GeneralGridPanel.SELECTLIMIT, "")
-                    + " where people_id in (select people_id from peoplecompany where company_id=" + compID + ")", false) {
+            downTabs.add(peopleGrid = new PeopleGrid(AIBclient.getExchanger(), 
+                    PeopleGrid.SELECT.replace(GeneralGridPanel.SELECTLIMIT, "").replace("from people ", 
+                            "from people where people_id in (select people_id from peoplecompany where company_id=" + compID + ")"), false) {
                 @Override
                 protected JPanel getRightPanel(JPanel btnPanel) {
                     btnPanel.setLayout(new GridLayout(4, 1, 5, 5));

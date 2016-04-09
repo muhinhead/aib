@@ -78,6 +78,24 @@ public abstract class FilterComponent extends JPanel {
     private static ComboItem[] users;
     private static ComboItem[] companyFilters;
 
+    public static class JQuotedTextField extends JTextField {
+        public JQuotedTextField() {
+            super();
+        }
+        
+        public JQuotedTextField(int l) {
+            super(l);
+        }
+        
+        public void setText(String s) {
+            super.setText(s.replaceAll("''", "'"));
+        }
+        
+        public String getText() {
+            return super.getText().replaceAll("'", "''");
+        }
+    }
+    
     static {
         Country[] countryList = AIBclient.loadAllCountries();
         countries = new ComboItem[countryList.length];
@@ -148,11 +166,11 @@ public abstract class FilterComponent extends JPanel {
     protected JPanel getValuePanel() {
         if (valuePanel == null) {
             valuePanel = new JPanel(cl = new CardLayout());
-            valuePanel.add(valueTF = new JTextField(), TEXT_FLD);
+            valuePanel.add(valueTF = new JQuotedTextField(), TEXT_FLD);
             valuePanel.add(RecordEditPanel.getBorderPanel(new JComponent[]{
-                fromValueTF = new JTextField(10),
+                fromValueTF = new JQuotedTextField(10),
                 new JLabel("and", SwingConstants.CENTER),
-                toValueTF = new JTextField(10)
+                toValueTF = new JQuotedTextField(10)
             }), BETWEEN_FLD);
             valuePanel.add(RecordEditPanel.getBorderPanel(new JComponent[]{
                 fromDateSP = new SelectedDateSpinner(),

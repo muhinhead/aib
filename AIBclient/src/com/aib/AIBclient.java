@@ -1364,7 +1364,7 @@ public class AIBclient {
     public static DefaultComboBoxModel loadLocationsForCompanies(String compList, ComboItem startItem) {
         String sql = "select location_id, concat(l.name,' (',ifnull((Select abbreviation from company where company_id=l.company_id),''),')') "
                 + "from location l"
-                + " where company_id in (select company_id from company where instr('" + compList + "',concat(full_name,'(',company_id,')'))>0) "
+                + " where company_id in (select company_id from company where instr('" + compList.replaceAll("'", "''") + "',concat(full_name,'(',company_id,')'))>0) "
                 + (startItem != null ? " or l.location_id=" + startItem.getId() : "")
                 + " order by l.name";
         return new DefaultComboBoxModel(loadOnSelect(exchanger, sql, null));
@@ -1372,7 +1372,7 @@ public class AIBclient {
 
     public static Company getCompanyOnValue(String column, String value) {
         try {
-            DbObject[] obs = getExchanger().getDbObjects(Company.class, column + " like '" + value + "%'", column);
+            DbObject[] obs = getExchanger().getDbObjects(Company.class, column + " like '" + value.replaceAll("'", "''") + "%'", column);
             if (obs.length > 0) {
                 Company comp = (Company) obs[0];
                 return comp;
@@ -1385,7 +1385,7 @@ public class AIBclient {
 
     public static People getPeopleOnValue(String column, String value) {
         try {
-            DbObject[] obs = getExchanger().getDbObjects(People.class, "UPPER(" + column + ") like UPPER('" + value.trim() + "%')", column);
+            DbObject[] obs = getExchanger().getDbObjects(People.class, "UPPER(" + column + ") like UPPER('" + value.trim().replaceAll("'", "''") + "%')", column);
             if (obs.length > 0) {
                 People people = (People) obs[0];
                 return people;

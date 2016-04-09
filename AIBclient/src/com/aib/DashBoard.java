@@ -7,6 +7,7 @@ package com.aib;
 import com.aib.admin.AdminsFrame;
 import com.aib.company.CompaniesGrid;
 import com.aib.company.CompanyFrame;
+import com.aib.filter.FilterComponent;
 import com.aib.location.LocationsFrame;
 import com.aib.location.LocationsGrid;
 import com.aib.people.PeopleFrame;
@@ -188,7 +189,7 @@ public class DashBoard extends JFrame {//extends AbstractDashBoard {
         img = new ImagePanel(AIBclient.loadImage(lookup_png, this));
         textSearchButton = new ToolBarButton(lookup_png, true);
         textSearchButton.setBounds(setupButton.getX() + setupButton.getWidth() + 2, 10, img.getWidth() + 2, img.getHeight() + 2);
-        searchTextField = new JTextField();
+        searchTextField = new FilterComponent.JQuotedTextField();
         searchTextField.setToolTipText("enter here comma-delimited list of tokens to search");
         JLabel searchLbl = new JLabel("Quick search:");
         searchLbl.setBounds(compsButton.getX() - searchLbl.getPreferredSize().width, 10, searchLbl.getPreferredSize().width, searchLbl.getPreferredSize().height);

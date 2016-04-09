@@ -264,6 +264,8 @@ public class DataExportSheet extends PopupDialog {
         newSelect.append(getColumnList(tmpID)).append(sb.substring(i).replaceAll(GeneralGridPanel.SELECTLIMIT, ""));
         BufferedOutputStream bufferedOutput = null;
         try {
+            System.out.println("!!OLDselect:["+select+"]");
+            System.out.println("!!NEWselect:["+newSelect+"]");
             result = AIBclient.getExchanger().getTableBody(newSelect.toString());
             Vector tds = result[0];
             Vector lines = result[1];

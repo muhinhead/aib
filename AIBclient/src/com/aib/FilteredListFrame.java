@@ -7,7 +7,6 @@ package com.aib;
 import com.aib.orm.Filter;
 import com.aib.orm.dbobject.ComboItem;
 import com.aib.remote.IMessageSender;
-import com.xlend.util.PopupDialog;
 import com.xlend.util.Util;
 import java.awt.Dimension;
 import java.awt.event.ActionEvent;
