@@ -14,6 +14,7 @@ import com.itextpdf.text.Document;
 import com.itextpdf.text.pdf.PdfWriter;
 import com.itextpdf.tool.xml.XMLWorkerHelper;
 import com.xlend.util.FileFilterOnExtension;
+import com.xlend.util.HtmlEscape;
 import com.xlend.util.PopupDialog;
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -264,8 +265,8 @@ public class DataExportSheet extends PopupDialog {
         newSelect.append(getColumnList(tmpID)).append(sb.substring(i).replaceAll(GeneralGridPanel.SELECTLIMIT, ""));
         BufferedOutputStream bufferedOutput = null;
         try {
-            System.out.println("!!OLDselect:["+select+"]");
-            System.out.println("!!NEWselect:["+newSelect+"]");
+//            System.out.println("!!OLDselect:["+select+"]");
+//            System.out.println("!!NEWselect:["+newSelect+"]");
             result = AIBclient.getExchanger().getTableBody(newSelect.toString());
             Vector tds = result[0];
             Vector lines = result[1];
@@ -294,7 +295,7 @@ public class DataExportSheet extends PopupDialog {
             bufferedOutput.write("<table class=\"mystyle\">\n".getBytes());
             bufferedOutput.write("<tr>\n".getBytes());
             for (Object td : tds) {
-                bufferedOutput.write(("<th>" + td.toString().replace("_", " ").replace("discip", "title") + "</th>\n").getBytes());
+                bufferedOutput.write(("<th>" + HtmlEscape.escape(td.toString()).replace("_", " ").replace("discip", "title") + "</th>\n").getBytes());
             }
             bufferedOutput.write("</tr>\n".getBytes());
 //            int rownum = 0;
@@ -304,7 +305,7 @@ public class DataExportSheet extends PopupDialog {
 //                int colnum = 0;
                 for (Object c : line) {
                     bufferedOutput.write("<td>\n".getBytes());
-                    bufferedOutput.write(c.toString().replace("\n", "<p/>").getBytes());
+                    bufferedOutput.write(HtmlEscape.escape(c.toString()).replace("\n", "<p/>").getBytes());
                     bufferedOutput.write("</td>\n".getBytes());
 //                    colnum++;
                 }

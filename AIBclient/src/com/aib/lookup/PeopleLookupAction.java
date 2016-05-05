@@ -62,7 +62,7 @@ public class PeopleLookupAction extends AbstractAction {
                     + "left outer join company c on pc.company_id=c.company_id "
                     + (column != null && value != null ? "where upper(" + column + ") like upper('" + value.trim() + "%')" : "")
                     + " group by p.people_id";
-            LookupDialog ld = new LookupDialog((column != null && value != null ? "Select old or new record" : "Company Lookup"), locationCB,
+            LookupDialog ld = new LookupDialog((column != null && value != null ? "Select old or new record" : "People Lookup"), locationCB,
                     new PeopleGrid(AIBclient.getExchanger(), select, readOnly),
                     new String[]{"abbreviation", "full_name", "main_phone", "main_fax"});
         } catch (RemoteException ex) {

@@ -23,6 +23,7 @@ import com.aib.lookup.PeopleLookupAction;
 import com.aib.lookup.UserLookupAction;
 import com.aib.lookup.WorldRegionLookupAction;
 import com.aib.orm.People;
+import com.aib.orm.Peoplecompany;
 import com.aib.orm.User;
 import com.aib.orm.dbobject.ComboItem;
 import com.aib.orm.dbobject.DbObject;
@@ -625,6 +626,18 @@ public class EditPeoplePanel extends EditPanelWithPhoto {
                 AIBclient.savePeopleCompany(person.getPeopleId(), tok.nextToken().trim());
             }
             AIBclient.removeRedundantPeopleCompany(person.getPeopleId(), companiesListTF.getText());
+            if (PeopleGrid.parentComapnyID != null) {
+                DbObject[] obs = AIBclient.getExchanger().getDbObjects(Peoplecompany.class, 
+                        "company_id="+PeopleGrid.parentComapnyID+" and people_id=" + person.getPK_ID(), null);
+                if (obs.length == 0) {
+                    Peoplecompany pk = new Peoplecompany(null);
+                    pk.setPK_ID(0);
+                    pk.setPeopleId(person.getPK_ID());
+                    pk.setCompanyId(PeopleGrid.parentComapnyID);
+                    pk.setNew(true);
+                    AIBclient.getExchanger().saveDbObject(pk);
+                }
+            }
         }
         return ok;
     }

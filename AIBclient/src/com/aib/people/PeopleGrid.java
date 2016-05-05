@@ -21,20 +21,22 @@ import javax.swing.JOptionPane;
  *
  * @author Nick Mukhin
  */
-public class PeopleGrid extends GeneralGridPanel {    
-    
+public class PeopleGrid extends GeneralGridPanel {
+
+    private static final String COMPANY_ID = "company_id=";
     public static final String SELECT = "select people_id \"ID\","
             + "job_discip \"Job Title\","
             + "title \"Title\",first_name \"First Name\", "
             + "last_name \"Last Name\",main_email \"E-mail\","
-//            + "suffix \"Suffix\", greeting \"Greeting\", "
+            //            + "suffix \"Suffix\", greeting \"Greeting\", "
             + "desk_phone \"Desk Phone\", mobile_phone \"Mobile Phone\", "
             + "lastedit_date \"Last Edited\", "
             + "(select initials from user where user_id=people.lastedited_by) \"Editor\" "
             + "from people "
             + "order by people.lastedit_date desc,people.first_name "
-            +GeneralGridPanel.SELECTLIMIT;
+            + GeneralGridPanel.SELECTLIMIT;
     private static HashMap<Integer, Integer> maxWidths = new HashMap<Integer, Integer>();
+    public static Integer parentComapnyID = null;
 
     static {
         maxWidths.put(0, 40);
@@ -46,39 +48,55 @@ public class PeopleGrid extends GeneralGridPanel {
 
     public PeopleGrid(IMessageSender exchanger) throws RemoteException {
         super(exchanger, SELECT, maxWidths, false);
+        parentComapnyID = null;
     }
 
     public PeopleGrid(IMessageSender exchanger, String select, boolean readOnly) throws RemoteException {
         super(exchanger, select, maxWidths, readOnly);
+        int p = select.indexOf(COMPANY_ID);
+        if (p > 0) {
+            System.out.println(select);
+            int pp = select.indexOf(")order");
+            if (pp > -1) {
+                parentComapnyID = Integer.parseInt(select.substring(p + COMPANY_ID.length(), pp));
+                System.out.println("parentComapnyID=" + parentComapnyID);
+            }
+        } else {
+            parentComapnyID = null;
+        }
         EditPeopleDialog.locationID = null;
     }
 
     public void filterOnLocationID(Integer locationID) {
-        setSelect(SELECT.replace("from people", "from people where location_id=" 
+        setSelect(SELECT.replace("from people", "from people where location_id="
                 + (EditPeopleDialog.locationID = locationID)));
         refresh();
     }
 
     public void refresh(Integer compID) {
-        setSelect(SELECT.replace(GeneralGridPanel.SELECTLIMIT, "")
-                    + " where people_id in (select people_id from peoplecompany where company_id=" + compID + ")");
+        setSelect(SELECT.replace(GeneralGridPanel.SELECTLIMIT, "").replace("from people ",
+                "from people where people_id in (select people_id from peoplecompany where company_id=" + compID + ")"));
+        //System.out.println(getSelect());
         refresh();
     }
-    
+
     protected void additionalSettings() {
-        
+
     }
 
     @Override
     protected AbstractAction addAction() {
-        return new AbstractAction("Add",new ImageIcon(AIBclient.loadImage("newcontact.png", GeneralGridPanel.class))) {
+        return new AbstractAction("Add", new ImageIcon(AIBclient.loadImage("newcontact.png", GeneralGridPanel.class))) {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 additionalSettings();
                 EditPeopleDialog ed = new EditPeopleDialog("Add Person", null);
                 if (EditPeopleDialog.okPressed) {
                     People person = (People) ed.getEditPanel().getDbObject();
-                    refresh(person.getPeopleId());
+                    if(parentComapnyID!=null) {
+                        refresh(parentComapnyID);
+                    } else
+                    refresh();//person.getPeopleId());
                 }
             }
         };
@@ -86,7 +104,7 @@ public class PeopleGrid extends GeneralGridPanel {
 
     @Override
     protected AbstractAction editAction() {
-        return new AbstractAction("Edit",new ImageIcon(AIBclient.loadImage("editcontact.png", GeneralGridPanel.class))) {
+        return new AbstractAction("Edit", new ImageIcon(AIBclient.loadImage("editcontact.png", GeneralGridPanel.class))) {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 int id = getSelectedID();
@@ -108,14 +126,14 @@ public class PeopleGrid extends GeneralGridPanel {
 
     @Override
     protected AbstractAction delAction() {
-        return new AbstractAction("Delete",new ImageIcon(AIBclient.loadImage("delcontact.png", GeneralGridPanel.class))) {
+        return new AbstractAction("Delete", new ImageIcon(AIBclient.loadImage("delcontact.png", GeneralGridPanel.class))) {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 int id = getSelectedID();
                 if (id != 0) {
                     try {
                         People person = (People) exchanger.loadDbObjectOnID(People.class, id);
-                        if (person != null && GeneralFrame.yesNo("Attention!", 
+                        if (person != null && GeneralFrame.yesNo("Attention!",
                                 "Do you want to delete record of this person?") == JOptionPane.YES_OPTION) {
                             exchanger.deleteObject(person);
                             refresh();
