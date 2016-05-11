@@ -60,7 +60,7 @@ import javax.swing.SpinnerNumberModel;
  */
 public class AIBclient {
 
-    private static final String version = "0.17.E";
+    private static final String version = "0.17.F";
 //    private static Userprofile currentUser;
     private static Logger logger = null;
     private static FileHandler fh;
@@ -85,6 +85,7 @@ public class AIBclient {
         } catch (NumberFormatException nfe) {
             ps = 50000;
         }
+        props.setProperty("pageSize", ""+ps);
         return ps;
     }
 
@@ -275,20 +276,17 @@ public class AIBclient {
             }
             props.setProperty("ServerAddress", props.getProperty("ServerAddress", "localhost:1099"));
         }
-        Preferences userPref = Preferences.userRoot();
+        //Preferences userPref = Preferences.userRoot();
         saveProperties();
     }
 
     public static void saveProperties() {
         try {
             if (props != null) {
-
                 props.store(new FileOutputStream(PROPERTYFILENAME),
                         "-----------------------");
             }
         } catch (IOException e) {
-            //e.printStackTrace();
-//            logAndShowMessage(e);
             logAndShowMessage(e.getMessage() + new File(PROPERTYFILENAME).getAbsolutePath());
         }
     }

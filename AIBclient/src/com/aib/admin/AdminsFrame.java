@@ -64,7 +64,7 @@ public class AdminsFrame extends GeneralFrame {
     private ArrayList<String> toDelete = new ArrayList<String>();
     private GeneralGridPanel usersPanel;
     private static String[] sheetList = new String[]{
-        "Users list", "Output templates editor"
+        "Users list", "Output templates editor", "Properties editor"
     };
     private JTree leftTree;
     private DefaultMutableTreeNode companyNode;
@@ -88,6 +88,7 @@ public class AdminsFrame extends GeneralFrame {
     private JTextArea descrArea;
     private boolean wasEdited = false;
     private JButton saveAllBtn;
+    private JPanel propPanel;
 
     private class ReportFormListItem {
 
@@ -155,9 +156,21 @@ public class AdminsFrame extends GeneralFrame {
         MyJideTabbedPane workTab = new MyJideTabbedPane();
         workTab.add(getUserListPanel(), sheetList[0]);
         workTab.add(getOutputEditorPanel(), sheetList[1]);
+        workTab.add(getPropertyEditorPanel(), sheetList[2]);
         return workTab;
     }
 
+    private JPanel getPropertyEditorPanel() {
+        if(propPanel == null) {
+            try {
+                propPanel = new PropPanel();
+            }catch (Exception ex) {
+                AIBclient.logAndShowMessage(ex);
+            }
+        }
+        return propPanel;
+    }
+    
     private JPanel getUserListPanel() {
         if (usersPanel == null) {
             try {
