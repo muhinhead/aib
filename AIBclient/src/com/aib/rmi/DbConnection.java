@@ -97,19 +97,19 @@ public class DbConnection {
         //        "alter table people modify desk_phone varchar(80) null",
         //        "alter table people modify desk_fax varchar(80) null",
         //        "alter table people modify job_discip varchar(150) null,"
-        "alter table people add is_aib_coordinator bit default 0",
-        "alter table people add is_aib_judge     bit default 0",
-        "alter table people add is_aib_entrant   bit default 0",
-        "alter table location drop foreign key location_company_fk",
-        "alter table location add constraint location_company_fk foreign key (company_id) references company (company_id) on delete cascade",
-        "alter table people drop foreign key people_location_fk",
-        "alter table people add constraint people_location_fk foreign key (location_id) references location (location_id) on delete cascade",
+//        "alter table people add is_aib_coordinator bit default 0",
+//        "alter table people add is_aib_judge     bit default 0",
+//        "alter table people add is_aib_entrant   bit default 0",
+//        "alter table location drop foreign key location_company_fk",
+//        "alter table location add constraint location_company_fk foreign key (company_id) references company (company_id) on delete cascade",
+//        "alter table people drop foreign key people_location_fk",
+//        "alter table people add constraint people_location_fk foreign key (location_id) references location (location_id) on delete cascade",
         //51->52
-        "alter table people add fulltext "
-            + "(source,first_name,last_name,suffix,job_discip,department,spec_address,"
-            + "mailaddress,desk_phone,desk_fax,mobile_phone,main_email,alter_email,pa,pa_phone,pa_email)",
-        "alter table location add fulltext(name,abbreviation,address,postcode,mailaddress,mailpostcode,main_phone,main_fax,comments)",
-        "alter table company add fulltext(full_name,abbreviation,address,post_code,mailaddress,mailing_post_code,main_phone,main_fax)",
+//        "alter table people add fulltext "
+//        + "(source,first_name,last_name,suffix,job_discip,department,spec_address,"
+//        + "mailaddress,desk_phone,desk_fax,mobile_phone,main_email,alter_email,pa,pa_phone,pa_email)",
+//        "alter table location add fulltext(name,abbreviation,address,postcode,mailaddress,mailpostcode,main_phone,main_fax,comments)",
+//        "alter table company add fulltext(full_name,abbreviation,address,post_code,mailaddress,mailing_post_code,main_phone,main_fax)",
         //52->53
         "alter table people add country_id int",
         "alter table people add constraint people_country_fk foreign key(country_id) references country (country_id)"
@@ -158,8 +158,8 @@ public class DbConnection {
             Locale.setDefault(Locale.ENGLISH);
             DriverManager.registerDriver(
                     (java.sql.Driver) Class.forName(
-                    props.getProperty("dbDriverName",
-                    "com.mysql.jdbc.Driver")).newInstance());
+                            props.getProperty("dbDriverName",
+                                    "com.mysql.jdbc.Driver")).newInstance());
             String connectionString = props.getProperty("JDBCconnection",
                     "jdbc:mysql://192.168.15.123/aibcontact?characterEncoding=UTF8");
 //                    "jdbc:mysql://aibcontact.db.9298823.hostedresource.com/aibcontact?characterEncoding=UTF8");
@@ -171,6 +171,7 @@ public class DbConnection {
             connection.setAutoCommit(true);
 //            RmiMessageSender.isMySQL = (connection.getClass().getCanonicalName().indexOf("mysql") > -1);
 //            System.out.println("!!! "+connection.hashCode()+" - NEW CONNECTION");
+            //setName(connection, "utf8", true);
         } catch (Exception e) {
             AIBclient.log(e);
         }
@@ -198,6 +199,28 @@ public class DbConnection {
         sqlBatch(fixLocalDBsqls, connection,
                 props.getProperty("LogDbFixes", "false").equalsIgnoreCase("true"));
     }
+
+//    private static void setName(Connection connection, String name, boolean tolog) {
+//        PreparedStatement ps = null;
+//        try {
+//            String sql = "SET NAMES '" + name + "';";
+//            ps = connection.prepareStatement(sql);
+//            ps.execute();
+//            if (tolog) {
+//                AIBclient.log("STATEMENT [" + sql.substring(0,
+//                        sql.length() > 60 ? 60 : sql.length()) + "]... processed");
+//            }
+//        } catch (SQLException e) {
+//            if (tolog) {
+//                AIBclient.log(e);
+//            }
+//        } finally {
+//            try {
+//                ps.close();
+//            } catch (SQLException ex) {
+//            }
+//        }
+//    }
 
     public static void sqlBatch(String sql, Connection connection, boolean tolog) {
         PreparedStatement ps = null;
