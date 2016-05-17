@@ -20,8 +20,6 @@ import java.util.Locale;
 import java.util.Properties;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 /**
  *
@@ -102,22 +100,26 @@ public class DbConnection {
 //        "alter table people modify desk_phone varchar(80) null",
 //        "alter table people modify desk_fax varchar(80) null",
 //        "alter table people modify job_discip varchar(150) null",
-        "alter table people add is_aib_coordinator bit default 0",
-        "alter table people add is_aib_judge     bit default 0",
-        "alter table people add is_aib_entrant   bit default 0",
-        "alter table location drop foreign key location_company_fk",
-        "alter table location add constraint location_company_fk foreign key (company_id) references company (company_id) on delete cascade",
-        "alter table people drop foreign key people_location_fk",
-        "alter table people add constraint people_location_fk foreign key (location_id) references location (location_id) on delete cascade",
-        //51->52
-        "alter table people add fulltext "
-            + "(source,first_name,last_name,suffix,job_discip,department,spec_address,"
-            + "mailaddress,desk_phone,desk_fax,mobile_phone,main_email,alter_email,pa,pa_phone,pa_email)",
-        "alter table location add fulltext(name,abbreviation,address,postcode,mailaddress,mailpostcode,main_phone,main_fax,comments)",
-        "alter table company add fulltext(full_name,abbreviation,address,post_code,mailaddress,mailing_post_code,main_phone,main_fax)",
-        //52->53
-        "alter table people add country_id int",
-        "alter table people add constraint people_country_fk foreign key(country_id) references country (country_id)"
+//        "alter table people add is_aib_coordinator bit default 0",
+//        "alter table people add is_aib_judge     bit default 0",
+//        "alter table people add is_aib_entrant   bit default 0",
+//        "alter table location drop foreign key location_company_fk",
+//        "alter table location add constraint location_company_fk foreign key (company_id) references company (company_id) on delete cascade",
+//        "alter table people drop foreign key people_location_fk",
+//        "alter table people add constraint people_location_fk foreign key (location_id) references location (location_id) on delete cascade",
+//        //51->52
+//        "alter table people add fulltext "
+//            + "(source,first_name,last_name,suffix,job_discip,department,spec_address,"
+//            + "mailaddress,desk_phone,desk_fax,mobile_phone,main_email,alter_email,pa,pa_phone,pa_email)",
+//        "alter table location add fulltext(name,abbreviation,address,postcode,mailaddress,mailpostcode,main_phone,main_fax,comments)",
+//        "alter table company add fulltext(full_name,abbreviation,address,post_code,mailaddress,mailing_post_code,main_phone,main_fax)",
+//        //52->53
+//        "alter table people add country_id int",
+//        "alter table people add constraint people_country_fk foreign key(country_id) references country (country_id)"
+        "alter table people CHARACTER SET utf8, COLLATE utf8_general_ci",
+        "alter table company CHARACTER SET utf8, COLLATE utf8_general_ci",
+        "alter table location CHARACTER SET utf8, COLLATE utf8_general_ci",        
+        "alter table country CHARACTER SET utf8, COLLATE utf8_general_ci"        
     };
 
     public static String getLogin() {
