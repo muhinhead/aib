@@ -696,7 +696,7 @@ public class EditPeoplePanel extends EditPanelWithPhoto {
                 String compList = ListInTextFieldDialog.getResultList();
                 companiesListTF.setText(compList);
                 locationCB.setModel(locationCbModel
-                        = AIBclient.loadLocationsForCompanies(compList, new ComboItem(0, "")));
+                        = AIBclient.loadLocationsForCompanies(compList, (ComboItem) locationCB.getSelectedItem()));//new ComboItem(0, "")));
                 if (getDbObject() != null) {
                     People person = (People) getDbObject();
                     selectComboItem(locationCB, person.getLocationId());

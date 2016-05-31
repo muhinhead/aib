@@ -60,7 +60,7 @@ import javax.swing.SpinnerNumberModel;
  */
 public class AIBclient {
 
-    private static final String version = "0.17.F";
+    private static final String version = "0.17.G";
 //    private static Userprofile currentUser;
     private static Logger logger = null;
     private static FileHandler fh;
@@ -85,7 +85,7 @@ public class AIBclient {
         } catch (NumberFormatException nfe) {
             ps = 50000;
         }
-        props.setProperty("pageSize", ""+ps);
+        props.setProperty("pageSize", "" + ps);
         return ps;
     }
 
@@ -1359,10 +1359,27 @@ public class AIBclient {
         return new ComboItem(locID, "-- unknown location ID=" + locID + " --");
     }
 
+    private static String extractIds(String compList) {
+        StringBuilder sb = new StringBuilder();
+        int p = compList.indexOf("(");
+        while (p >= 0) {
+            int pp = compList.indexOf(")");
+            if(sb.length()>0)
+                sb.append(",");
+            sb.append(compList.substring(p+1, pp));
+            compList = compList.substring(pp + 1);
+            p = compList.indexOf("(");
+        }
+        return sb.toString();
+    }
+
     public static DefaultComboBoxModel loadLocationsForCompanies(String compList, ComboItem startItem) {
+        String compIdList = extractIds(compList);
         String sql = "select location_id, concat(l.name,' (',ifnull((Select abbreviation from company where company_id=l.company_id),''),')') "
                 + "from location l"
-                + " where company_id in (select company_id from company where instr('" + compList.replaceAll("'", "''") + "',concat(full_name,'(',company_id,')'))>0) "
+                + " where company_id in "
+                + "(" + compIdList + ")"
+                //+ "(select company_id from company where instr('" + compList.replaceAll("'", "''") + "',concat(full_name,'(',company_id,')'))>0) "
                 + (startItem != null ? " or l.location_id=" + startItem.getId() : "")
                 + " order by l.name";
         return new DefaultComboBoxModel(loadOnSelect(exchanger, sql, null));
