@@ -109,8 +109,19 @@ public class CompanyFrame extends FilteredListFrame {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 if (!dontFilter) {
-                    if (filtersCB.getSelectedIndex() == 0) {
-                        companiesPanel.setSelect(CompaniesGrid.SELECT);
+                    ComboItem itm = (ComboItem) filtersCB.getSelectedItem();
+                    if (itm.getId() < 0) {
+                        if (itm.getId() == AIBclient.DUPLICATED) {
+                            companiesPanel.setSelect(CompaniesGrid.SELECT.replaceAll(
+                                    "from company order by lastedit_date desc,company.full_name ", 
+                                    "from company where full_name in "
+                                            + "(select full_name from company group by full_name "
+                                            + "having count(*)>1) "
+                                            + "order by company.full_name "));
+                            //System.out.println("!!"+companiesPanel.getSelect());
+                        } else {
+                            companiesPanel.setSelect(CompaniesGrid.SELECT);
+                        }
                     } else {
                         ComboItem ci = (ComboItem) filtersCB.getSelectedItem();
                         try {

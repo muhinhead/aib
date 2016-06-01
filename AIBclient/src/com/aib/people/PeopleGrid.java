@@ -28,12 +28,14 @@ public class PeopleGrid extends GeneralGridPanel {
             + "job_discip \"Job Title\","
             + "title \"Title\",first_name \"First Name\", "
             + "last_name \"Last Name\",main_email \"E-mail\","
+            + "(select group_concat(full_name separator '; ') "
+            + "from company c,peoplecompany p where c.company_id=p.company_id and p.people_id=people.people_id "
+            + "group by p.people_id) \"COMPANY\","
             //            + "suffix \"Suffix\", greeting \"Greeting\", "
             + "desk_phone \"Desk Phone\", mobile_phone \"Mobile Phone\", "
             + "lastedit_date \"Last Edited\", "
             + "(select initials from user where user_id=people.lastedited_by) \"Editor\" "
-            + "from people "
-            + "order by people.lastedit_date desc,people.first_name "
+            + "from people order by people.lastedit_date desc,people.first_name "
             + GeneralGridPanel.SELECTLIMIT;
     private static HashMap<Integer, Integer> maxWidths = new HashMap<Integer, Integer>();
     public static Integer parentComapnyID = null;

@@ -20,7 +20,8 @@ import javax.swing.JPanel;
  * @author Nick Mukhin
  */
 public class PeopleFrame extends FilteredListFrame {
-    static final String LIKE = " LIKE "; 
+
+    static final String LIKE = " LIKE ";
 
     private static String[] sheetList = new String[]{
         "List", "Filter"
@@ -123,8 +124,22 @@ public class PeopleFrame extends FilteredListFrame {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 if (!dontFilter) {
-                    if (filtersCB.getSelectedIndex() == 0) {
-                        peoplePanel.setSelect(PeopleGrid.SELECT);
+                    ComboItem itm = (ComboItem) filtersCB.getSelectedItem();
+                    if (itm.getId() < 0) {//filtersCB.getSelectedIndex() == 0) {
+                        if (itm.getId() == AIBclient.MULTI_COMPANY_PERSON) {
+                            peoplePanel.setSelect(PeopleGrid.SELECT.replace("from people ",
+                                    "from people where people_id in (select people_id from peoplecompany group by people_id having count(*)>1)"));
+                        } else if(itm.getId() == AIBclient.DUPLICATED) {
+                            peoplePanel.setSelect(PeopleGrid.SELECT.replace(
+                                    "from people order by people.lastedit_date desc,people.first_name",
+                                    "from people where (first_name,last_name) in "
+                                            + "(select first_name,last_name "
+                                            + "from people group by first_name,last_name "
+                                            + "having count(*)>1) order by people.first_name,people.last_name"));
+                            //System.out.println("!!"+peoplePanel.getSelect());
+                        } else {
+                            peoplePanel.setSelect(PeopleGrid.SELECT);
+                        }
                     } else {
                         ComboItem ci = (ComboItem) filtersCB.getSelectedItem();
                         try {
@@ -150,7 +165,7 @@ public class PeopleFrame extends FilteredListFrame {
             c = newSelect.indexOf("'", p);
             if (c >= 0) {
                 c = newSelect.indexOf("'", c + 1);
-                if (c >= 0 && newSelect.charAt(c-1) != '%') {
+                if (c >= 0 && newSelect.charAt(c - 1) != '%') {
                     String rest = newSelect.substring(c);
                     newSelect = newSelect.substring(0, c) + '%' + rest;
                 }

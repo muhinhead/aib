@@ -28,8 +28,7 @@ public class LocationsGrid extends GeneralGridPanel {
             + "(select country from country where country_id=location.country_id) \"Country\","
             + "location.main_phone \"Main phone\", location.main_fax \"Main fax\", "
             + "location.lastedit_date \"Last Edited\" "
-            + "from location "
-            + "order by location.lastedit_date desc,location.name "+GeneralGridPanel.SELECTLIMIT;
+            + "from location order by location.lastedit_date desc,location.name "+GeneralGridPanel.SELECTLIMIT;
     private static HashMap<Integer, Integer> maxWidths = new HashMap<Integer, Integer>();
 
     static {

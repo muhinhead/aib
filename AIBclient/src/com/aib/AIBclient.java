@@ -1335,13 +1335,21 @@ public class AIBclient {
 //        };
 //    }
 
+    public static final int DUPLICATED = -2;
+    public static final int MULTI_COMPANY_PERSON = -3;
+    
     public static ComboItem[] loadAllFilters(String tableName) {
         ComboItem[] fltrs = loadOnSelect(getExchanger(),
                 "select filter_id,name from filter where tablename='" + tableName + "'");
         ComboItem[] fltrs1 = new ComboItem[fltrs.length + 1];
-        fltrs1[0] = new ComboItem(-1, "" + getDefaultPageLimit() + " last edited rows");
-        for (int i = 1; i <= fltrs.length; i++) {
-            fltrs1[i] = fltrs[i - 1];
+        int delta = 0;
+        fltrs1[delta++] = new ComboItem(-1, "" + getDefaultPageLimit() + " last edited rows");
+        fltrs1[delta++] = new ComboItem(DUPLICATED, "Duplicated records");
+        if(tableName.equals("people")) {
+            fltrs1[delta++] = new ComboItem(MULTI_COMPANY_PERSON, "Servants of few masters");
+        }
+        for (int i = delta; i <= fltrs.length; i++) {
+            fltrs1[i] = fltrs[i - delta];
         }
         return fltrs1;
     }

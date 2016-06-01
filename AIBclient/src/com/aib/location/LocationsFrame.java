@@ -94,8 +94,16 @@ public class LocationsFrame extends FilteredListFrame {
             @Override
             public void actionPerformed(ActionEvent ae) {
                 if (!dontFilter) {
-                    if (filtersCB.getSelectedIndex() == 0) {
-                        locationPanel.setSelect(LocationsGrid.SELECT);
+                    ComboItem itm = (ComboItem) filtersCB.getSelectedItem();
+                    if (itm.getId() < 0) {//filtersCB.getSelectedIndex() == 0) {
+                        if (itm.getId() == AIBclient.DUPLICATED) {
+                            locationPanel.setSelect(LocationsGrid.SELECT.replace(
+                                    "from location order by location.lastedit_date desc,location.name", 
+                                    "from location where name in (select name from location group by name having count(*)>1) "
+                                            + "order by location.lastedit_date desc,location.name"));
+                        } else {
+                            locationPanel.setSelect(LocationsGrid.SELECT);
+                        }
                     } else {
                         ComboItem ci = (ComboItem) filtersCB.getSelectedItem();
                         try {
