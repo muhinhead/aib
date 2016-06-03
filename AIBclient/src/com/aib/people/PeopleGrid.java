@@ -23,7 +23,7 @@ import javax.swing.JOptionPane;
  */
 public class PeopleGrid extends GeneralGridPanel {
 
-    private static final String COMPANY_ID = "company_id=";
+    private static final String COMPANY_ID = " company_id=";
     public static final String SELECT = "select people_id \"ID\","
             + "job_discip \"Job Title\","
             + "title \"Title\",first_name \"First Name\", "
@@ -59,7 +59,7 @@ public class PeopleGrid extends GeneralGridPanel {
         if (p > 0) {
             //System.out.println(select);
             int pp = select.indexOf(")order");
-            if (pp > -1) {
+            if (pp > -1) { 
                 parentComapnyID = Integer.parseInt(select.substring(p + COMPANY_ID.length(), pp));
                 //System.out.println("parentComapnyID=" + parentComapnyID);
             }
