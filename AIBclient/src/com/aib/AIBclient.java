@@ -60,7 +60,7 @@ import javax.swing.SpinnerNumberModel;
  */
 public class AIBclient {
 
-    private static final String version = "0.17.J";
+    private static final String version = "0.17.L";
 //    private static Userprofile currentUser;
     private static Logger logger = null;
     private static FileHandler fh;
@@ -682,6 +682,9 @@ public class AIBclient {
         if (countryId != null) {
             try {
                 Country country = (Country) getExchanger().loadDbObjectOnID(Country.class, countryId);
+                if (country == null) {
+                    return new Integer(0);
+                }
                 return country.getWorldregionId();
             } catch (RemoteException ex) {
                 log(ex);
@@ -1337,7 +1340,7 @@ public class AIBclient {
 
     public static final int DUPLICATED = -2;
     public static final int MULTI_COMPANY_PERSON = -3;
-    
+
     public static ComboItem[] loadAllFilters(String tableName) {
         ComboItem[] fltrs = loadOnSelect(getExchanger(),
                 "select filter_id,name from filter where tablename='" + tableName + "'");
@@ -1345,7 +1348,7 @@ public class AIBclient {
         int delta = 0;
         fltrs1[delta++] = new ComboItem(-1, "" + getDefaultPageLimit() + " last edited rows");
         fltrs1[delta++] = new ComboItem(DUPLICATED, "Duplicated records");
-        if(tableName.equals("people")) {
+        if (tableName.equals("people")) {
             fltrs1[delta++] = new ComboItem(MULTI_COMPANY_PERSON, "Servants of few masters");
         }
         for (int i = delta; i <= fltrs.length; i++) {
@@ -1368,19 +1371,23 @@ public class AIBclient {
     }
 
     private static String extractIds(String compList) {
-        StringBuilder sb = new StringBuilder();
+        StringBuilder sb = new StringBuilder("0");
         int p = compList.indexOf("(");
         while (p >= 0) {
             int pp = compList.indexOf(")");
-            if(sb.length()>0)
-                sb.append(",");
-            sb.append(compList.substring(p+1, pp));
+            sb.append(",");
+            sb.append(compList.substring(p + 1, pp));
             compList = compList.substring(pp + 1);
             p = compList.indexOf("(");
         }
         return sb.toString();
     }
 
+    public static DefaultComboBoxModel loadAllLocations() {
+        String sql = "select location_id, substr(l.name,1,64) from location l order by l.name";
+        return new DefaultComboBoxModel(loadOnSelect(exchanger, sql, null));
+    }
+    
     public static DefaultComboBoxModel loadLocationsForCompanies(String compList, ComboItem startItem) {
         String compIdList = extractIds(compList);
         String sql = "select location_id, concat(l.name,' (',ifnull((Select abbreviation from company where company_id=l.company_id),''),')') "

@@ -498,9 +498,9 @@ public class EditPeoplePanel extends EditPanelWithPhoto {
             String compList;
             companiesListTF.setText(compList = AIBclient.getCompaniesOnPeopleID(person.getPeopleId()));
 
-            locationCB.setModel(locationCbModel
-                    = AIBclient.loadLocationsForCompanies(compList,
-                            AIBclient.getLocationForCombo(person.getLocationId())));
+            locationCB.setModel(locationCbModel = AIBclient.loadAllLocations());
+                    //= AIBclient.loadLocationsForCompanies(compList,
+                    //        AIBclient.getLocationForCombo(person.getLocationId())));
             selectComboItem(locationCB, person.getLocationId());
             getSpecAddressTF().setText(person.getSpecAddress());
             getMailingAddressTA().setText(person.getMailaddress());
