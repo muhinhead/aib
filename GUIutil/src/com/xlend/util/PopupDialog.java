@@ -37,21 +37,21 @@ public abstract class PopupDialog extends JDialog {
     public static JPopupMenu getCopyPasteMenu(final JTextComponent comp) {
         JPopupMenu copyPasteMenu = new JPopupMenu();
         AbstractAction cutAct;
-        copyPasteMenu.add(cutAct = new AbstractAction("Cut", new ImageIcon(Util.loadImage("cut.png"))) {
+        copyPasteMenu.add(cutAct = new AbstractAction("Cut"/*, new ImageIcon(Util.loadImage("cut.png"))*/) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 comp.cut();
             }
         });
         AbstractAction copyAct;
-        copyPasteMenu.add(copyAct = new AbstractAction("Copy", new ImageIcon(Util.loadImage("cpy.png"))) {
+        copyPasteMenu.add(copyAct = new AbstractAction("Copy"/*, new ImageIcon(Util.loadImage("cpy.png"))*/) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 comp.copy();
             }
         });
         AbstractAction pasteAct;
-        copyPasteMenu.add(pasteAct = new AbstractAction("Paste", new ImageIcon(Util.loadImage("pst.png"))) {
+        copyPasteMenu.add(pasteAct = new AbstractAction("Paste"/*, new ImageIcon(Util.loadImage("pst.png"))*/) {
             @Override
             public void actionPerformed(ActionEvent e) {
                 comp.paste();
