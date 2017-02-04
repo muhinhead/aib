@@ -37,7 +37,7 @@ import javax.swing.UIManager;
  */
 public class AIBserver {
 
-    private static final String version = "0.17.F";
+    private static final String version = "0.18";
     public static final String PROPERTYFILENAME = "AIBserver.config";
     private static final String ICONNAME = "aib.png";
     private static Logger logger = null;
@@ -46,7 +46,6 @@ public class AIBserver {
     private static TrayIcon ti;
     private static Properties props;
     private static boolean isTraySupported = SystemTray.isSupported();
-//    private static final String XLEND_SERVER = "Xlend Server";
     private static Timer syncTimer;
     private static Thread syncThread;
     private static boolean isCycle = true;

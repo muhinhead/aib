@@ -74,8 +74,8 @@ public class DbConnection {
             }
         }
     }
-    private static final int DB_VERSION_ID = 53;
-    public static final String DB_VERSION = "0.53";
+    private static final int DB_VERSION_ID = 54;
+    public static final String DB_VERSION = "0.54";
     private static boolean isFirstTime = true;
     private static Properties props = new Properties();
     private static String[] createLocalDBsqls = loadDDLscript("crebas.sql", ";");
@@ -119,7 +119,9 @@ public class DbConnection {
         "alter table people CHARACTER SET utf8, COLLATE utf8_general_ci",
         "alter table company CHARACTER SET utf8, COLLATE utf8_general_ci",
         "alter table location CHARACTER SET utf8, COLLATE utf8_general_ci",        
-        "alter table country CHARACTER SET utf8, COLLATE utf8_general_ci"        
+        "alter table country CHARACTER SET utf8, COLLATE utf8_general_ci",
+        //53->54
+        "alter table people add is_individual_member bit default 0"        
     };
 
     public static String getLogin() {
