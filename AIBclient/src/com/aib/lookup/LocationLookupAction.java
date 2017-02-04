@@ -35,7 +35,7 @@ public class LocationLookupAction extends AbstractAction {
 
         protected void fillAdditionalButtons(JPanel buttonPanel) {
             JButton btn;
-            buttonPanel.add(btn = new JButton(new AbstractAction("Copy location address", new ImageIcon(AIBclient.loadImage("copy.png", LookupDialog.class))) {
+            buttonPanel.add(btn = new JButton(new AbstractAction("Copy location address"/*, new ImageIcon(AIBclient.loadImage("copy.png", LookupDialog.class))*/) {
 
                 @Override
                 public void actionPerformed(ActionEvent e) {

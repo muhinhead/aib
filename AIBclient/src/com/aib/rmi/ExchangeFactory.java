@@ -18,8 +18,8 @@ import java.util.Properties;
  */
 public class ExchangeFactory {
 
-    private static final int DB_VERSION_ID = 53;
-    public static final String DB_VERSION = "0.53";
+    private static final int DB_VERSION_ID = 54;
+    public static final String DB_VERSION = "0.54";
     private static String[] fixLocalDBsqls = new String[]{
         "update dbversion set version_id = " + DB_VERSION_ID + ",version = '" + DB_VERSION + "'",
         //51->52
@@ -30,7 +30,9 @@ public class ExchangeFactory {
         "alter table company add fulltext(full_name,abbreviation,address,post_code,mailaddress,mailing_post_code,main_phone,main_fax)",
         //52->53
         "alter table people add country_id int",
-        "alter table people add constraint people_country_fk foreign key(country_id) references country (country_id)"
+        "alter table people add constraint people_country_fk foreign key(country_id) references country (country_id)",
+        //53->54
+        "alter table people add is_individual_member bit default 0"
     };
 
     public static IMessageSender getExchanger(String connectString, Properties props) {

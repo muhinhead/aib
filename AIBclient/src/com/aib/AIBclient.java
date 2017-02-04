@@ -60,7 +60,7 @@ import javax.swing.SpinnerNumberModel;
  */
 public class AIBclient {
 
-    private static final String version = "0.17.L";
+    private static final String version = "0.18.A";
 //    private static Userprofile currentUser;
     private static Logger logger = null;
     private static FileHandler fh;
@@ -102,7 +102,7 @@ public class AIBclient {
                 if (exc == null) {
                     exc = ExchangeFactory.getExchanger(readProperty("JDBCconnection", "jdbc:mysql://"
                             + defaultServerIP
-                            + "/aibclient"),
+                            + "/aibcontact"),
                             getProperties());
                 }
                 if (exc == null) {
@@ -471,8 +471,10 @@ public class AIBclient {
         List answerArray = null;//(List) listsCached.get(select);
         if (answerArray == null) {
             answerArray = new ArrayList();
+            //System.out.println("!!!SELECT: "+select);            
             String slct = pos == 0 ? select.replaceAll("select distinct ", "select distinct 0,")
                     : select.replaceAll("select ", "select 0,");
+            //System.out.println("!!!NEW   : "+slct);
             ComboItem[] itms = loadOnSelect(exchanger, slct);
             if (begin != null) {
                 answerArray.add(begin);
@@ -1179,7 +1181,7 @@ public class AIBclient {
 
     public static List loadDistinctJobDisciplines() {
         List ans = loadStringsOnSelect(getExchanger(),
-                "select distinct substr(job_discip,1,32) from people order by job_discip", "");
+                "select distinct substr(job_discip,1,32) from people order by substr(job_discip,1,32)", "");
 //        ans.add("");
         return ans;
     }

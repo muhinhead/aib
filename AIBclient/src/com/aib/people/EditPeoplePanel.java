@@ -122,6 +122,7 @@ public class EditPeoplePanel extends EditPanelWithPhoto {
     private DefaultComboBoxModel countryCbModel;
     private JComboBox regionWorldCb;
     private JComboBox countryCB;
+    private JCheckBox isIndividualCB;
 
     private class RegionsLookupAction extends WorldRegionLookupAction {
 
@@ -144,25 +145,8 @@ public class EditPeoplePanel extends EditPanelWithPhoto {
     @Override
     protected void fillContent() {
         instance = this;
-        String titles[] = new String[]{
-            "ID:",//"Source:",
-            "First Name:", //"Family Name:", 
-            "Title:",//"Suffix:", //"Greeting:",
-            "Region of World:", //,"Country:"
-            "Main email:", // "Alternate email:"
-            "Companies:",//"Location:"
-            "Links:",// "Job discipline:",
-            "Department:", //"Industry:",
-            "Specific address:",
-            "Mailing address:", //"Mailing post code"
-            "Desk phone:", // "Desk fax:", "Mobile phone:"
-            "PA:", // "PA phone:", //"PA email:"
-            "Other contact info:",// "AIB actions/date:",
-            "", "",
-            "Purchases:", // "Purchase interest:",
-            "Sales contact:",//"Action date:", "External user name:", "External user password:"
-            "Last verified" //"Last editor:" //"Last edited:
-        };
+	String[] titles = new String[]{"ID:", "First Name:", "Title:", "Region of World:", "Main email:", "Companies:", "Links:", "Department:", "Specific address:", "Mailing address:", "Desk phone:", "PA:", "Other contact info:", "", "", "Purchases:", "Sales contact:", "Last verified"};
+
         ComboItem emptyItem = new ComboItem(0, "");
         locationCbModel = new DefaultComboBoxModel();//AIBclient.loadAllLocations(emptyItem));
         salesContactCbModel = new DefaultComboBoxModel(AIBclient.loadAllUsersInitials());
@@ -287,7 +271,7 @@ public class EditPeoplePanel extends EditPanelWithPhoto {
                 aibCoordinatorCB = new JCheckBox("AIBs Co-ordinator"),
                 aibJudgeCB = new JCheckBox("AIBs Judge"),
                 aibEntrantCB = new JCheckBox("AIBs Entrant"),
-                new JPanel()
+                isIndividualCB = new JCheckBox("Individual member")
             }),
             getGridPanel(new JComponent[]{
                 new JButton(showPurchasesAction("Purchases / Dates...")),
@@ -521,6 +505,7 @@ public class EditPeoplePanel extends EditPanelWithPhoto {
             aibCoordinatorCB.setSelected(person.getIsAibCoordinator() != null && person.getIsAibCoordinator() == 1);
             aibJudgeCB.setSelected(person.getIsAibJudge() != null && person.getIsAibJudge() == 1);
             aibEntrantCB.setSelected(person.getIsAibEntrant() != null && person.getIsAibEntrant() == 1);
+            isIndividualCB.setSelected(person.getIsIndividualMember() != null && person.getIsIndividualMember() == 1);
             nextActionTA.setText(person.getNextAction());
             extUserNameTF.setText(person.getExternalUser());
             extPassworTF.setText(person.getExternalPasswd());
@@ -585,10 +570,11 @@ public class EditPeoplePanel extends EditPanelWithPhoto {
         person.setIsAibCoordinator(aibCoordinatorCB.isSelected() ? 1 : 0);
         person.setIsAibJudge(aibJudgeCB.isSelected() ? 1 : 0);
         person.setIsAibEntrant(aibEntrantCB.isSelected() ? 1 : 0);
-
+        person.setIsIndividualMember(Integer.valueOf(this.isIndividualCB.isSelected() ? 1 : 0));
         person.setLasteditedBy(AIBclient.getCurrentUser().getUserId());
         dt = Calendar.getInstance().getTime();
         person.setLasteditDate(new java.sql.Timestamp(dt.getTime()));
+        
         dt = (Date) lastVerifiedDateSP.getValue();
         person.setVerifyDate(new java.sql.Date(dt.getTime()));
         dt = (Date) actionDateSP.getValue();
