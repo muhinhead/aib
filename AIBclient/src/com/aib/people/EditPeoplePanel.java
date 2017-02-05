@@ -612,18 +612,21 @@ public class EditPeoplePanel extends EditPanelWithPhoto {
                 AIBclient.savePeopleCompany(person.getPeopleId(), tok.nextToken().trim());
             }
             AIBclient.removeRedundantPeopleCompany(person.getPeopleId(), companiesListTF.getText());
-            if (PeopleGrid.parentComapnyID != null) {
-                DbObject[] obs = AIBclient.getExchanger().getDbObjects(Peoplecompany.class, 
-                        "company_id="+PeopleGrid.parentComapnyID+" and people_id=" + person.getPK_ID(), null);
-                if (obs.length == 0) {
-                    Peoplecompany pk = new Peoplecompany(null);
-                    pk.setPK_ID(0);
-                    pk.setPeopleId(person.getPK_ID());
-                    pk.setCompanyId(PeopleGrid.parentComapnyID);
-                    pk.setNew(true);
-                    AIBclient.getExchanger().saveDbObject(pk);
-                }
-            }
+//            if (PeopleGrid.parentComapnyID != null) {
+//                System.out.println("!!!!!!!!PeopleGrid.parentComapnyID != null, i.e.="+PeopleGrid.parentComapnyID);
+//                DbObject[] obs = AIBclient.getExchanger().getDbObjects(Peoplecompany.class, 
+//                        "company_id="+PeopleGrid.parentComapnyID+" and people_id=" + person.getPK_ID(), null);
+//                if (obs.length == 0) {
+//                    Peoplecompany pk = new Peoplecompany(null);
+//                    pk.setPK_ID(0);
+//                    pk.setPeopleId(person.getPK_ID());
+//                    pk.setCompanyId(PeopleGrid.parentComapnyID);
+//                    pk.setNew(true);
+//                    AIBclient.getExchanger().saveDbObject(pk);
+//                }
+//            } else {
+//                System.out.println("!!!!!!!PeopleGrid.parentComapnyID IS NULL");
+//            }
         }
         return ok;
     }

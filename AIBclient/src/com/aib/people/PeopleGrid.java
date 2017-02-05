@@ -61,7 +61,7 @@ public class PeopleGrid extends GeneralGridPanel {
             int pp = select.indexOf(")order");
             if (pp > -1) { 
                 parentComapnyID = Integer.parseInt(select.substring(p + COMPANY_ID.length(), pp));
-                //System.out.println("parentComapnyID=" + parentComapnyID);
+                System.out.println("!!!!!!!!!!!!!!!!!parentComapnyID=" + parentComapnyID);
             }
         } else {
             parentComapnyID = null;
