@@ -50,7 +50,7 @@ public class AboutDialog extends PopupDialog {
         version.setForeground(fg);
         main.add(version);
 
-        JLabel devBy = new JLabel("Nick Mukhin (mukhin.nick@gmail.com) (c) 2014");
+        JLabel devBy = new JLabel("Nick Mukhin (mukhin.nick@gmail.com) (c) 2017");
         devBy.setFont(devBy.getFont().deriveFont(Font.ITALIC,10));
         devBy.setBounds(41, 105, devBy.getPreferredSize().width, devBy.getPreferredSize().height);
         devBy.setForeground(fg);
