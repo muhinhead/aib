@@ -42,6 +42,7 @@ public class People extends DbObject  {
     private Integer isAibCoordinator = null;
     private Integer isAibJudge = null;
     private Integer isAibEntrant = null;
+    private Integer isIndividualMember = null;
     private Date verifyDate = null;
     private Integer salesContactId = null;
     private Date actionDate = null;
@@ -56,10 +57,10 @@ public class People extends DbObject  {
 
     public People(Connection connection) {
         super(connection, "people", "people_id");
-        setColumnNames(new String[]{"people_id", "source", "title", "first_name", "last_name", "suffix", "greeting", "location_id", "photo", "level", "job_discip", "department", "spec_address", "mailaddress", "mailpostcode", "desk_phone", "desk_fax", "mobile_phone", "main_email", "alter_email", "pa", "pa_phone", "pa_email", "other_contacts", "is_primary", "is_subscriber", "is_marketintl", "is_mediabrief", "is_insourcebook", "is_aib_coordinator", "is_aib_judge", "is_aib_entrant", "verify_date", "sales_contact_id", "action_date", "next_action", "external_user", "external_passwd", "lastedited_by", "lastedit_date", "is_invoice_cntct", "is_digital_chnl", "country_id"});
+        setColumnNames(new String[]{"people_id", "source", "title", "first_name", "last_name", "suffix", "greeting", "location_id", "photo", "level", "job_discip", "department", "spec_address", "mailaddress", "mailpostcode", "desk_phone", "desk_fax", "mobile_phone", "main_email", "alter_email", "pa", "pa_phone", "pa_email", "other_contacts", "is_primary", "is_subscriber", "is_marketintl", "is_mediabrief", "is_insourcebook", "is_aib_coordinator", "is_aib_judge", "is_aib_entrant", "is_individual_member", "verify_date", "sales_contact_id", "action_date", "next_action", "external_user", "external_passwd", "lastedited_by", "lastedit_date", "is_invoice_cntct", "is_digital_chnl", "country_id"});
     }
 
-    public People(Connection connection, Integer peopleId, String source, String title, String firstName, String lastName, String suffix, String greeting, Integer locationId, Object photo, String level, String jobDiscip, String department, String specAddress, String mailaddress, String mailpostcode, String deskPhone, String deskFax, String mobilePhone, String mainEmail, String alterEmail, String pa, String paPhone, String paEmail, String otherContacts, Integer isPrimary, Integer isSubscriber, Integer isMarketintl, Integer isMediabrief, Integer isInsourcebook, Integer isAibCoordinator, Integer isAibJudge, Integer isAibEntrant, Date verifyDate, Integer salesContactId, Date actionDate, String nextAction, String externalUser, String externalPasswd, Integer lasteditedBy, Timestamp lasteditDate, Integer isInvoiceCntct, Integer isDigitalChnl, Integer countryId) {
+    public People(Connection connection, Integer peopleId, String source, String title, String firstName, String lastName, String suffix, String greeting, Integer locationId, Object photo, String level, String jobDiscip, String department, String specAddress, String mailaddress, String mailpostcode, String deskPhone, String deskFax, String mobilePhone, String mainEmail, String alterEmail, String pa, String paPhone, String paEmail, String otherContacts, Integer isPrimary, Integer isSubscriber, Integer isMarketintl, Integer isMediabrief, Integer isInsourcebook, Integer isAibCoordinator, Integer isAibJudge, Integer isAibEntrant, Integer isIndividualMember, Date verifyDate, Integer salesContactId, Date actionDate, String nextAction, String externalUser, String externalPasswd, Integer lasteditedBy, Timestamp lasteditDate, Integer isInvoiceCntct, Integer isDigitalChnl, Integer countryId) {
         super(connection, "people", "people_id");
         setNew(peopleId.intValue() <= 0);
 //        if (peopleId.intValue() != 0) {
@@ -96,6 +97,7 @@ public class People extends DbObject  {
         this.isAibCoordinator = isAibCoordinator;
         this.isAibJudge = isAibJudge;
         this.isAibEntrant = isAibEntrant;
+        this.isIndividualMember = isIndividualMember;
         this.verifyDate = verifyDate;
         this.salesContactId = salesContactId;
         this.actionDate = actionDate;
@@ -113,7 +115,7 @@ public class People extends DbObject  {
         People people = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
-        String stmt = "SELECT people_id,source,title,first_name,last_name,suffix,greeting,location_id,photo,level,job_discip,department,spec_address,mailaddress,mailpostcode,desk_phone,desk_fax,mobile_phone,main_email,alter_email,pa,pa_phone,pa_email,other_contacts,is_primary,is_subscriber,is_marketintl,is_mediabrief,is_insourcebook,is_aib_coordinator,is_aib_judge,is_aib_entrant,verify_date,sales_contact_id,action_date,next_action,external_user,external_passwd,lastedited_by,lastedit_date,is_invoice_cntct,is_digital_chnl,country_id FROM people WHERE people_id=" + id;
+        String stmt = "SELECT people_id,source,title,first_name,last_name,suffix,greeting,location_id,photo,level,job_discip,department,spec_address,mailaddress,mailpostcode,desk_phone,desk_fax,mobile_phone,main_email,alter_email,pa,pa_phone,pa_email,other_contacts,is_primary,is_subscriber,is_marketintl,is_mediabrief,is_insourcebook,is_aib_coordinator,is_aib_judge,is_aib_entrant,is_individual_member,verify_date,sales_contact_id,action_date,next_action,external_user,external_passwd,lastedited_by,lastedit_date,is_invoice_cntct,is_digital_chnl,country_id FROM people WHERE people_id=" + id;
         try {
             ps = getConnection().prepareStatement(stmt);
             rs = ps.executeQuery();
@@ -151,17 +153,18 @@ public class People extends DbObject  {
                 people.setIsAibCoordinator(new Integer(rs.getInt(30)));
                 people.setIsAibJudge(new Integer(rs.getInt(31)));
                 people.setIsAibEntrant(new Integer(rs.getInt(32)));
-                people.setVerifyDate(rs.getDate(33));
-                people.setSalesContactId(new Integer(rs.getInt(34)));
-                people.setActionDate(rs.getDate(35));
-                people.setNextAction(rs.getString(36));
-                people.setExternalUser(rs.getString(37));
-                people.setExternalPasswd(rs.getString(38));
-                people.setLasteditedBy(new Integer(rs.getInt(39)));
-                people.setLasteditDate(rs.getTimestamp(40));
-                people.setIsInvoiceCntct(new Integer(rs.getInt(41)));
-                people.setIsDigitalChnl(new Integer(rs.getInt(42)));
-                people.setCountryId(new Integer(rs.getInt(43)));
+                people.setIsIndividualMember(new Integer(rs.getInt(33)));
+                people.setVerifyDate(rs.getDate(34));
+                people.setSalesContactId(new Integer(rs.getInt(35)));
+                people.setActionDate(rs.getDate(36));
+                people.setNextAction(rs.getString(37));
+                people.setExternalUser(rs.getString(38));
+                people.setExternalPasswd(rs.getString(39));
+                people.setLasteditedBy(new Integer(rs.getInt(40)));
+                people.setLasteditDate(rs.getTimestamp(41));
+                people.setIsInvoiceCntct(new Integer(rs.getInt(42)));
+                people.setIsDigitalChnl(new Integer(rs.getInt(43)));
+                people.setCountryId(new Integer(rs.getInt(44)));
                 people.setNew(false);
             }
         } finally {
@@ -179,8 +182,7 @@ public class People extends DbObject  {
              getTriggers().beforeInsert(this);
          }
          PreparedStatement ps = null;
-         String stmt =
-                "INSERT INTO people ("+(getPeopleId().intValue()!=0?"people_id,":"")+"source,title,first_name,last_name,suffix,greeting,location_id,photo,level,job_discip,department,spec_address,mailaddress,mailpostcode,desk_phone,desk_fax,mobile_phone,main_email,alter_email,pa,pa_phone,pa_email,other_contacts,is_primary,is_subscriber,is_marketintl,is_mediabrief,is_insourcebook,is_aib_coordinator,is_aib_judge,is_aib_entrant,verify_date,sales_contact_id,action_date,next_action,external_user,external_passwd,lastedited_by,lastedit_date,is_invoice_cntct,is_digital_chnl,country_id) values("+(getPeopleId().intValue()!=0?"?,":"")+"?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
+         String stmt = "INSERT INTO people (" + (this.getPeopleId() != 0 ? "people_id," : "") + "source,title,first_name,last_name,suffix,greeting,location_id,photo,level,job_discip,department,spec_address,mailaddress,mailpostcode,desk_phone,desk_fax,mobile_phone,main_email,alter_email,pa,pa_phone,pa_email,other_contacts,is_primary,is_subscriber,is_marketintl,is_mediabrief,is_insourcebook,is_aib_coordinator,is_aib_judge,is_aib_entrant,is_individual_member,verify_date,sales_contact_id,action_date,next_action,external_user,external_passwd,lastedited_by,lastedit_date,is_invoice_cntct,is_digital_chnl,country_id) values(" + (this.getPeopleId() != 0 ? "?," : "") + "?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)";
          try {
              ps = getConnection().prepareStatement(stmt);
              int n = 0;
@@ -218,6 +220,7 @@ public class People extends DbObject  {
              ps.setObject(++n, getIsAibCoordinator());
              ps.setObject(++n, getIsAibJudge());
              ps.setObject(++n, getIsAibEntrant());
+             ps.setObject(++n, getIsIndividualMember());
              ps.setObject(++n, getVerifyDate());
              ps.setObject(++n, getSalesContactId());
              ps.setObject(++n, getActionDate());
@@ -258,68 +261,69 @@ public class People extends DbObject  {
     }
 
     public void save() throws SQLException, ForeignKeyViolationException {
-        if (isNew()) {
-            insert();
+        if (this.isNew()) {
+            this.insert();
         } else {
-            if (getTriggers() != null) {
-                getTriggers().beforeUpdate(this);
+            if (People.getTriggers() != null) {
+                People.getTriggers().beforeUpdate((DbObject)this);
             }
             PreparedStatement ps = null;
-            String stmt =
-                    "UPDATE people " +
-                    "SET source = ?, title = ?, first_name = ?, last_name = ?, suffix = ?, greeting = ?, location_id = ?, photo = ?, level = ?, job_discip = ?, department = ?, spec_address = ?, mailaddress = ?, mailpostcode = ?, desk_phone = ?, desk_fax = ?, mobile_phone = ?, main_email = ?, alter_email = ?, pa = ?, pa_phone = ?, pa_email = ?, other_contacts = ?, is_primary = ?, is_subscriber = ?, is_marketintl = ?, is_mediabrief = ?, is_insourcebook = ?, is_aib_coordinator = ?, is_aib_judge = ?, is_aib_entrant = ?, verify_date = ?, sales_contact_id = ?, action_date = ?, next_action = ?, external_user = ?, external_passwd = ?, lastedited_by = ?, lastedit_date = ?, is_invoice_cntct = ?, is_digital_chnl = ?, country_id = ?" + 
-                    " WHERE people_id = " + getPeopleId();
+            String stmt = "UPDATE people SET source = ?, title = ?, first_name = ?, last_name = ?, suffix = ?, greeting = ?, location_id = ?, photo = ?, level = ?, job_discip = ?, department = ?, spec_address = ?, mailaddress = ?, mailpostcode = ?, desk_phone = ?, desk_fax = ?, mobile_phone = ?, main_email = ?, alter_email = ?, pa = ?, pa_phone = ?, pa_email = ?, other_contacts = ?, is_primary = ?, is_subscriber = ?, is_marketintl = ?, is_mediabrief = ?, is_insourcebook = ?, is_aib_coordinator = ?, is_aib_judge = ?, is_aib_entrant = ?, is_individual_member = ?, verify_date = ?, sales_contact_id = ?, action_date = ?, next_action = ?, external_user = ?, external_passwd = ?, lastedited_by = ?, lastedit_date = ?, is_invoice_cntct = ?, is_digital_chnl = ?, country_id = ? WHERE people_id = " + this.getPeopleId();
             try {
-                ps = getConnection().prepareStatement(stmt);
-                ps.setObject(1, getSource());
-                ps.setObject(2, getTitle());
-                ps.setObject(3, getFirstName());
-                ps.setObject(4, getLastName());
-                ps.setObject(5, getSuffix());
-                ps.setObject(6, getGreeting());
-                ps.setObject(7, getLocationId());
-                ps.setObject(8, getPhoto());
-                ps.setObject(9, getLevel());
-                ps.setObject(10, getJobDiscip());
-                ps.setObject(11, getDepartment());
-                ps.setObject(12, getSpecAddress());
-                ps.setObject(13, getMailaddress());
-                ps.setObject(14, getMailpostcode());
-                ps.setObject(15, getDeskPhone());
-                ps.setObject(16, getDeskFax());
-                ps.setObject(17, getMobilePhone());
-                ps.setObject(18, getMainEmail());
-                ps.setObject(19, getAlterEmail());
-                ps.setObject(20, getPa());
-                ps.setObject(21, getPaPhone());
-                ps.setObject(22, getPaEmail());
-                ps.setObject(23, getOtherContacts());
-                ps.setObject(24, getIsPrimary());
-                ps.setObject(25, getIsSubscriber());
-                ps.setObject(26, getIsMarketintl());
-                ps.setObject(27, getIsMediabrief());
-                ps.setObject(28, getIsInsourcebook());
-                ps.setObject(29, getIsAibCoordinator());
-                ps.setObject(30, getIsAibJudge());
-                ps.setObject(31, getIsAibEntrant());
-                ps.setObject(32, getVerifyDate());
-                ps.setObject(33, getSalesContactId());
-                ps.setObject(34, getActionDate());
-                ps.setObject(35, getNextAction());
-                ps.setObject(36, getExternalUser());
-                ps.setObject(37, getExternalPasswd());
-                ps.setObject(38, getLasteditedBy());
-                ps.setObject(39, getLasteditDate());
-                ps.setObject(40, getIsInvoiceCntct());
-                ps.setObject(41, getIsDigitalChnl());
-                ps.setObject(42, getCountryId());
+                ps = this.getConnection().prepareStatement(stmt);
+                ps.setObject(1, this.getSource());
+                ps.setObject(2, this.getTitle());
+                ps.setObject(3, this.getFirstName());
+                ps.setObject(4, this.getLastName());
+                ps.setObject(5, this.getSuffix());
+                ps.setObject(6, this.getGreeting());
+                ps.setObject(7, this.getLocationId());
+                ps.setObject(8, this.getPhoto());
+                ps.setObject(9, this.getLevel());
+                ps.setObject(10, this.getJobDiscip());
+                ps.setObject(11, this.getDepartment());
+                ps.setObject(12, this.getSpecAddress());
+                ps.setObject(13, this.getMailaddress());
+                ps.setObject(14, this.getMailpostcode());
+                ps.setObject(15, this.getDeskPhone());
+                ps.setObject(16, this.getDeskFax());
+                ps.setObject(17, this.getMobilePhone());
+                ps.setObject(18, this.getMainEmail());
+                ps.setObject(19, this.getAlterEmail());
+                ps.setObject(20, this.getPa());
+                ps.setObject(21, this.getPaPhone());
+                ps.setObject(22, this.getPaEmail());
+                ps.setObject(23, this.getOtherContacts());
+                ps.setObject(24, this.getIsPrimary());
+                ps.setObject(25, this.getIsSubscriber());
+                ps.setObject(26, this.getIsMarketintl());
+                ps.setObject(27, this.getIsMediabrief());
+                ps.setObject(28, this.getIsInsourcebook());
+                ps.setObject(29, this.getIsAibCoordinator());
+                ps.setObject(30, this.getIsAibJudge());
+                ps.setObject(31, this.getIsAibEntrant());
+                ps.setObject(32, this.getIsIndividualMember());
+                ps.setObject(33, this.getVerifyDate());
+                ps.setObject(34, this.getSalesContactId());
+                ps.setObject(35, this.getActionDate());
+                ps.setObject(36, this.getNextAction());
+                ps.setObject(37, this.getExternalUser());
+                ps.setObject(38, this.getExternalPasswd());
+                ps.setObject(39, this.getLasteditedBy());
+                ps.setObject(40, this.getLasteditDate());
+                ps.setObject(41, this.getIsInvoiceCntct());
+                ps.setObject(42, this.getIsDigitalChnl());
+                ps.setObject(43, this.getCountryId());
                 ps.execute();
-            } finally {
-                if (ps != null) ps.close();
             }
-            setWasChanged(false);
-            if (getTriggers() != null) {
-                getTriggers().afterUpdate(this);
+            finally {
+                if (ps != null) {
+                    ps.close();
+                }
+            }
+            this.setWasChanged(false);
+            if (People.getTriggers() != null) {
+                People.getTriggers().afterUpdate((DbObject)this);
             }
         }
     }
@@ -404,33 +408,36 @@ public class People extends DbObject  {
         return (getPeopleId().intValue() < 0);
     }
 
-    public static DbObject[] load(Connection con,String whereCondition,String orderCondition) throws SQLException {
-        ArrayList lst = new ArrayList();
+    public static DbObject[] load(Connection con, String whereCondition, String orderCondition) throws SQLException {
+        ArrayList<People> lst;
+        lst = new ArrayList<People>();
         PreparedStatement ps = null;
         ResultSet rs = null;
-        String stmt = "SELECT people_id,source,title,first_name,last_name,suffix,greeting,location_id,photo,level,job_discip,department,spec_address,mailaddress,mailpostcode,desk_phone,desk_fax,mobile_phone,main_email,alter_email,pa,pa_phone,pa_email,other_contacts,is_primary,is_subscriber,is_marketintl,is_mediabrief,is_insourcebook,is_aib_coordinator,is_aib_judge,is_aib_entrant,verify_date,sales_contact_id,action_date,next_action,external_user,external_passwd,lastedited_by,lastedit_date,is_invoice_cntct,is_digital_chnl,country_id FROM people " +
-                ((whereCondition != null && whereCondition.length() > 0) ?
-                " WHERE " + whereCondition : "") +
-                ((orderCondition != null && orderCondition.length() > 0) ?
-                " ORDER BY " + orderCondition : "");
+        String stmt = "SELECT people_id,source,title,first_name,last_name,suffix,greeting,location_id,photo,level,job_discip,department,spec_address,mailaddress,mailpostcode,desk_phone,desk_fax,mobile_phone,main_email,alter_email,pa,pa_phone,pa_email,other_contacts,is_primary,is_subscriber,is_marketintl,is_mediabrief,is_insourcebook,is_aib_coordinator,is_aib_judge,is_aib_entrant,is_individual_member,verify_date,sales_contact_id,action_date,next_action,external_user,external_passwd,lastedited_by,lastedit_date,is_invoice_cntct,is_digital_chnl,country_id FROM people " + (whereCondition != null && whereCondition.length() > 0 ? new StringBuilder().append(" WHERE ").append(whereCondition).toString() : "") + (orderCondition != null && orderCondition.length() > 0 ? new StringBuilder().append(" ORDER BY ").append(orderCondition).toString() : "");
         try {
             ps = con.prepareStatement(stmt);
             rs = ps.executeQuery();
             while (rs.next()) {
-                DbObject dbObj;
-                lst.add(dbObj=new People(con,new Integer(rs.getInt(1)),rs.getString(2),rs.getString(3),rs.getString(4),rs.getString(5),rs.getString(6),rs.getString(7),new Integer(rs.getInt(8)),rs.getObject(9),rs.getString(10),rs.getString(11),rs.getString(12),rs.getString(13),rs.getString(14),rs.getString(15),rs.getString(16),rs.getString(17),rs.getString(18),rs.getString(19),rs.getString(20),rs.getString(21),rs.getString(22),rs.getString(23),rs.getString(24),new Integer(rs.getInt(25)),new Integer(rs.getInt(26)),new Integer(rs.getInt(27)),new Integer(rs.getInt(28)),new Integer(rs.getInt(29)),new Integer(rs.getInt(30)),new Integer(rs.getInt(31)),new Integer(rs.getInt(32)),rs.getDate(33),new Integer(rs.getInt(34)),rs.getDate(35),rs.getString(36),rs.getString(37),rs.getString(38),new Integer(rs.getInt(39)),rs.getTimestamp(40),new Integer(rs.getInt(41)),new Integer(rs.getInt(42)),new Integer(rs.getInt(43))));
+                People dbObj = new People(con, new Integer(rs.getInt(1)), rs.getString(2), rs.getString(3), rs.getString(4), rs.getString(5), rs.getString(6), rs.getString(7), new Integer(rs.getInt(8)), rs.getObject(9), rs.getString(10), rs.getString(11), rs.getString(12), rs.getString(13), rs.getString(14), rs.getString(15), rs.getString(16), rs.getString(17), rs.getString(18), rs.getString(19), rs.getString(20), rs.getString(21), rs.getString(22), rs.getString(23), rs.getString(24), new Integer(rs.getInt(25)), new Integer(rs.getInt(26)), new Integer(rs.getInt(27)), new Integer(rs.getInt(28)), new Integer(rs.getInt(29)), new Integer(rs.getInt(30)), new Integer(rs.getInt(31)), new Integer(rs.getInt(32)), new Integer(rs.getInt(33)), rs.getDate(34), new Integer(rs.getInt(35)), rs.getDate(36), rs.getString(37), rs.getString(38), rs.getString(39), new Integer(rs.getInt(40)), rs.getTimestamp(41), new Integer(rs.getInt(42)), new Integer(rs.getInt(43)), new Integer(rs.getInt(44)));
+                lst.add(dbObj);
                 dbObj.setNew(false);
             }
-        } finally {
+        }
+        finally {
             try {
-                if (rs != null) rs.close();
-            } finally {
-                if (ps != null) ps.close();
+                if (rs != null) {
+                    rs.close();
+                }
+            }
+            finally {
+                if (ps != null) {
+                    ps.close();
+                }
             }
         }
-        People[] objects = new People[lst.size()];
-        for (int i = 0; i < lst.size(); i++) {
-            People people = (People) lst.get(i);
+        DbObject[] objects = new People[lst.size()];
+        for (int i = 0; i < lst.size(); ++i) {
+            People people = (People)((Object)lst.get(i));
             objects[i] = people;
         }
         return objects;
@@ -784,6 +791,18 @@ public class People extends DbObject  {
         this.isAibEntrant = isAibEntrant;
     }
 
+    public Integer getIsIndividualMember() {
+        return this.isIndividualMember;
+    }
+
+    public void setIsIndividualMember(Integer isIndividualMember) throws SQLException, ForeignKeyViolationException {
+        if (null != isIndividualMember) {
+            isIndividualMember = isIndividualMember == 0 ? null : isIndividualMember;
+        }
+        this.setWasChanged(this.isIndividualMember != null && !this.isIndividualMember.equals(isIndividualMember));
+        this.isIndividualMember = isIndividualMember;
+    }
+
     public Date getVerifyDate() {
         return verifyDate;
     }
@@ -902,50 +921,7 @@ public class People extends DbObject  {
         this.countryId = countryId;
     }
     public Object[] getAsRow() {
-        Object[] columnValues = new Object[43];
-        columnValues[0] = getPeopleId();
-        columnValues[1] = getSource();
-        columnValues[2] = getTitle();
-        columnValues[3] = getFirstName();
-        columnValues[4] = getLastName();
-        columnValues[5] = getSuffix();
-        columnValues[6] = getGreeting();
-        columnValues[7] = getLocationId();
-        columnValues[8] = getPhoto();
-        columnValues[9] = getLevel();
-        columnValues[10] = getJobDiscip();
-        columnValues[11] = getDepartment();
-        columnValues[12] = getSpecAddress();
-        columnValues[13] = getMailaddress();
-        columnValues[14] = getMailpostcode();
-        columnValues[15] = getDeskPhone();
-        columnValues[16] = getDeskFax();
-        columnValues[17] = getMobilePhone();
-        columnValues[18] = getMainEmail();
-        columnValues[19] = getAlterEmail();
-        columnValues[20] = getPa();
-        columnValues[21] = getPaPhone();
-        columnValues[22] = getPaEmail();
-        columnValues[23] = getOtherContacts();
-        columnValues[24] = getIsPrimary();
-        columnValues[25] = getIsSubscriber();
-        columnValues[26] = getIsMarketintl();
-        columnValues[27] = getIsMediabrief();
-        columnValues[28] = getIsInsourcebook();
-        columnValues[29] = getIsAibCoordinator();
-        columnValues[30] = getIsAibJudge();
-        columnValues[31] = getIsAibEntrant();
-        columnValues[32] = getVerifyDate();
-        columnValues[33] = getSalesContactId();
-        columnValues[34] = getActionDate();
-        columnValues[35] = getNextAction();
-        columnValues[36] = getExternalUser();
-        columnValues[37] = getExternalPasswd();
-        columnValues[38] = getLasteditedBy();
-        columnValues[39] = getLasteditDate();
-        columnValues[40] = getIsInvoiceCntct();
-        columnValues[41] = getIsDigitalChnl();
-        columnValues[42] = getCountryId();
+        Object[] columnValues = new Object[]{this.getPeopleId(), this.getSource(), this.getTitle(), this.getFirstName(), this.getLastName(), this.getSuffix(), this.getGreeting(), this.getLocationId(), this.getPhoto(), this.getLevel(), this.getJobDiscip(), this.getDepartment(), this.getSpecAddress(), this.getMailaddress(), this.getMailpostcode(), this.getDeskPhone(), this.getDeskFax(), this.getMobilePhone(), this.getMainEmail(), this.getAlterEmail(), this.getPa(), this.getPaPhone(), this.getPaEmail(), this.getOtherContacts(), this.getIsPrimary(), this.getIsSubscriber(), this.getIsMarketintl(), this.getIsMediabrief(), this.getIsInsourcebook(), this.getIsAibCoordinator(), this.getIsAibJudge(), this.getIsAibEntrant(), this.getIsIndividualMember(), this.getVerifyDate(), this.getSalesContactId(), this.getActionDate(), this.getNextAction(), this.getExternalUser(), this.getExternalPasswd(), this.getLasteditedBy(), this.getLasteditDate(), this.getIsInvoiceCntct(), this.getIsDigitalChnl(), this.getCountryId()};
         return columnValues;
     }
 
@@ -960,109 +936,130 @@ public class People extends DbObject  {
     //for SOAP exhange
     @Override
     public void fillFromString(String row) throws ForeignKeyViolationException, SQLException {
-        String[] flds = splitStr(row, delimiter);
+        String[] flds = People.splitStr((String)row, (String)delimiter);
         try {
-            setPeopleId(Integer.parseInt(flds[0]));
-        } catch(NumberFormatException ne) {
-            setPeopleId(null);
+            this.setPeopleId(Integer.parseInt(flds[0]));
         }
-        setSource(flds[1]);
-        setTitle(flds[2]);
-        setFirstName(flds[3]);
-        setLastName(flds[4]);
-        setSuffix(flds[5]);
-        setGreeting(flds[6]);
-        try {
-            setLocationId(Integer.parseInt(flds[7]));
-        } catch(NumberFormatException ne) {
-            setLocationId(null);
+        catch (NumberFormatException ne) {
+            this.setPeopleId(null);
         }
-        setPhoto(flds[8]);
-        setLevel(flds[9]);
-        setJobDiscip(flds[10]);
-        setDepartment(flds[11]);
-        setSpecAddress(flds[12]);
-        setMailaddress(flds[13]);
-        setMailpostcode(flds[14]);
-        setDeskPhone(flds[15]);
-        setDeskFax(flds[16]);
-        setMobilePhone(flds[17]);
-        setMainEmail(flds[18]);
-        setAlterEmail(flds[19]);
-        setPa(flds[20]);
-        setPaPhone(flds[21]);
-        setPaEmail(flds[22]);
-        setOtherContacts(flds[23]);
+        this.setSource(flds[1]);
+        this.setTitle(flds[2]);
+        this.setFirstName(flds[3]);
+        this.setLastName(flds[4]);
+        this.setSuffix(flds[5]);
+        this.setGreeting(flds[6]);
         try {
-            setIsPrimary(Integer.parseInt(flds[24]));
-        } catch(NumberFormatException ne) {
-            setIsPrimary(null);
+            this.setLocationId(Integer.parseInt(flds[7]));
         }
+        catch (NumberFormatException ne) {
+            this.setLocationId(null);
+        }
+        this.setPhoto(flds[8]);
+        this.setLevel(flds[9]);
+        this.setJobDiscip(flds[10]);
+        this.setDepartment(flds[11]);
+        this.setSpecAddress(flds[12]);
+        this.setMailaddress(flds[13]);
+        this.setMailpostcode(flds[14]);
+        this.setDeskPhone(flds[15]);
+        this.setDeskFax(flds[16]);
+        this.setMobilePhone(flds[17]);
+        this.setMainEmail(flds[18]);
+        this.setAlterEmail(flds[19]);
+        this.setPa(flds[20]);
+        this.setPaPhone(flds[21]);
+        this.setPaEmail(flds[22]);
+        this.setOtherContacts(flds[23]);
         try {
-            setIsSubscriber(Integer.parseInt(flds[25]));
-        } catch(NumberFormatException ne) {
-            setIsSubscriber(null);
+            this.setIsPrimary(Integer.parseInt(flds[24]));
+        }
+        catch (NumberFormatException ne) {
+            this.setIsPrimary(null);
         }
         try {
-            setIsMarketintl(Integer.parseInt(flds[26]));
-        } catch(NumberFormatException ne) {
-            setIsMarketintl(null);
+            this.setIsSubscriber(Integer.parseInt(flds[25]));
+        }
+        catch (NumberFormatException ne) {
+            this.setIsSubscriber(null);
         }
         try {
-            setIsMediabrief(Integer.parseInt(flds[27]));
-        } catch(NumberFormatException ne) {
-            setIsMediabrief(null);
+            this.setIsMarketintl(Integer.parseInt(flds[26]));
+        }
+        catch (NumberFormatException ne) {
+            this.setIsMarketintl(null);
         }
         try {
-            setIsInsourcebook(Integer.parseInt(flds[28]));
-        } catch(NumberFormatException ne) {
-            setIsInsourcebook(null);
+            this.setIsMediabrief(Integer.parseInt(flds[27]));
+        }
+        catch (NumberFormatException ne) {
+            this.setIsMediabrief(null);
         }
         try {
-            setIsAibCoordinator(Integer.parseInt(flds[29]));
-        } catch(NumberFormatException ne) {
-            setIsAibCoordinator(null);
+            this.setIsInsourcebook(Integer.parseInt(flds[28]));
+        }
+        catch (NumberFormatException ne) {
+            this.setIsInsourcebook(null);
         }
         try {
-            setIsAibJudge(Integer.parseInt(flds[30]));
-        } catch(NumberFormatException ne) {
-            setIsAibJudge(null);
+            this.setIsAibCoordinator(Integer.parseInt(flds[29]));
+        }
+        catch (NumberFormatException ne) {
+            this.setIsAibCoordinator(null);
         }
         try {
-            setIsAibEntrant(Integer.parseInt(flds[31]));
-        } catch(NumberFormatException ne) {
-            setIsAibEntrant(null);
+            this.setIsAibJudge(Integer.parseInt(flds[30]));
         }
-        setVerifyDate(toDate(flds[32]));
-        try {
-            setSalesContactId(Integer.parseInt(flds[33]));
-        } catch(NumberFormatException ne) {
-            setSalesContactId(null);
-        }
-        setActionDate(toDate(flds[34]));
-        setNextAction(flds[35]);
-        setExternalUser(flds[36]);
-        setExternalPasswd(flds[37]);
-        try {
-            setLasteditedBy(Integer.parseInt(flds[38]));
-        } catch(NumberFormatException ne) {
-            setLasteditedBy(null);
-        }
-        setLasteditDate(toTimeStamp(flds[39]));
-        try {
-            setIsInvoiceCntct(Integer.parseInt(flds[40]));
-        } catch(NumberFormatException ne) {
-            setIsInvoiceCntct(null);
+        catch (NumberFormatException ne) {
+            this.setIsAibJudge(null);
         }
         try {
-            setIsDigitalChnl(Integer.parseInt(flds[41]));
-        } catch(NumberFormatException ne) {
-            setIsDigitalChnl(null);
+            this.setIsAibEntrant(Integer.parseInt(flds[31]));
+        }
+        catch (NumberFormatException ne) {
+            this.setIsAibEntrant(null);
         }
         try {
-            setCountryId(Integer.parseInt(flds[42]));
-        } catch(NumberFormatException ne) {
-            setCountryId(null);
+            this.setIsIndividualMember(Integer.parseInt(flds[32]));
+        }
+        catch (NumberFormatException ne) {
+            this.setIsIndividualMember(null);
+        }
+        this.setVerifyDate(People.toDate((String)flds[33]));
+        try {
+            this.setSalesContactId(Integer.parseInt(flds[34]));
+        }
+        catch (NumberFormatException ne) {
+            this.setSalesContactId(null);
+        }
+        this.setActionDate(People.toDate((String)flds[35]));
+        this.setNextAction(flds[36]);
+        this.setExternalUser(flds[37]);
+        this.setExternalPasswd(flds[38]);
+        try {
+            this.setLasteditedBy(Integer.parseInt(flds[39]));
+        }
+        catch (NumberFormatException ne) {
+            this.setLasteditedBy(null);
+        }
+        this.setLasteditDate(People.toTimeStamp((String)flds[40]));
+        try {
+            this.setIsInvoiceCntct(Integer.parseInt(flds[41]));
+        }
+        catch (NumberFormatException ne) {
+            this.setIsInvoiceCntct(null);
+        }
+        try {
+            this.setIsDigitalChnl(Integer.parseInt(flds[42]));
+        }
+        catch (NumberFormatException ne) {
+            this.setIsDigitalChnl(null);
+        }
+        try {
+            this.setCountryId(Integer.parseInt(flds[43]));
+        }
+        catch (NumberFormatException ne) {
+            this.setCountryId(null);
         }
     }
 }
